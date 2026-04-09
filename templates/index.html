@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Timeline of Our Love - Mummy's Birthday Scrapbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 50%, #ffd4dd 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Floating floral decorations */
+        body::before {
+            content: '🌹 🌸 🌺 🌷 🌹 🌸 🌺 🌷';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            font-size: 2rem;
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: #c41e3a;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #d63652;
+            font-style: italic;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        .flowers-header {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .timeline-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(196, 30, 58, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 3px solid #ffe4e9;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #c41e3a, #d63652, #ff69b4);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-15px);
+            box-shadow: 0 20px 40px rgba(196, 30, 58, 0.25);
+            border-color: #c41e3a;
+        }
+
+        .timeline-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-emoji {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            display: block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .timeline-card:nth-child(1) .card-emoji {
+            animation-delay: 0s;
+        }
+
+        .timeline-card:nth-child(2) .card-emoji {
+            animation-delay: 0.2s;
+        }
+
+        .timeline-card:nth-child(3) .card-emoji {
+            animation-delay: 0.4s;
+        }
+
+        .timeline-card:nth-child(4) .card-emoji {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            color: #c41e3a;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .card-age {
+            font-size: 0.95rem;
+            color: #888;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .card-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #c41e3a, #d63652);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .card-button:hover {
+            background: linear-gradient(135deg, #a01630, #c41e3a);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(196, 30, 58, 0.4);
+        }
+
+        .card-button:active {
+            transform: scale(0.98);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px dashed #d63652;
+            color: #c41e3a;
+            font-style: italic;
+            animation: fadeInUp 1s ease-in 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .decorative-bottom {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-top: 20px;
+            letter-spacing: 20px;
+            opacity: 0.7;
+        }
+
+        /* Presentation Modal */
+        .presentation-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .presentation-modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            height: 85vh;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #c41e3a;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: transform 0.2s;
+            z-index: 1001;
+        }
+
+        .close-button:hover {
+            transform: scale(1.2);
+        }
+
+        .presentation-slide {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .presentation-slide.active {
+            display: flex;
+        }
+
+        .presentation-title {
+            text-align: center;
+            color: #c41e3a;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .canvas-embed {
+            flex: 1;
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .embed-note {
+            margin-top: 12px;
+            color: #8c1b36;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .card-button-small {
+            margin: 10px auto 0;
+            display: inline-block;
+            background: #a01630;
+            color: white;
+            padding: 10px 22px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border: none;
+            transition: transform 0.2s ease;
+        }
+
+        .card-button-small:hover {
+            transform: scale(1.03);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .timeline {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .card-button {
+                padding: 10px 25px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Confetti-like background pattern */
+        .confetti {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="flowers-header">🌹 💕 🌹</div>
+            <h1>A Timeline of Our Love</h1>
+            <p class="subtitle">A Digital Scrapbook for Mummy's Birthday</p>
+        </header>
+
+        <div class="timeline">
+            <!-- Baby Photos -->
+            <div class="timeline-card">
+                <span class="card-emoji">👶</span>
+                <h2 class="card-title">Baby Years</h2>
+                <p class="card-age">Our First Memories Together</p>
+                <button class="card-button" onclick="openPresentation(0)">View Slideshow</button>
+            </div>
+
+            <!-- Toddler Photos -->
+            <div class="timeline-card">
+                <span class="card-emoji">🧒</span>
+                <h2 class="card-title">Toddler Years</h2>
+                <p class="card-age">Growing Up Together</p>
+                <button class="card-button" onclick="openPresentation(1)">View Slideshow</button>
+            </div>
+
+            <!-- School Years -->
+            <div class="timeline-card">
+                <span class="card-emoji">📚</span>
+                <h2 class="card-title">School Years</h2>
+                <p class="card-age">Adventures & Milestones</p>
+                <button class="card-button" onclick="openPresentation(2)">View Slideshow</button>
+            </div>
+
+            <!-- Teen Years -->
+            <div class="timeline-card">
+                <span class="card-emoji">🌟</span>
+                <h2 class="card-title">Teen Years</h2>
+                <p class="card-age">Growing Into Myself</p>
+                <button class="card-button" onclick="openPresentation(3)">View Slideshow</button>
+            </div>
+        </div>
+
+        <!-- Presentations Modal -->
+        <div id="presentationModal" class="presentation-modal" onclick="closePresentation(event)">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="close-button" onclick="closePresentation()">&times;</button>
+
+                <!-- Baby Presentation -->
+                <div id="presentation-0" class="presentation-slide active">
+                    <h2 class="presentation-title">👶 Baby Years - Our First Memories</h2>
+                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_BABY_DESIGN_ID/view?embed"
+                        allowfullscreen></iframe>
+                </div>
+
+                <!-- Toddler Presentation -->
+                <div id="presentation-1" class="presentation-slide">
+                    <h2 class="presentation-title">🧒 Toddler Years - Growing Up Together</h2>
+                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_TODDLER_DESIGN_ID/view?embed"
+                        allowfullscreen></iframe>
+                </div>
+
+                <!-- School Years Presentation -->
+                <div id="presentation-2" class="presentation-slide">
+                    <h2 class="presentation-title">📚 School Years - Adventures & Milestones</h2>
+                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_SCHOOL_DESIGN_ID/view?embed"
+                        allowfullscreen></iframe>
+                </div>
+
+                <!-- Teen Years Presentation -->
+                <div id="presentation-3" class="presentation-slide">
+                    <h2 class="presentation-title">🌟 Teen Years - Growing Into Myself</h2>
+                    <iframe class="canvas-embed" src="https://www.canva.com/design/DAHGTmoWvgM/view?embed"
+                        allowfullscreen></iframe>
+                    <p class="embed-note">If the slideshow does not appear, open it directly in Canva.</p>
+                    <a class="card-button card-button-small"
+                        href="https://www.canva.com/design/DAHGTmoWvgM/49bgkPxoMJljO7BoFjrcbg/view" target="_blank"
+                        rel="noreferrer">Open in Canva</a>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>💖 Happy Birthday, Mummy! 💖</p>
+            <p>Thank you for every moment we've shared together.</p>
+            <div class="decorative-bottom">🌸 🌹 🌺</div>
+        </footer>
+    </div>
+
+    <script>
+        function openPresentation(index) {
+            const modal = document.getElementById('presentationModal');
+            const presentations = document.querySelectorAll('.presentation-slide');
+
+            // Hide all presentations
+            presentations.forEach(presentation => {
+                presentation.classList.remove('active');
+            });
+
+            // Show selected presentation
+            const selectedPresentation = document.getElementById('presentation-' + index);
+            if (selectedPresentation) {
+                selectedPresentation.classList.add('active');
+            }
+
+            // Show modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closePresentation(event) {
+            // Only close if clicking on the background, not the content
+            if (event && event.target.id !== 'presentationModal') {
+                return;
+            }
+
+            const modal = document.getElementById('presentationModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }
+
+        // Close modal when pressing Escape key
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closePresentation();
+            }
+        });
+    </script>
+</body>
+
+</html>
