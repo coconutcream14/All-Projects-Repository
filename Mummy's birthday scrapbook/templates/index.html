@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Georgia', serif;
-            background: linear-gradient(135deg, #fff5f7 0%, #ffe4e9 50%, #ffd4dd 100%);
+            background: linear-gradient(135deg, #fff7f6 0%, #f7d2d1 35%, #ebb1b0 65%, #d33d42 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,23 +24,40 @@
             overflow-x: hidden;
         }
 
-        /* Floating floral decorations */
         body::before {
-            content: '🌹 🌸 🌺 🌷 🌹 🌸 🌺 🌷';
+            content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            font-size: 2rem;
-            opacity: 0.15;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.7) 0, rgba(255, 255, 255, 0) 18%),
+                radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.65) 0, rgba(255, 255, 255, 0) 16%),
+                radial-gradient(circle at 50% 85%, rgba(255, 255, 255, 0.55) 0, rgba(255, 255, 255, 0) 14%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '✨ ✨ ✨';
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.4rem;
+            opacity: 0.18;
+            letter-spacing: 24px;
             pointer-events: none;
             z-index: 0;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1120px;
             width: 100%;
             z-index: 1;
+            background: rgba(255, 244, 244, 0.96);
+            border-radius: 36px;
+            padding: 40px 35px 50px;
+            box-shadow: 0 40px 90px rgba(211, 61, 66, 0.18);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(211, 61, 66, 0.12);
         }
 
         header {
@@ -51,16 +68,16 @@
 
         h1 {
             font-size: 3.5rem;
-            color: #c41e3a;
+            color: #a90e1a;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            text-shadow: 2px 2px 5px rgba(169, 14, 26, 0.18);
             font-weight: bold;
             letter-spacing: 2px;
         }
 
         .subtitle {
             font-size: 1.3rem;
-            color: #d63652;
+            color: #b9262f;
             font-style: italic;
             margin-bottom: 30px;
             font-weight: 300;
@@ -70,6 +87,8 @@
             font-size: 2.5rem;
             margin-bottom: 20px;
             animation: float 3s ease-in-out infinite;
+            letter-spacing: 4px;
+            color: #b31b26;
         }
 
         @keyframes float {
@@ -98,14 +117,14 @@
 
         .timeline {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(4, minmax(220px, 1fr));
+            gap: 28px;
             margin-bottom: 40px;
         }
 
         .timeline-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 30px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(196, 30, 58, 0.15);
@@ -114,6 +133,11 @@
             border: 3px solid #ffe4e9;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 380px;
         }
 
         .timeline-card::before {
@@ -122,8 +146,8 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #c41e3a, #d63652, #ff69b4);
+            height: 6px;
+            background: linear-gradient(90deg, #b21a24, #cf2c34, #e14c50);
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.3s ease;
@@ -140,8 +164,8 @@
         }
 
         .card-emoji {
-            font-size: 4rem;
-            margin-bottom: 15px;
+            font-size: 3.8rem;
+            margin-bottom: 18px;
             display: block;
             animation: pulse 2s ease-in-out infinite;
         }
@@ -186,26 +210,32 @@
             color: #888;
             margin-bottom: 20px;
             font-style: italic;
+            line-height: 1.6;
+            max-width: 230px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .card-button {
             display: inline-block;
-            background: linear-gradient(135deg, #c41e3a, #d63652);
+            background: linear-gradient(135deg, #a90e1a, #c61c2a);
             color: white;
             padding: 12px 30px;
-            border-radius: 25px;
+            border-radius: 28px;
             text-decoration: none;
             font-weight: bold;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 1rem;
+            margin-top: auto;
+            letter-spacing: 0.4px;
         }
 
         .card-button:hover {
-            background: linear-gradient(135deg, #a01630, #c41e3a);
+            background: linear-gradient(135deg, #8d0c16, #bb1b29);
             transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(196, 30, 58, 0.4);
+            box-shadow: 0 8px 20px rgba(169, 14, 26, 0.35);
         }
 
         .card-button:active {
@@ -242,7 +272,26 @@
             opacity: 0.7;
         }
 
-        /* Presentation Modal */
+        .container::before {
+            content: '✨';
+            position: absolute;
+            top: -24px;
+            right: 30px;
+            font-size: 2.4rem;
+            opacity: 0.18;
+            pointer-events: none;
+        }
+
+        .container::after {
+            content: '✨';
+            position: absolute;
+            bottom: -24px;
+            left: 30px;
+            font-size: 2rem;
+            opacity: 0.16;
+            pointer-events: none;
+        }
+
         .presentation-modal {
             display: none;
             position: fixed;
@@ -258,18 +307,22 @@
         .presentation-modal.active {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
+            padding: 30px 0;
+            overflow-y: auto;
         }
 
         .modal-content {
             background-color: white;
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 20px;
             width: 90%;
             max-width: 1000px;
-            height: 85vh;
+            max-height: calc(100vh - 60px);
             position: relative;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .close-button {
@@ -293,7 +346,7 @@
         .presentation-slide {
             display: none;
             flex-direction: column;
-            height: 100%;
+            height: auto;
         }
 
         .presentation-slide.active {
@@ -309,10 +362,15 @@
         }
 
         .canvas-embed {
-            flex: 1;
             width: 100%;
+            max-width: 100%;
+            max-height: calc(100vh - 260px);
+            height: auto;
             border: none;
-            border-radius: 10px;
+            border-radius: 14px;
+            object-fit: contain;
+            display: block;
+            background: #000;
         }
 
         .embed-note {
@@ -384,39 +442,40 @@
         <header>
             <div class="flowers-header">🌹 💕 🌹</div>
             <h1>A Timeline of Our Love</h1>
-            <p class="subtitle">A Digital Scrapbook for Mummy's Birthday</p>
+            <p class="subtitle">A Digital Scrapbook for Mummy's Birthday • April 10, 2022 – April 4, 2026</p>
         </header>
 
         <div class="timeline">
-            <!-- Baby Photos -->
+            <!-- Early Days -->
             <div class="timeline-card">
-                <span class="card-emoji">👶</span>
-                <h2 class="card-title">Baby Years</h2>
-                <p class="card-age">Our First Memories Together</p>
+                <span class="card-emoji">📸</span>
+                <h2 class="card-title">Early Days</h2>
+                <p class="card-age">The beginning of our photo journey, capturing the first special moments together.
+                </p>
                 <button class="card-button" onclick="openPresentation(0)">View Slideshow</button>
             </div>
 
-            <!-- Toddler Photos -->
+            <!-- Everyday Adventures -->
             <div class="timeline-card">
-                <span class="card-emoji">🧒</span>
-                <h2 class="card-title">Toddler Years</h2>
-                <p class="card-age">Growing Up Together</p>
+                <span class="card-emoji">🎈</span>
+                <h2 class="card-title">Everyday Adventures</h2>
+                <p class="card-age">Daily joys, family moments, and the beautiful growth of our early adventures.</p>
                 <button class="card-button" onclick="openPresentation(1)">View Slideshow</button>
             </div>
 
-            <!-- School Years -->
+            <!-- Growing Together -->
             <div class="timeline-card">
-                <span class="card-emoji">📚</span>
-                <h2 class="card-title">School Years</h2>
-                <p class="card-age">Adventures & Milestones</p>
+                <span class="card-emoji">💞</span>
+                <h2 class="card-title">Adventure Years</h2>
+                <p class="card-age">School days, celebrations, and all the exciting milestones along the way.</p>
                 <button class="card-button" onclick="openPresentation(2)">View Slideshow</button>
             </div>
 
-            <!-- Teen Years -->
+            <!-- Our Journey Continues -->
             <div class="timeline-card">
-                <span class="card-emoji">🌟</span>
-                <h2 class="card-title">Teen Years</h2>
-                <p class="card-age">Growing Into Myself</p>
+                <span class="card-emoji">✨</span>
+                <h2 class="card-title">Our Journey Continues</h2>
+                <p class="card-age">The most recent memories, full of growth, love, and our continuing story.</p>
                 <button class="card-button" onclick="openPresentation(3)">View Slideshow</button>
             </div>
         </div>
@@ -426,36 +485,44 @@
             <div class="modal-content" onclick="event.stopPropagation()">
                 <button class="close-button" onclick="closePresentation()">&times;</button>
 
-                <!-- Baby Presentation -->
+                <!-- Early Days Presentation -->
                 <div id="presentation-0" class="presentation-slide active">
-                    <h2 class="presentation-title">👶 Baby Years - Our First Memories</h2>
-                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_BABY_DESIGN_ID/view?embed"
-                        allowfullscreen></iframe>
+                    <h2 class="presentation-title">📸 Early Days</h2>
+                    <video class="canvas-embed" controls>
+                        <source src="{{ url_for('static', filename='early_days_video.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="embed-note">A special video memory from our early days together.</p>
                 </div>
 
-                <!-- Toddler Presentation -->
+                <!-- Everyday Adventures Presentation -->
                 <div id="presentation-1" class="presentation-slide">
-                    <h2 class="presentation-title">🧒 Toddler Years - Growing Up Together</h2>
-                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_TODDLER_DESIGN_ID/view?embed"
-                        allowfullscreen></iframe>
+                    <h2 class="presentation-title">🎈 Everyday Adventures</h2>
+                    <video class="canvas-embed" controls>
+                        <source src="{{ url_for('static', filename='everyday_adventures.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="embed-note">A video capture of everyday family adventures.</p>
                 </div>
 
-                <!-- School Years Presentation -->
+                <!-- Adventure Years Presentation -->
                 <div id="presentation-2" class="presentation-slide">
-                    <h2 class="presentation-title">📚 School Years - Adventures & Milestones</h2>
-                    <iframe class="canvas-embed" src="https://www.canva.com/design/YOUR_SCHOOL_DESIGN_ID/view?embed"
-                        allowfullscreen></iframe>
+                    <h2 class="presentation-title">💞 Adventure Years</h2>
+                    <video class="canvas-embed" controls>
+                        <source src="{{ url_for('static', filename='adventure_years.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="embed-note">A video collection of special milestones and celebrations.</p>
                 </div>
 
-                <!-- Teen Years Presentation -->
+                <!-- Our Journey Continues Presentation -->
                 <div id="presentation-3" class="presentation-slide">
-                    <h2 class="presentation-title">🌟 Teen Years - Growing Into Myself</h2>
-                    <iframe class="canvas-embed" src="https://www.canva.com/design/DAHGTmoWvgM/view?embed"
-                        allowfullscreen></iframe>
-                    <p class="embed-note">If the slideshow does not appear, open it directly in Canva.</p>
-                    <a class="card-button card-button-small"
-                        href="https://www.canva.com/design/DAHGTmoWvgM/49bgkPxoMJljO7BoFjrcbg/view" target="_blank"
-                        rel="noreferrer">Open in Canva</a>
+                    <h2 class="presentation-title">✨ Our Journey Continues</h2>
+                    <video class="canvas-embed" controls>
+                        <source src="{{ url_for('static', filename='our_journey_continues.mp4') }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="embed-note">The latest video memories from our ongoing journey.</p>
                 </div>
             </div>
         </div>
@@ -485,7 +552,6 @@
 
             // Show modal
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
         }
 
         function closePresentation(event) {

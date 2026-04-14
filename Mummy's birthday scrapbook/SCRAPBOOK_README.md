@@ -32,22 +32,26 @@ python mom_scrapbook_app.py
 
 The app will start at `http://localhost:5000`
 
-## How to Add Your Canva Presentations
+## How to Add Your Video Presentations
 
-**All presentations are embedded directly in the website - no linking to external sites!**
+**All four presentations are now MP4 videos embedded directly in the website.**
 
-1. **Create 4 slideshows on Canva:**
-   - Go to [Canva.com](https://www.canva.com)
-   - Create 4 presentations for each timeline period
-   - Make them beautiful with your photos!
+### Add your video files
 
-2. **Get the embed link for each presentation:**
-   - In Canva, click the **Share** button
-   - Click **Embed**
-   - Copy the **embed link** (it will look like: `https://www.canva.com/design/DXXXXXXXXXX/view?embed`)
+1. Place your video files in the `static/` folder.
+2. Name them exactly as follows:
+   - `early_days_video.mp4`
+   - `everyday_adventures.mp4`
+   - `adventure_years.mp4`
+   - `our_journey_continues.mp4`
+3. Supported formats: MP4, WebM, OGV.
 
-3. **Add the links to your website:**
-   - Open `templates/index.html`
+### Notes
+
+- The first modal now shows a video instead of a Canva embed.
+- The other three presentation cards also now play MP4 videos.
+- If you want to switch back to Canva embeds later, open `templates/index.html` and replace the `<video>` sections with Canva `<iframe>` embeds.
+
    - Find these placeholders:
      - `YOUR_BABY_DESIGN_ID`
      - `YOUR_TODDLER_DESIGN_ID`
