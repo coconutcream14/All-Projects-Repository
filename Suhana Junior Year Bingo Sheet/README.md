@@ -8,8 +8,8 @@ A pink, interactive bingo board for Suhana's junior year. GitHub Pages hosts the
 
 1. Create a free project at [supabase.com](https://supabase.com/).
 2. Open **SQL Editor**, create a query, paste in [`setup.sql`](./setup.sql), and replace both instances of `YOUR_EMAIL@example.com` with the email address that will own the board. Run the query.
-3. In **Project Settings → API**, copy the Project URL and the public/anon API key. Never use or publish a `service_role` or secret key in this website.
-4. Open [`config.js`](./config.js) and replace `YOUR_PROJECT_ID`, `YOUR_SUPABASE_PUBLIC_KEY`, and `YOUR_EMAIL@example.com` with the project URL, public/anon key, and the same owner email.
+3. In **Project Settings → API**, copy the Project URL and the public/anon API key. Use the Project URL exactly as shown (it should end in `.supabase.co`); do not add `/rest/v1/`. Never use or publish a `service_role` or secret key in this website.
+4. Open [`config.js`](./config.js) and replace `YOUR_PROJECT_ID`, `YOUR_SUPABASE_PUBLIC_KEY`, and `YOUR_EMAIL@example.com` with the Project URL, public/anon key, and the same owner email.
 
 ### 2. Allow the website to sign in its owner
 
@@ -17,7 +17,7 @@ After the site has its GitHub Pages URL:
 
 1. In Supabase, open **Authentication → URL Configuration**.
 2. Set **Site URL** to the Pages URL below and add that same URL to **Redirect URLs**:
-   `https://coconutcream14.github.io/All-Projects-Repository/Suhana%20Junior%20Year%20Bingo%20Sheet/`
+   `https://coconutcream14.github.io/All-Projects-Repository/`
 3. Make sure email sign-in is enabled under **Authentication → Providers → Email**.
 
 The owner selects **Owner sign in**, enters the configured email, and follows the one-time link sent by email. Supabase checks the owner email in the database policy; the UI alone does not grant edit permission.
@@ -26,8 +26,8 @@ The owner selects **Owner sign in**, enters the configured email, and follows th
 
 1. Save and push these repository changes to the `main` branch.
 2. On GitHub, open **Settings → Pages** and select **GitHub Actions** as the build and deployment source.
-3. The included workflow deploys the bingo folder. After its first successful run, open:
-   [https://coconutcream14.github.io/All-Projects-Repository/Suhana%20Junior%20Year%20Bingo%20Sheet/](https://coconutcream14.github.io/All-Projects-Repository/Suhana%20Junior%20Year%20Bingo%20Sheet/)
+3. The included workflow publishes the *contents* of the bingo folder at the repository's Pages root. After its first successful run, open:
+   [https://coconutcream14.github.io/All-Projects-Repository/](https://coconutcream14.github.io/All-Projects-Repository/)
 4. Send that link to your friend. The Pages site and Supabase database stay online without your computer or a local development server running.
 
 GitHub Pages is available for public repositories on GitHub Free. If this repository is private, use a hosting plan that supports private-repository Pages or deploy the folder to another static host.
