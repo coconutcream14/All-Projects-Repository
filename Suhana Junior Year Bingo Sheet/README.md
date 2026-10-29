@@ -15,7 +15,20 @@ A pastel, interactive bingo board for Subaba's junior year. GitHub Pages hosts t
 
 After changing prompts in `setup.sql`, run the **entire updated file** in your Supabase project's **SQL Editor**. This inserts missing squares and updates the text of existing squares while preserving their checked-off status. Editing or pushing the file in GitHub alone does not change the Supabase board. The website intentionally has no prompt-edit or sign-in buttons.
 
+The updated setup file also creates the shared mini-game leaderboard. Run it once in the SQL Editor before using the leaderboard; it is safe to rerun.
+
 You can also change one prompt directly in Supabase's **Table Editor** by opening `public.bingo_squares` and editing its `text` value.
+
+### Reset the mini-game leaderboard
+
+The public website does not have a clear button, so visitors cannot erase the shared scores. To remove your test scores before sharing the link, open the Supabase project's **SQL Editor** and run this as the project owner:
+
+```sql
+delete from public.minigame_records;
+```
+
+This clears all four games' best scores and Puppy Treat Tap completion counts. Afterward, new Puppy Treat Tap finishes will be counted normally.
+If scores already existed before the completion counter was added, their count starts at zero because earlier finishes were not tracked.
 
 ### 3. Add your own animal pictures (optional)
 
@@ -45,7 +58,7 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 
 - Anyone with the link can check or uncheck squares; changes are saved in Supabase and sync to other visitors.
 - **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
-- Clicking a baby animal opens its photo popup. Tap an animal (including its opened photo) to send up a pink heart; tapping empty page space sends up a different colored heart each time. Buttons and bingo squares keep their normal actions. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
-- **Take a tiny game break** opens four cute mini-games, all separate from the shared bingo board: Paw Catcher ends after 10 missed objects, Kitty Memory ends when all 6 pairs are found, Bunny Hop is a 30-second dash where puddles cost a carrot unless you jump over them, and Puppy Treat Tap ends when you collect 10 treats. Each game has its own score or goal counter; pause, restart, or switch games whenever you like.
+- Clicking a baby animal opens its photo popup. Tap an animal (including its opened photo) to send up a pink ribbon heart (💝); tapping empty page space sends up a different colored heart each time. Buttons and bingo squares keep their normal actions. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
+- **Take a tiny game break** opens four cute mini-games, all separate from the shared bingo board: Paw Catcher ends after 10 missed animals, Kitty Memory ends when all 6 pairs are found, Bunny Hop is a 30-second dash where puddles cost a carrot unless you jump over them, and Puppy Treat Tap ends when you collect 10 treats. **Subaba's da winner!** below the game button saves the shared best for each completed game. Paw Catcher and Bunny Hop record the most caught animals or carrots; Kitty Memory records the fewest moves; Puppy Treat Tap shows 10 treats and how many times it has been completed.
 - The board has no website controls for editing prompts or clearing everyone's check-offs. Change prompts through the Supabase dashboard if needed.
-- The database uses row-level security and column-level grants: the public role can update only `checked`, while prompt edits require the configured owner account.
+- The database uses row-level security and column-level grants: the public role can update only bingo `checked` status and submit mini-game scores through a score-checking function, while prompt edits require the configured owner account. Since the site has no player sign-in, visitors can submit scores to the shared leaderboard; it is intended for fun, not as a tamper-proof competition.

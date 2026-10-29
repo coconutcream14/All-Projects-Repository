@@ -69,3 +69,84 @@ revoke all on public.bingo_squares from anon, authenticated;
 grant select on public.bingo_squares to anon, authenticated;
 grant update (checked) on public.bingo_squares to anon;
 grant update (checked, text) on public.bingo_squares to authenticated;
+
+create table if not exists public.minigame_records (
+  game_id text primary key check (game_id in ('catcher', 'memory', 'bunny', 'treats')),
+  best_score integer not null,
+  completion_count integer not null default 0,
+  updated_at timestamptz not null default now(),
+  check (
+    (game_id = 'memory' and best_score between 6 and 10000) or
+    (game_id = 'treats' and best_score = 10) or
+    (game_id in ('catcher', 'bunny') and best_score between 0 and 10000)
+  )
+);
+
+alter table public.minigame_records
+  add column if not exists completion_count integer not null default 0;
+
+alter table public.minigame_records enable row level security;
+
+drop policy if exists "Anyone can read mini-game records" on public.minigame_records;
+create policy "Anyone can read mini-game records"
+  on public.minigame_records for select
+  to anon, authenticated
+  using (true);
+
+revoke all on public.minigame_records from public, anon, authenticated;
+grant select on public.minigame_records to anon, authenticated;
+
+create or replace function public.record_minigame_best(p_game_id text, p_score integer)
+returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  score_improved boolean := false;
+  inserted_rows integer;
+  previous_best integer;
+begin
+  if p_game_id is null or p_score is null or p_game_id not in ('catcher', 'memory', 'bunny', 'treats') then
+    raise exception 'Invalid mini-game score.';
+  end if;
+
+  if p_score < 0 or p_score > 10000
+    or (p_game_id = 'memory' and p_score < 6)
+    or (p_game_id = 'treats' and p_score <> 10) then
+    raise exception 'Mini-game score is outside the allowed range.';
+  end if;
+
+  insert into public.minigame_records (game_id, best_score, completion_count, updated_at)
+  values (p_game_id, p_score, 1, now())
+  on conflict (game_id) do nothing;
+  get diagnostics inserted_rows = row_count;
+
+  if inserted_rows = 1 then
+    return true;
+  end if;
+
+  select best_score into previous_best
+  from public.minigame_records
+  where game_id = p_game_id
+  for update;
+
+  if previous_best is null then
+    raise exception 'Mini-game record could not be loaded.';
+  end if;
+
+  score_improved := (p_game_id = 'memory' and p_score < previous_best)
+    or (p_game_id <> 'memory' and p_score > previous_best);
+
+  update public.minigame_records
+  set best_score = case when score_improved then p_score else previous_best end,
+      completion_count = completion_count + 1,
+      updated_at = now()
+  where game_id = p_game_id;
+
+  return score_improved;
+end;
+$$;
+
+revoke all on function public.record_minigame_best(text, integer) from public, anon, authenticated;
+grant execute on function public.record_minigame_best(text, integer) to anon, authenticated;

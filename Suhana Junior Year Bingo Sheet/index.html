@@ -765,6 +765,51 @@
 
     .actions { display: grid; gap: 9px; }
 
+    .mini-leaderboard {
+      padding: 13px;
+      border: 1px solid #d5cbd8;
+      border-radius: 17px;
+      background: rgba(255, 250, 248, .68);
+    }
+
+    .mini-leaderboard h2 {
+      margin: 0;
+      color: #65566d;
+      font-family: inherit;
+      font-size: .98rem;
+      font-weight: 900;
+    }
+
+    .mini-leaderboard-list {
+      display: grid;
+      gap: 8px;
+      margin: 11px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .mini-leaderboard-list li {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      color: #6f6876;
+      font-size: .72rem;
+    }
+
+    .mini-leaderboard-list strong {
+      color: #765a83;
+      font-size: .72rem;
+      text-align: right;
+    }
+
+    .mini-leaderboard-status {
+      margin: 10px 0 0;
+      color: #877c96;
+      font-size: .68rem;
+      line-height: 1.4;
+    }
+
     .action {
       display: flex;
       min-height: 43px;
@@ -931,6 +976,7 @@
     }
 
     .tap-heart.animal-heart { font-size: 2.5rem; }
+    .animal-dialog .tap-heart.animal-heart { position: absolute; }
 
     @keyframes tap-heart-float {
       0% { opacity: 0; transform: translate(-50%, -35%) scale(.25) rotate(-12deg); }
@@ -1073,7 +1119,7 @@
           <button class="game-option" type="button" data-game-id="catcher">
             <span class="game-option-emoji" aria-hidden="true">🐾</span>
             <strong>Paw Catcher</strong>
-            <span>Slide your basket to catch cute falling things. Game over at 10 misses.</span>
+            <span>Slide your basket to catch falling animals. Game over at 10 misses.</span>
           </button>
           <button class="game-option" type="button" data-game-id="memory">
             <span class="game-option-emoji" aria-hidden="true">🐱</span>
@@ -1162,6 +1208,16 @@
               <span aria-hidden="true">✦</span>
             </button>
             <button class="action game-button" id="game-open" type="button">Take a tiny game break</button>
+            <section class="mini-leaderboard" aria-labelledby="mini-leaderboard-title">
+              <h2 id="mini-leaderboard-title">Subaba's da winner! 🏆</h2>
+              <ol class="mini-leaderboard-list" id="mini-leaderboard-list">
+                <li><span>🐾 Paw Catcher</span><strong>Not yet played</strong></li>
+                <li><span>🐱 Kitty Memory</span><strong>Not yet played</strong></li>
+                <li><span>🐰 Bunny Hop</span><strong>Not yet played</strong></li>
+                <li><span>🐶 Puppy Treat Tap</span><strong>Not yet played</strong></li>
+              </ol>
+              <p class="mini-leaderboard-status" id="mini-leaderboard-status" aria-live="polite">Loading shared scores · fewer Kitty Memory moves is better.</p>
+            </section>
           </div>
 
           <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
@@ -1202,6 +1258,15 @@
     const gameCanvas = document.getElementById("game-canvas");
     const gameContext = gameCanvas.getContext("2d");
     const gameOpenButton = document.getElementById("game-open");
+    const gameLeaderboardList = document.getElementById("mini-leaderboard-list");
+    const gameLeaderboardStatus = document.getElementById("mini-leaderboard-status");
+    const gameLeaderboardDefinitions = [
+      { id: "catcher", label: "🐾 Paw Catcher", unit: "animals" },
+      { id: "memory", label: "🐱 Kitty Memory", unit: "moves" },
+      { id: "bunny", label: "🐰 Bunny Hop", unit: "carrots" },
+      { id: "treats", label: "🐶 Puppy Treat Tap", unit: "treats" }
+    ];
+    const gameLeaderboardScores = new Map(gameLeaderboardDefinitions.map(({ id }) => [id, null]));
     const gameCloseButton = document.getElementById("game-close");
     const gameStartButton = document.getElementById("game-start");
     const gamePauseButton = document.getElementById("game-pause");
@@ -1294,13 +1359,13 @@
       catcherCatch: [
         "Lovely catch! Your basket has excellent taste 💖",
         "Got it! Those quick paws are paying off 🐾",
-        "Nice save! That cute thing is right where it belongs ✨",
+        "Nice save! That little animal is right where it belongs ✨",
         "You caught it! Look at you go, Subaba 🌟",
         "Another one safe in the basket—nicely done 💕",
         "That was a good catch! Keep that rhythm going 🎀"
       ],
       catcherMiss: [
-        "No worries, even the cutest things are slippery 💕",
+        "No worries, even the cutest animals are slippery 💕",
         "That one got away, but you've still got this 🐾",
         "A tiny miss is no big deal—eyes on the next one ✨",
         "It happens! Your basket is ready for another 💖",
@@ -1396,7 +1461,7 @@
       ],
       catcherStart: [
         "Basket ready! Let's catch some cuteness 🐾",
-        "Here come the cute things—you've got this 💖",
+        "Here come the animals—you've got this 💖",
         "Ready, Subaba? Let's fill that basket ✨",
         "Paws at the ready. Time to catch! 🐶"
       ],
@@ -1492,6 +1557,68 @@
       return text ? JSON.parse(text) : null;
     }
 
+    function renderGameLeaderboard() {
+      gameLeaderboardList.replaceChildren();
+      for (const game of gameLeaderboardDefinitions) {
+        const row = document.createElement("li");
+        const label = document.createElement("span");
+        const score = document.createElement("strong");
+        const record = gameLeaderboardScores.get(game.id);
+        label.textContent = game.label;
+        score.textContent = record === null
+          ? "Not yet played"
+          : game.id === "treats"
+            ? `${record.bestScore}/10 · ${record.completionCount} ${record.completionCount === 1 ? "finish" : "finishes"}`
+            : `${record.bestScore} ${game.unit}`;
+        row.append(label, score);
+        gameLeaderboardList.append(row);
+      }
+    }
+
+    async function loadGameLeaderboard() {
+      const rows = await request("/rest/v1/minigame_records?select=game_id,best_score,completion_count");
+      if (!Array.isArray(rows) || rows.some((row) =>
+        !row || !gameLeaderboardScores.has(row.game_id) ||
+        !Number.isInteger(row.best_score) || !Number.isInteger(row.completion_count)
+      )) {
+        throw new Error("The shared mini-game records are missing or invalid. Run the updated setup.sql in Supabase.");
+      }
+      for (const game of gameLeaderboardDefinitions) gameLeaderboardScores.set(game.id, null);
+      for (const row of rows) {
+        gameLeaderboardScores.set(row.game_id, {
+          bestScore: row.best_score,
+          completionCount: row.completion_count
+        });
+      }
+      renderGameLeaderboard();
+      gameLeaderboardStatus.textContent = "Shared across devices.";
+    }
+
+    function reportGameLeaderboardError(error, action) {
+      console.error(`Could not ${action} the shared mini-game leaderboard.`, error);
+      gameLeaderboardStatus.textContent = "Leaderboard unavailable. Run the updated setup.sql, then try again.";
+    }
+
+    async function saveGameBestScore(gameId, score) {
+      try {
+        const improved = await request("/rest/v1/rpc/record_minigame_best", {
+          method: "POST",
+          body: JSON.stringify({ p_game_id: gameId, p_score: score })
+        });
+        if (typeof improved !== "boolean") {
+          throw new Error("The shared score update returned an unexpected response.");
+        }
+        await loadGameLeaderboard();
+        if (improved) {
+          gameLeaderboardStatus.textContent = "New shared best saved! 🏆";
+        } else {
+          gameLeaderboardStatus.textContent = "Your finish is on the shared board! 🎉";
+        }
+      } catch (error) {
+        reportGameLeaderboardError(error, "save");
+      }
+    }
+
     function setMessage(text, reaction = "") {
       if (reactionTimeout !== null) window.clearTimeout(reactionTimeout);
       reactionTimeout = null;
@@ -1564,12 +1691,14 @@
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
       heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
       heart.setAttribute("aria-hidden", "true");
-      heart.style.left = `${x}px`;
-      heart.style.top = `${y}px`;
+      const root = animalHeart ? animalDialog : document.body;
+      const rootBounds = animalHeart ? animalDialog.getBoundingClientRect() : null;
+      heart.style.left = `${x - (rootBounds?.left || 0)}px`;
+      heart.style.top = `${y - (rootBounds?.top || 0)}px`;
       heart.style.setProperty("--heart-drift", `${Math.random() * 54 - 27}px`);
       heart.style.setProperty("--heart-tilt", `${Math.random() * 36 - 18}deg`);
       tapHeartIndex += 1;
-      document.body.append(heart);
+      root.append(heart);
       window.setTimeout(() => heart.remove(), 2300);
     }
 
@@ -1800,15 +1929,20 @@
       if (gameState.id === "catcher") drawPawCatcher();
       if (gameState.id === "bunny") drawBunnyHop();
       if (gameState.id === "memory") renderMemoryCards();
+      const completedGameId = gameState.id;
+      const completedScore = completedGameId === "memory" ? gameState.moves : gameState.score;
+      if (gameLeaderboardScores.has(completedGameId)) {
+        void saveGameBestScore(completedGameId, completedScore);
+      }
     }
 
     function runCatcherFrame(elapsed) {
       gameState.spawnElapsed += elapsed;
       if (gameState.spawnElapsed >= 1100) {
         gameState.spawnElapsed -= 1100;
-        const cuteThings = ["🐶", "🐱", "🐰", "🐻", "🐣", "🐼", "🦊", "🐸", "💖", "💕", "💗", "🐾"];
+        const animals = ["🐶", "🐱", "🐰", "🐻", "🐣", "🐼", "🦊", "🐸", "🐨", "🐷", "🐹", "🐥"];
         gameState.collectibles.push({
-          emoji: cuteThings[Math.floor(Math.random() * cuteThings.length)],
+          emoji: animals[Math.floor(Math.random() * animals.length)],
           x: 24 + Math.random() * (gameCanvas.width - 48),
           y: -22,
           radius: 18,
@@ -1828,7 +1962,7 @@
           gameState.collectibles.splice(index, 1);
           gameState.score += 1;
           gameScoreValue.textContent = String(gameState.score);
-          gameStatus.textContent = `${gameEncouragement("catcherCatch")} ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} caught.`;
+          gameStatus.textContent = `${gameEncouragement("catcherCatch")} ${gameState.score} ${gameState.score === 1 ? "animal" : "animals"} caught.`;
           showGameReaction("catcherCatch", gameCanvas);
         } else if (item.y - item.radius > gameCanvas.height) {
           gameState.collectibles.splice(index, 1);
@@ -1838,7 +1972,7 @@
           showGameReaction("catcherMiss", gameCanvas);
           if (gameState.misses === 10) {
             drawPawCatcher();
-            finishGame(`${gameEncouragement("catcherFinish")} You caught ${gameState.score} cute things.`);
+            finishGame(`${gameEncouragement("catcherFinish")} You caught ${gameState.score} ${gameState.score === 1 ? "animal" : "animals"}.`);
             showGameReaction("catcherFinish", gameCanvas);
             return;
           }
@@ -1967,8 +2101,8 @@
       const games = {
         catcher: {
           title: "Paw Catcher",
-          instructions: "Slide your basket to catch falling animals, hearts, and paws. It ends after 10 misses.",
-          scoreLabel: "Cute things",
+          instructions: "Slide your basket to catch the falling animals. It ends after 10 misses.",
+          scoreLabel: "Animals",
           secondaryLabel: "Misses",
           note: "Use ← → or the buttons. The slower falling things give you time to catch them."
         },
@@ -2007,13 +2141,22 @@
       treatField.hidden = gameId !== "treats";
       gameState.running = false;
       gameState.paused = false;
+      gameState.spawnElapsed = 0;
+      gameState.elapsed = 0;
       gameState.score = 0;
+      gameState.misses = 0;
+      gameState.collectibles = [];
+      gameState.bunnyY = 0;
+      gameState.bunnyVelocity = 0;
+      gameState.obstacles = [];
+      gameState.splashFlash = 0;
       gameStartButton.textContent = "Start game";
       gamePauseButton.textContent = "Pause";
       if (gameId === "catcher") {
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "0 / 10";
-        gameCanvas.setAttribute("aria-label", "Paw Catcher. Catch the falling cute emojis; the game ends after ten misses.");
+        gameCanvas.setAttribute("aria-label", "Paw Catcher. Catch the falling animals; the game ends after ten misses.");
+        drawPawCatcher();
       } else if (gameId === "memory") {
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "0 / 6";
@@ -2022,6 +2165,7 @@
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "30s";
         gameCanvas.setAttribute("aria-label", "Bunny Hop. Jump over puddles and collect carrots for thirty seconds.");
+        drawBunnyHop();
       } else {
         gameScoreValue.textContent = "0 / 10";
         gameSecondaryValue.textContent = "10";
@@ -2405,9 +2549,13 @@
       gamePlay.hidden = true;
       gameDialog.showModal();
       gamePickerButtons[0]?.focus();
+      if (backendConfigured) {
+        void loadGameLeaderboard().catch((error) => reportGameLeaderboardError(error, "load"));
+      }
     });
 
     gameCloseButton.addEventListener("click", () => gameDialog.close());
+    gameDialog.addEventListener("close", stopCurrentGame);
     gameDialog.addEventListener("click", (event) => {
       if (event.target === gameDialog) gameDialog.close();
     });
@@ -2504,6 +2652,7 @@
       renderBoard();
       if (!backendConfigured) {
         setMessage("The board isn't connected yet. Check the setup steps in the README.");
+        gameLeaderboardStatus.textContent = "Connect the shared database to load scores.";
         surpriseButton.disabled = true;
         return;
       }
@@ -2511,6 +2660,11 @@
         await loadRemoteBoard();
       } catch (error) {
         showConnectionError(error);
+      }
+      try {
+        await loadGameLeaderboard();
+      } catch (error) {
+        reportGameLeaderboardError(error, "load");
       }
       window.setInterval(async () => {
         if (saving || polling) return;
