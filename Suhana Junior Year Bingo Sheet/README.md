@@ -46,5 +46,6 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 - Anyone with the link can check or uncheck squares; changes are saved in Supabase and sync to other visitors.
 - **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
 - Clicking a baby animal opens its photo popup. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
+- **Take a tiny game break** opens Paw Catcher. Catch falling stars with the basket using the keyboard arrows or the on-screen buttons; pause, restart, or close the game whenever you like. It is separate from the shared bingo board.
 - The board has no website controls for editing prompts or clearing everyone's check-offs. Change prompts through the Supabase dashboard if needed.
 - The database uses row-level security and column-level grants: the public role can update only `checked`, while prompt edits require the configured owner account.

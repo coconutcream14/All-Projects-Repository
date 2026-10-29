@@ -99,7 +99,7 @@
       to { transform: translateY(-9px) rotate(var(--tilt)); }
     }
 
-    .animal-dialog {
+    .animal-dialog, .game-dialog {
       position: fixed;
       width: min(440px, calc(100vw - 32px));
       max-width: none;
@@ -113,8 +113,8 @@
       color: var(--ink);
     }
 
-    .animal-dialog[open] { animation: dialog-pop .2s ease-out; }
-    .animal-dialog::backdrop { background: rgba(68, 53, 78, .38); backdrop-filter: blur(5px); }
+    .animal-dialog[open], .game-dialog[open] { animation: dialog-pop .2s ease-out; }
+    .animal-dialog::backdrop, .game-dialog::backdrop { background: rgba(68, 53, 78, .38); backdrop-filter: blur(5px); }
     .dialog-close {
       display: block;
       margin: 0 0 12px auto;
@@ -132,7 +132,7 @@
     .dialog-close:hover { background: #f7f3ff; }
     .dialog-close:focus-visible { outline: 3px solid #6aaed1; outline-offset: 3px; }
 
-    .animal-dialog h2 {
+    .animal-dialog h2, .game-dialog h2 {
       margin: 0 0 14px;
       font-family: inherit;
       font-size: 1.6rem;
@@ -169,6 +169,80 @@
     .animal-photo-placeholder .placeholder-emoji { display: block; margin-bottom: 10px; font-size: 3.5rem; }
     .animal-photo-placeholder code { color: #765a83; font-size: .83em; overflow-wrap: anywhere; }
     .animal-dialog-note { margin: 13px 0 0; color: var(--muted); font-size: .8rem; text-align: center; }
+
+    .game-dialog { width: min(480px, calc(100vw - 32px)); }
+
+    .game-instructions {
+      margin: 0 0 13px;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .game-scoreboard {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 10px;
+      color: #625669;
+      font-size: .9rem;
+      font-weight: 800;
+    }
+
+    .game-canvas {
+      display: block;
+      width: min(100%, 420px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border: 2px solid #d5cbd7;
+      border-radius: 20px;
+      background: #e8e7ed;
+      touch-action: none;
+    }
+
+    .game-status {
+      min-height: 42px;
+      margin: 10px 0;
+      color: #6f6876;
+      font-size: .85rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    .game-buttons, .game-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .game-button {
+      min-width: 64px;
+      min-height: 44px;
+      padding: 8px 16px;
+      border: 1px solid #c8c0ce;
+      border-radius: 999px;
+      background: #f0e9ef;
+      color: #65566d;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .game-button:hover:not(:disabled) { background: #e7dce7; }
+    .game-button:disabled { cursor: not-allowed; opacity: .55; }
+    .game-button:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
+
+    .game-button.primary {
+      border-color: #9f8196;
+      background: #a9869a;
+      color: #fffaf8;
+    }
+
+    .game-button.primary:hover:not(:disabled) { background: #96738a; }
+    .game-controls { margin-top: 9px; }
+    .game-controls .game-button { min-width: 92px; }
+    .game-note { margin: 12px 0 0; color: var(--muted); font-size: .76rem; text-align: center; }
 
     @keyframes dialog-pop {
       from { opacity: 0; transform: scale(.94) translateY(8px); }
@@ -512,6 +586,14 @@
       box-shadow: 0 7px 0 #766883, 0 12px 20px rgba(75, 70, 91, .17);
     }
 
+    .action.game-button {
+      border: 1px solid #c8c0ce;
+      background: #e8e3eb;
+      color: #65566d;
+    }
+
+    .action.game-button:hover:not(:disabled) { background: #ddd5e3; }
+
     .pick-paw { font-size: 1.1rem; }
 
     @keyframes picked-bounce {
@@ -645,7 +727,7 @@
       .animal-sticker:nth-child(3) { left: -18px; }
       .animal-sticker:nth-child(4) { right: -18px; }
       .animal-sticker:nth-child(5) { bottom: -16px; left: calc(50% - 21px); }
-      .animal-dialog { padding: 17px; }
+      .animal-dialog, .game-dialog { padding: 17px; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
       .card-top { padding: 14px; }
     }
@@ -675,6 +757,27 @@
         </div>
       </div>
       <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
+    </dialog>
+
+    <dialog class="game-dialog" id="game-dialog" aria-labelledby="game-title">
+      <button class="dialog-close" id="game-close" type="button" aria-label="Close Paw Catcher">Close ×</button>
+      <h2 id="game-title">Paw Catcher</h2>
+      <p class="game-instructions">Move your basket and catch the falling stars. You get three chances!</p>
+      <div class="game-scoreboard" aria-label="Game score">
+        <span>Stars: <span id="game-score">0</span></span>
+        <span>Chances: <span id="game-lives">3</span></span>
+      </div>
+      <canvas class="game-canvas" id="game-canvas" width="420" height="420" role="img" aria-label="Paw Catcher game. Catch the falling stars with the basket. Use the arrow keys or the on-screen buttons."></canvas>
+      <p class="game-status" id="game-status" aria-live="polite">Ready when you are. Catch as many stars as you can!</p>
+      <div class="game-buttons">
+        <button class="game-button primary" id="game-start" type="button">Start game</button>
+        <button class="game-button" id="game-pause" type="button" disabled>Pause</button>
+      </div>
+      <div class="game-controls" aria-label="Move the basket">
+        <button class="game-button" id="game-left" type="button" aria-label="Move basket left" disabled>← Left</button>
+        <button class="game-button" id="game-right" type="button" aria-label="Move basket right" disabled>Right →</button>
+      </div>
+      <p class="game-note">Use ← → on a keyboard, or tap the buttons. Just for fun—your bingo stays right where it is.</p>
     </dialog>
 
     <section class="card" aria-label="Subaba's junior year bingo game">
@@ -720,6 +823,7 @@
               Pick one for me
               <span aria-hidden="true">✦</span>
             </button>
+            <button class="action game-button" id="game-open" type="button">Take a tiny game break</button>
           </div>
 
           <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
@@ -756,6 +860,18 @@
     const animalPlaceholderEmoji = document.getElementById("animal-placeholder-emoji");
     const animalPlaceholderCopy = document.getElementById("animal-placeholder-copy");
     const animalButtons = document.querySelectorAll(".animal-sticker");
+    const gameDialog = document.getElementById("game-dialog");
+    const gameCanvas = document.getElementById("game-canvas");
+    const gameContext = gameCanvas.getContext("2d");
+    const gameOpenButton = document.getElementById("game-open");
+    const gameCloseButton = document.getElementById("game-close");
+    const gameStartButton = document.getElementById("game-start");
+    const gamePauseButton = document.getElementById("game-pause");
+    const gameLeftButton = document.getElementById("game-left");
+    const gameRightButton = document.getElementById("game-right");
+    const gameScoreLabel = document.getElementById("game-score");
+    const gameLivesLabel = document.getElementById("game-lives");
+    const gameStatus = document.getElementById("game-status");
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
     let connected = false;
@@ -769,6 +885,17 @@
     let reactionTimeout = null;
     let progressInitialized = false;
     let animalPhotoRequest = 0;
+    const gameState = {
+      running: false,
+      paused: false,
+      frameId: null,
+      lastFrame: 0,
+      spawnElapsed: 0,
+      score: 0,
+      lives: 3,
+      basketX: (gameCanvas.width - 76) / 2,
+      stars: []
+    };
 
     const config = window.BINGO_CONFIG || {};
     const supabaseUrl = (config.supabaseUrl || "").replace(/\/+$/, "");
@@ -830,6 +957,176 @@
         }
         reactionTimeout = null;
       }, duration);
+    }
+
+    function setGameControls(enabled) {
+      gameLeftButton.disabled = !enabled || gameState.paused;
+      gameRightButton.disabled = !enabled || gameState.paused;
+      gamePauseButton.disabled = !enabled;
+      gamePauseButton.textContent = gameState.paused ? "Resume" : "Pause";
+    }
+
+    function drawPawCatcher() {
+      if (!gameContext) return;
+      const { width, height } = gameCanvas;
+      const background = gameContext.createLinearGradient(0, 0, width, height);
+      background.addColorStop(0, "#eee7ec");
+      background.addColorStop(1, "#e1e9eb");
+      gameContext.fillStyle = background;
+      gameContext.fillRect(0, 0, width, height);
+
+      gameContext.fillStyle = "rgba(255, 255, 255, .55)";
+      for (let index = 0; index < 18; index += 1) {
+        const x = (index * 97 + 31) % width;
+        const y = (index * 67 + 19) % height;
+        gameContext.beginPath();
+        gameContext.arc(x, y, index % 3 === 0 ? 2 : 1.3, 0, Math.PI * 2);
+        gameContext.fill();
+      }
+
+      for (const star of gameState.stars) {
+        gameContext.beginPath();
+        for (let point = 0; point < 10; point += 1) {
+          const angle = -Math.PI / 2 + point * Math.PI / 5;
+          const radius = point % 2 === 0 ? star.radius : star.radius * .46;
+          const x = star.x + Math.cos(angle) * radius;
+          const y = star.y + Math.sin(angle) * radius;
+          if (point === 0) gameContext.moveTo(x, y);
+          else gameContext.lineTo(x, y);
+        }
+        gameContext.closePath();
+        gameContext.fillStyle = star.color;
+        gameContext.fill();
+        gameContext.strokeStyle = "rgba(106, 91, 111, .42)";
+        gameContext.lineWidth = 1.5;
+        gameContext.stroke();
+      }
+
+      const basketY = height - 54;
+      gameContext.beginPath();
+      gameContext.moveTo(gameState.basketX + 5, basketY);
+      gameContext.lineTo(gameState.basketX + 71, basketY);
+      gameContext.lineTo(gameState.basketX + 63, basketY + 27);
+      gameContext.lineTo(gameState.basketX + 13, basketY + 27);
+      gameContext.closePath();
+      gameContext.fillStyle = "#b68da5";
+      gameContext.fill();
+      gameContext.strokeStyle = "#765f7a";
+      gameContext.lineWidth = 3;
+      gameContext.stroke();
+      gameContext.beginPath();
+      gameContext.arc(gameState.basketX + 38, basketY + 5, 15, Math.PI, 0);
+      gameContext.strokeStyle = "#765f7a";
+      gameContext.lineWidth = 3;
+      gameContext.stroke();
+      gameContext.font = '17px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+      gameContext.textAlign = "center";
+      gameContext.fillText("🐾", gameState.basketX + 38, basketY + 22);
+    }
+
+    function movePawCatcher(direction) {
+      if (!gameState.running || gameState.paused) return;
+      gameState.basketX = Math.max(0, Math.min(
+        gameCanvas.width - 76,
+        gameState.basketX + direction * 34
+      ));
+      drawPawCatcher();
+    }
+
+    function finishPawCatcher() {
+      gameState.running = false;
+      gameState.paused = false;
+      gameState.frameId = null;
+      gameStartButton.textContent = "Play again";
+      setGameControls(false);
+      gameStatus.textContent = `Game over! You caught ${gameState.score} ${gameState.score === 1 ? "star" : "stars"}. Want another go?`;
+      drawPawCatcher();
+    }
+
+    function runPawCatcherFrame(timestamp) {
+      if (!gameState.running || gameState.paused) return;
+      const elapsed = gameState.lastFrame ? Math.min(timestamp - gameState.lastFrame, 50) : 0;
+      gameState.lastFrame = timestamp;
+      gameState.spawnElapsed += elapsed;
+
+      if (gameState.spawnElapsed >= 760) {
+        gameState.spawnElapsed -= 760;
+        const colors = ["#c18da7", "#89aab7", "#aaa0bd", "#c5a77e"];
+        gameState.stars.push({
+          x: 16 + Math.random() * (gameCanvas.width - 32),
+          y: -14,
+          radius: 10 + Math.random() * 4,
+          speed: 105 + Math.random() * 35 + Math.min(gameState.score * 3, 75),
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      const basketY = gameCanvas.height - 54;
+      for (let index = gameState.stars.length - 1; index >= 0; index -= 1) {
+        const star = gameState.stars[index];
+        star.y += star.speed * elapsed / 1000;
+        const caught = star.y + star.radius >= basketY &&
+          star.y - star.radius <= basketY + 27 &&
+          star.x >= gameState.basketX &&
+          star.x <= gameState.basketX + 76;
+        if (caught) {
+          gameState.stars.splice(index, 1);
+          gameState.score += 1;
+          gameScoreLabel.textContent = String(gameState.score);
+          if (gameState.score % 5 === 0) {
+            gameStatus.textContent = `${gameState.score} stars! You're getting good at this.`;
+          } else {
+            gameStatus.textContent = `Got one! ${gameState.score} ${gameState.score === 1 ? "star" : "stars"} so far.`;
+          }
+        } else if (star.y - star.radius > gameCanvas.height) {
+          gameState.stars.splice(index, 1);
+          gameState.lives -= 1;
+          gameLivesLabel.textContent = String(gameState.lives);
+          gameStatus.textContent = gameState.lives === 0
+            ? "That's your three chances!"
+            : `${gameState.lives} ${gameState.lives === 1 ? "chance" : "chances"} left—keep going!`;
+          if (gameState.lives === 0) break;
+        }
+      }
+
+      drawPawCatcher();
+      if (gameState.lives === 0) {
+        finishPawCatcher();
+        return;
+      }
+      gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
+    }
+
+    function startPawCatcher() {
+      if (!gameContext) {
+        gameStatus.textContent = "This browser can't open the game canvas. Try a newer browser.";
+        return;
+      }
+      if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+      gameState.running = true;
+      gameState.paused = false;
+      gameState.frameId = null;
+      gameState.lastFrame = 0;
+      gameState.spawnElapsed = 0;
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.basketX = (gameCanvas.width - 76) / 2;
+      gameState.stars = [];
+      gameScoreLabel.textContent = "0";
+      gameLivesLabel.textContent = "3";
+      gameStartButton.textContent = "Start over";
+      gameStatus.textContent = "Catch the stars! Use ← → or the buttons below.";
+      setGameControls(true);
+      drawPawCatcher();
+      gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
+    }
+
+    function stopPawCatcher() {
+      gameState.running = false;
+      gameState.paused = false;
+      if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+      gameState.frameId = null;
+      setGameControls(false);
     }
 
     async function loadRemoteBoard() {
@@ -903,14 +1200,14 @@
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
         const reactions = {
-          row: (number) => `🐰 ROW ${number}!! Subaba, you did that.`,
-          column: (number) => `🐬 COLUMN ${number}!! Look at you go.`,
-          diagonal: (number) => `🦊 DIAGONAL ${number}!! You got it!`
+          row: () => "Yay! You got a whole row! What can you do next? 🤔",
+          column: () => "A full column too?! Okay, you're on a roll. What's next? ✨",
+          diagonal: () => "Diagonal bingo! Look at you go—what's next? 💫"
         };
         const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
         const reactionText = newLines.length > 1
-          ? `Wait—you got ${newLines.length} lines at once?! Okay, show-off ♡`
-          : reactions[newLines[0].type](newLines[0].number);
+          ? `Wait, ${newLines.length} bingo lines at once?! What should we celebrate next? 🎉`
+          : reactions[newLines[0].type]();
         showReaction(reactionText, reactionType, 6500);
         winningSquareTypes = new Map();
         for (const line of newLines) {
@@ -1044,6 +1341,56 @@
     animalDialogClose.addEventListener("click", () => animalDialog.close());
     animalDialog.addEventListener("click", (event) => {
       if (event.target === animalDialog) animalDialog.close();
+    });
+
+    gameOpenButton.addEventListener("click", () => {
+      drawPawCatcher();
+      gameDialog.showModal();
+      gameStartButton.focus();
+    });
+
+    gameCloseButton.addEventListener("click", () => gameDialog.close());
+    gameDialog.addEventListener("click", (event) => {
+      if (event.target === gameDialog) gameDialog.close();
+    });
+
+    gameDialog.addEventListener("close", () => {
+      if (gameState.running || gameState.paused) {
+        stopPawCatcher();
+        gameStartButton.textContent = "Play again";
+        gameStatus.textContent = "Round paused—come back whenever. Start over to play again.";
+      } else {
+        stopPawCatcher();
+      }
+    });
+
+    gameStartButton.addEventListener("click", startPawCatcher);
+    gameLeftButton.addEventListener("click", () => movePawCatcher(-1));
+    gameRightButton.addEventListener("click", () => movePawCatcher(1));
+    gamePauseButton.addEventListener("click", () => {
+      if (!gameState.running) return;
+      gameState.paused = !gameState.paused;
+      setGameControls(true);
+      if (gameState.paused) {
+        if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+        gameState.frameId = null;
+        gameStatus.textContent = "Paused. Take your time.";
+      } else {
+        gameState.lastFrame = 0;
+        gameStatus.textContent = "Back at it! Catch those stars.";
+        gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (!gameDialog.open || !gameState.running || gameState.paused) return;
+      if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        movePawCatcher(-1);
+      } else if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+        event.preventDefault();
+        movePawCatcher(1);
+      }
     });
 
     surpriseButton.addEventListener("click", () => {
