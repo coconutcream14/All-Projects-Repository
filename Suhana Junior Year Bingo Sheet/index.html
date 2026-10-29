@@ -830,13 +830,13 @@
     <dialog class="game-dialog" id="game-dialog" aria-labelledby="game-title">
       <button class="dialog-close" id="game-close" type="button" aria-label="Close Paw Catcher">Close ×</button>
       <h2 id="game-title">Paw Catcher</h2>
-      <p class="game-instructions">Move your basket and catch the falling stars. You get three chances!</p>
+      <p class="game-instructions">Move your basket and catch the falling animals, hearts, and paws. You get three chances!</p>
       <div class="game-scoreboard" aria-label="Game score">
-        <span>Stars: <span id="game-score">0</span></span>
+        <span>Cute things: <span id="game-score">0</span></span>
         <span>Chances: <span id="game-lives">3</span></span>
       </div>
-      <canvas class="game-canvas" id="game-canvas" width="420" height="420" role="img" aria-label="Paw Catcher game. Catch the falling stars with the basket. Use the arrow keys or the on-screen buttons."></canvas>
-      <p class="game-status" id="game-status" aria-live="polite">Ready when you are. Catch as many stars as you can!</p>
+      <canvas class="game-canvas" id="game-canvas" width="420" height="420" role="img" aria-label="Paw Catcher game. Catch the falling animal and heart emojis with the basket. Use the arrow keys or on-screen buttons."></canvas>
+      <p class="game-status" id="game-status" aria-live="polite">Ready when you are. Catch all the cute things!</p>
       <div class="game-buttons">
         <button class="game-button primary" id="game-start" type="button">Start game</button>
         <button class="game-button" id="game-pause" type="button" disabled>Pause</button>
@@ -991,7 +991,7 @@
       score: 0,
       lives: 3,
       basketX: (gameCanvas.width - 76) / 2,
-      stars: []
+      collectibles: []
     };
 
     const config = window.BINGO_CONFIG || {};
@@ -1081,22 +1081,11 @@
         gameContext.fill();
       }
 
-      for (const star of gameState.stars) {
-        gameContext.beginPath();
-        for (let point = 0; point < 10; point += 1) {
-          const angle = -Math.PI / 2 + point * Math.PI / 5;
-          const radius = point % 2 === 0 ? star.radius : star.radius * .46;
-          const x = star.x + Math.cos(angle) * radius;
-          const y = star.y + Math.sin(angle) * radius;
-          if (point === 0) gameContext.moveTo(x, y);
-          else gameContext.lineTo(x, y);
-        }
-        gameContext.closePath();
-        gameContext.fillStyle = star.color;
-        gameContext.fill();
-        gameContext.strokeStyle = "rgba(106, 91, 111, .42)";
-        gameContext.lineWidth = 1.5;
-        gameContext.stroke();
+      for (const item of gameState.collectibles) {
+        gameContext.font = `${item.radius * 2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
+        gameContext.textAlign = "center";
+        gameContext.textBaseline = "middle";
+        gameContext.fillText(item.emoji, item.x, item.y);
       }
 
       const basketY = height - 54;
@@ -1136,7 +1125,7 @@
       gameState.frameId = null;
       gameStartButton.textContent = "Play again";
       setGameControls(false);
-      gameStatus.textContent = `Game over! You caught ${gameState.score} ${gameState.score === 1 ? "star" : "stars"}. Want another go?`;
+      gameStatus.textContent = `Game over! You caught ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"}. Want another go?`;
       drawPawCatcher();
     }
 
@@ -1148,35 +1137,35 @@
 
       if (gameState.spawnElapsed >= 760) {
         gameState.spawnElapsed -= 760;
-        const colors = ["#c18da7", "#89aab7", "#aaa0bd", "#c5a77e"];
-        gameState.stars.push({
-          x: 16 + Math.random() * (gameCanvas.width - 32),
-          y: -14,
-          radius: 10 + Math.random() * 4,
+        const cuteThings = ["🐶", "🐱", "🐰", "🐻", "🐣", "🐼", "🦊", "🐸", "💖", "💕", "💗", "🐾"];
+        gameState.collectibles.push({
+          emoji: cuteThings[Math.floor(Math.random() * cuteThings.length)],
+          x: 24 + Math.random() * (gameCanvas.width - 48),
+          y: -22,
+          radius: 18,
           speed: 105 + Math.random() * 35 + Math.min(gameState.score * 3, 75),
-          color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
 
       const basketY = gameCanvas.height - 54;
-      for (let index = gameState.stars.length - 1; index >= 0; index -= 1) {
-        const star = gameState.stars[index];
-        star.y += star.speed * elapsed / 1000;
-        const caught = star.y + star.radius >= basketY &&
-          star.y - star.radius <= basketY + 27 &&
-          star.x >= gameState.basketX &&
-          star.x <= gameState.basketX + 76;
+      for (let index = gameState.collectibles.length - 1; index >= 0; index -= 1) {
+        const item = gameState.collectibles[index];
+        item.y += item.speed * elapsed / 1000;
+        const caught = item.y + item.radius >= basketY &&
+          item.y - item.radius <= basketY + 27 &&
+          item.x >= gameState.basketX - item.radius &&
+          item.x <= gameState.basketX + 76 + item.radius;
         if (caught) {
-          gameState.stars.splice(index, 1);
+          gameState.collectibles.splice(index, 1);
           gameState.score += 1;
           gameScoreLabel.textContent = String(gameState.score);
           if (gameState.score % 5 === 0) {
-            gameStatus.textContent = `${gameState.score} stars! You're getting good at this.`;
+            gameStatus.textContent = `${gameState.score} cute things! You're getting good at this.`;
           } else {
-            gameStatus.textContent = `Got one! ${gameState.score} ${gameState.score === 1 ? "star" : "stars"} so far.`;
+            gameStatus.textContent = `Caught a ${item.emoji}! ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} so far.`;
           }
-        } else if (star.y - star.radius > gameCanvas.height) {
-          gameState.stars.splice(index, 1);
+        } else if (item.y - item.radius > gameCanvas.height) {
+          gameState.collectibles.splice(index, 1);
           gameState.lives -= 1;
           gameLivesLabel.textContent = String(gameState.lives);
           gameStatus.textContent = gameState.lives === 0
@@ -1208,11 +1197,11 @@
       gameState.score = 0;
       gameState.lives = 3;
       gameState.basketX = (gameCanvas.width - 76) / 2;
-      gameState.stars = [];
+      gameState.collectibles = [];
       gameScoreLabel.textContent = "0";
       gameLivesLabel.textContent = "3";
       gameStartButton.textContent = "Start over";
-      gameStatus.textContent = "Catch the stars! Use ← → or the buttons below.";
+      gameStatus.textContent = "Catch the cute things! Use ← → or the buttons below.";
       setGameControls(true);
       drawPawCatcher();
       gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
@@ -1515,7 +1504,7 @@
         gameStatus.textContent = "Paused. Take your time.";
       } else {
         gameState.lastFrame = 0;
-        gameStatus.textContent = "Back at it! Catch those stars.";
+        gameStatus.textContent = "Back at it! Catch those cute things.";
         gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
       }
     });
