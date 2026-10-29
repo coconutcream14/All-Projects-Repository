@@ -831,7 +831,7 @@
           rows.some((row, index) => row.id !== index || typeof row.text !== "string" || typeof row.checked !== "boolean")) {
         throw new Error("The shared board is missing or incomplete. Run setup.sql in your Supabase project.");
       }
-      squares = rows.map((row) => ({ text: row.text.slice(0, 46), checked: row.checked }));
+      squares = rows.map((row) => ({ text: row.text, checked: row.checked }));
       connected = true;
       renderBoard();
     }

@@ -13,7 +13,9 @@ A pastel, interactive bingo board for Suhana's junior year. GitHub Pages hosts t
 
 ### 2. Change prompts when needed
 
-To change prompt text on the existing shared board, open the Supabase project's **Table Editor**, select `public.bingo_squares`, and edit the `text` values. The website intentionally has no prompt-edit or sign-in buttons. The values in `setup.sql` initialize a new board; they do not overwrite existing board entries.
+After changing prompts in `setup.sql`, run the **entire updated file** in your Supabase project's **SQL Editor**. This inserts missing squares and updates the text of existing squares while preserving their checked-off status. Editing or pushing the file in GitHub alone does not change the Supabase board. The website intentionally has no prompt-edit or sign-in buttons.
+
+You can also change one prompt directly in Supabase's **Table Editor** by opening `public.bingo_squares` and editing its `text` value.
 
 ### 3. Add your own animal pictures (optional)
 
