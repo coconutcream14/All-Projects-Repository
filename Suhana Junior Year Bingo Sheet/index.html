@@ -170,7 +170,56 @@
     .animal-photo-placeholder code { color: #765a83; font-size: .83em; overflow-wrap: anywhere; }
     .animal-dialog-note { margin: 13px 0 0; color: var(--muted); font-size: .8rem; text-align: center; }
 
-    .game-dialog { width: min(480px, calc(100vw - 32px)); }
+    .game-dialog { width: min(560px, calc(100vw - 32px)); }
+
+    .game-picker h2 { margin-bottom: 8px; }
+
+    .game-picker-intro {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: .88rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .game-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .game-option {
+      display: flex;
+      min-height: 142px;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 14px;
+      border: 2px solid #d5c9d8;
+      border-radius: 20px;
+      background: rgba(250, 247, 247, .78);
+      color: #5d5264;
+      cursor: pointer;
+      text-align: left;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .game-option:hover, .game-option:focus-visible {
+      background: #fffaf8;
+      box-shadow: 0 5px 0 #c6b5c8;
+      transform: translateY(-2px);
+    }
+
+    .game-option:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
+    .game-option-emoji { margin-bottom: 5px; font-size: 1.8rem; }
+    .game-option strong { margin-bottom: 4px; font-size: .95rem; }
+    .game-option span:last-child { color: var(--muted); font-size: .75rem; line-height: 1.4; }
+
+    .game-play[hidden], .game-picker[hidden], .game-canvas[hidden],
+    .memory-grid[hidden], .treat-field[hidden], .game-controls[hidden],
+    .game-pause[hidden] { display: none !important; }
+
+    .game-back { display: block; margin: 0 0 12px; }
+    .game-play h2 { margin-bottom: 7px; }
 
     .game-instructions {
       margin: 0 0 13px;
@@ -182,11 +231,34 @@
 
     .game-scoreboard {
       display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .game-stat {
+      display: grid;
+      min-width: 115px;
+      gap: 3px;
+      padding: 9px 14px;
+      border: 2px solid #d9cbd9;
+      border-radius: 16px;
+      background: rgba(255, 250, 248, .82);
       color: #625669;
-      font-size: .9rem;
+      text-align: center;
+    }
+
+    .game-stat span:first-child {
+      color: #887a8e;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .game-stat span:last-child {
+      color: #715568;
+      font-size: 1.25rem;
       font-weight: 800;
     }
 
@@ -199,6 +271,64 @@
       border-radius: 20px;
       background: #e8e7ed;
       touch-action: none;
+    }
+
+    .memory-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+      width: min(100%, 420px);
+      margin: 0 auto;
+    }
+
+    .memory-card {
+      display: grid;
+      min-height: 76px;
+      place-items: center;
+      border: 2px solid #d2c3d6;
+      border-radius: 16px;
+      background: linear-gradient(145deg, #e8dfeb, #f4e5e9);
+      color: #735a74;
+      cursor: pointer;
+      font-size: 1.8rem;
+      transition: transform .16s ease, background .16s ease;
+    }
+
+    .memory-card:hover:not(:disabled) { transform: translateY(-2px) rotate(-2deg); }
+    .memory-card[aria-pressed="true"], .memory-card:disabled { background: #fffaf7; cursor: default; }
+
+    .treat-field {
+      position: relative;
+      width: min(100%, 420px);
+      height: 300px;
+      margin: 0 auto;
+      overflow: hidden;
+      border: 2px solid #d5cbd7;
+      border-radius: 20px;
+      background:
+        radial-gradient(ellipse at 18% 80%, rgba(196, 218, 198, .58), transparent 35%),
+        radial-gradient(ellipse at 82% 25%, rgba(228, 210, 224, .6), transparent 40%),
+        #edf0e8;
+    }
+
+    .treat-target {
+      display: grid;
+      position: absolute;
+      width: 58px;
+      height: 58px;
+      place-items: center;
+      border: 2px solid #cfb8c6;
+      border-radius: 50%;
+      background: #fffaf5;
+      box-shadow: 0 4px 0 rgba(150, 124, 147, .18);
+      cursor: pointer;
+      font-size: 1.8rem;
+      transform: translate(-50%, -50%);
+      animation: treat-bounce .55s ease-in-out infinite alternate;
+    }
+
+    @keyframes treat-bounce {
+      to { transform: translate(-50%, -58%) rotate(8deg); }
     }
 
     .game-status {
@@ -243,6 +373,14 @@
     .game-controls { margin-top: 9px; }
     .game-controls .game-button { min-width: 92px; }
     .game-note { margin: 12px 0 0; color: var(--muted); font-size: .76rem; text-align: center; }
+
+    @media (max-width: 430px) {
+      .game-options { gap: 8px; }
+      .game-option { min-height: 150px; padding: 11px; }
+      .game-stat { min-width: 0; flex: 1; padding: 8px; }
+      .memory-card { min-height: 64px; }
+      .treat-field { height: 260px; }
+    }
 
     @keyframes dialog-pop {
       from { opacity: 0; transform: scale(.94) translateY(8px); }
@@ -827,25 +965,57 @@
       <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
     </dialog>
 
-    <dialog class="game-dialog" id="game-dialog" aria-labelledby="game-title">
-      <button class="dialog-close" id="game-close" type="button" aria-label="Close Paw Catcher">Close ×</button>
-      <h2 id="game-title">Paw Catcher</h2>
-      <p class="game-instructions">Move your basket and catch the falling animals, hearts, and paws. You get three chances!</p>
-      <div class="game-scoreboard" aria-label="Game score">
-        <span>Cute things: <span id="game-score">0</span></span>
-        <span>Chances: <span id="game-lives">3</span></span>
-      </div>
-      <canvas class="game-canvas" id="game-canvas" width="420" height="420" role="img" aria-label="Paw Catcher game. Catch the falling animal and heart emojis with the basket. Use the arrow keys or on-screen buttons."></canvas>
-      <p class="game-status" id="game-status" aria-live="polite">Ready when you are. Catch all the cute things!</p>
-      <div class="game-buttons">
-        <button class="game-button primary" id="game-start" type="button">Start game</button>
-        <button class="game-button" id="game-pause" type="button" disabled>Pause</button>
-      </div>
-      <div class="game-controls" aria-label="Move the basket">
-        <button class="game-button" id="game-left" type="button" aria-label="Move basket left" disabled>← Left</button>
-        <button class="game-button" id="game-right" type="button" aria-label="Move basket right" disabled>Right →</button>
-      </div>
-      <p class="game-note">Use ← → on a keyboard, or tap the buttons. Just for fun—your bingo stays right where it is.</p>
+    <dialog class="game-dialog" id="game-dialog" aria-label="Choose a cute mini-game">
+      <button class="dialog-close" id="game-close" type="button" aria-label="Close mini-games">Close ×</button>
+      <section class="game-picker" id="game-picker" aria-labelledby="game-picker-title">
+        <h2 id="game-picker-title">Pick a tiny game</h2>
+        <p class="game-picker-intro">Four little games, four different ways to play. Pick your mood ♡</p>
+        <div class="game-options">
+          <button class="game-option" type="button" data-game-id="catcher">
+            <span class="game-option-emoji" aria-hidden="true">🐾</span>
+            <strong>Paw Catcher</strong>
+            <span>Slide your basket to catch cute falling things. Game over at 10 misses.</span>
+          </button>
+          <button class="game-option" type="button" data-game-id="memory">
+            <span class="game-option-emoji" aria-hidden="true">🐱</span>
+            <strong>Kitty Memory</strong>
+            <span>Find all 6 matching emoji pairs. How few flips can you do?</span>
+          </button>
+          <button class="game-option" type="button" data-game-id="bunny">
+            <span class="game-option-emoji" aria-hidden="true">🐰</span>
+            <strong>Bunny Hop</strong>
+            <span>Hop over puddles and grab carrots until your 30-second dash is done.</span>
+          </button>
+          <button class="game-option" type="button" data-game-id="treats">
+            <span class="game-option-emoji" aria-hidden="true">🐶</span>
+            <strong>Puppy Treat Tap</strong>
+            <span>Tap 10 treats as they pop up around the garden. Quick paws!</span>
+          </button>
+        </div>
+      </section>
+      <section class="game-play" id="game-play" aria-labelledby="game-title" hidden>
+        <button class="game-button game-back" id="game-back" type="button">← Pick another game</button>
+        <h2 id="game-title"></h2>
+        <p class="game-instructions" id="game-instructions"></p>
+        <div class="game-scoreboard" aria-label="Game stats">
+          <div class="game-stat"><span id="game-score-label">Score</span><span id="game-score">0</span></div>
+          <div class="game-stat"><span id="game-secondary-label">Goal</span><span id="game-secondary">0</span></div>
+        </div>
+        <canvas class="game-canvas" id="game-canvas" width="420" height="420" role="img" hidden></canvas>
+        <div class="memory-grid" id="memory-grid" aria-label="Kitty Memory cards" hidden></div>
+        <div class="treat-field" id="treat-field" aria-label="Puppy Treat Tap garden" hidden></div>
+        <p class="game-status" id="game-status" aria-live="polite"></p>
+        <div class="game-buttons">
+          <button class="game-button primary" id="game-start" type="button">Start game</button>
+          <button class="game-button game-pause" id="game-pause" type="button" disabled>Pause</button>
+        </div>
+        <div class="game-controls" id="game-controls" aria-label="Game controls">
+          <button class="game-button" id="game-left" type="button" aria-label="Move basket left" disabled>← Left</button>
+          <button class="game-button" id="game-right" type="button" aria-label="Move basket right" disabled>Right →</button>
+          <button class="game-button" id="game-jump" type="button" aria-label="Make the bunny jump" hidden>Hop! 🐰</button>
+        </div>
+        <p class="game-note" id="game-note">Just for fun—your bingo stays right where it is.</p>
+      </section>
     </dialog>
 
     <section class="card" aria-label="Subaba's junior year bingo game">
@@ -937,8 +1107,6 @@
     const gamePauseButton = document.getElementById("game-pause");
     const gameLeftButton = document.getElementById("game-left");
     const gameRightButton = document.getElementById("game-right");
-    const gameScoreLabel = document.getElementById("game-score");
-    const gameLivesLabel = document.getElementById("game-lives");
     const gameStatus = document.getElementById("game-status");
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
@@ -982,16 +1150,42 @@
       "Another win with your name on it, Subaba. Keep shining ⭐"
     ];
     let bingoCelebrationIndex = 0;
+    const gamePicker = document.getElementById("game-picker");
+    const gamePickerButtons = document.querySelectorAll(".game-option");
+    const gamePlay = document.getElementById("game-play");
+    const gameBackButton = document.getElementById("game-back");
+    const gameTitle = document.getElementById("game-title");
+    const gameInstructions = document.getElementById("game-instructions");
+    const gameScoreLabelText = document.getElementById("game-score-label");
+    const gameScoreValue = document.getElementById("game-score");
+    const gameSecondaryLabelText = document.getElementById("game-secondary-label");
+    const gameSecondaryValue = document.getElementById("game-secondary");
+    const gameControls = document.getElementById("game-controls");
+    const gameJumpButton = document.getElementById("game-jump");
+    const gameNote = document.getElementById("game-note");
+    const memoryGrid = document.getElementById("memory-grid");
+    const treatField = document.getElementById("treat-field");
     const gameState = {
+      id: null,
       running: false,
       paused: false,
       frameId: null,
+      intervalId: null,
+      memoryTimeout: null,
+      treatTimers: [],
       lastFrame: 0,
       spawnElapsed: 0,
+      elapsed: 0,
       score: 0,
-      lives: 3,
       basketX: (gameCanvas.width - 76) / 2,
-      collectibles: []
+      collectibles: [],
+      bunnyY: 0,
+      bunnyVelocity: 0,
+      obstacles: [],
+      cards: [],
+      selectedCards: [],
+      matchedPairs: 0,
+      moves: 0
     };
 
     const config = window.BINGO_CONFIG || {};
@@ -1057,34 +1251,42 @@
     }
 
     function setGameControls(enabled) {
-      gameLeftButton.disabled = !enabled || gameState.paused;
-      gameRightButton.disabled = !enabled || gameState.paused;
+      const active = enabled && !gameState.paused;
+      gameLeftButton.hidden = gameState.id !== "catcher";
+      gameRightButton.hidden = gameState.id !== "catcher";
+      gameJumpButton.hidden = gameState.id !== "bunny";
+      gameControls.hidden = gameState.id !== "catcher" && gameState.id !== "bunny";
+      gameLeftButton.disabled = !active;
+      gameRightButton.disabled = !active;
+      gameJumpButton.disabled = !active;
+      gamePauseButton.hidden = gameState.id === "memory";
       gamePauseButton.disabled = !enabled;
       gamePauseButton.textContent = gameState.paused ? "Resume" : "Pause";
     }
 
-    function drawPawCatcher() {
-      if (!gameContext) return;
+    function drawGameBackground() {
       const { width, height } = gameCanvas;
       const background = gameContext.createLinearGradient(0, 0, width, height);
       background.addColorStop(0, "#eee7ec");
       background.addColorStop(1, "#e1e9eb");
       gameContext.fillStyle = background;
       gameContext.fillRect(0, 0, width, height);
-
       gameContext.fillStyle = "rgba(255, 255, 255, .55)";
       for (let index = 0; index < 18; index += 1) {
-        const x = (index * 97 + 31) % width;
-        const y = (index * 67 + 19) % height;
         gameContext.beginPath();
-        gameContext.arc(x, y, index % 3 === 0 ? 2 : 1.3, 0, Math.PI * 2);
+        gameContext.arc((index * 97 + 31) % width, (index * 67 + 19) % height, index % 3 === 0 ? 2 : 1.3, 0, Math.PI * 2);
         gameContext.fill();
       }
+    }
 
+    function drawPawCatcher() {
+      if (!gameContext) return;
+      const { width, height } = gameCanvas;
+      drawGameBackground();
+      gameContext.textAlign = "center";
+      gameContext.textBaseline = "middle";
       for (const item of gameState.collectibles) {
         gameContext.font = `${item.radius * 2}px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
-        gameContext.textAlign = "center";
-        gameContext.textBaseline = "middle";
         gameContext.fillText(item.emoji, item.x, item.y);
       }
 
@@ -1106,44 +1308,142 @@
       gameContext.lineWidth = 3;
       gameContext.stroke();
       gameContext.font = '17px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
-      gameContext.textAlign = "center";
       gameContext.fillText("🐾", gameState.basketX + 38, basketY + 22);
     }
 
+    function drawBunnyHop() {
+      if (!gameContext) return;
+      const { width, height } = gameCanvas;
+      drawGameBackground();
+      const groundY = height - 62;
+      gameContext.fillStyle = "#b9d1bd";
+      gameContext.fillRect(0, groundY, width, height - groundY);
+      gameContext.strokeStyle = "#819d89";
+      gameContext.lineWidth = 3;
+      gameContext.beginPath();
+      gameContext.moveTo(0, groundY);
+      gameContext.lineTo(width, groundY);
+      gameContext.stroke();
+      gameContext.textAlign = "center";
+      gameContext.textBaseline = "middle";
+      gameContext.font = '40px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+      gameContext.fillText("🐰", 76, groundY - 28 - gameState.bunnyY);
+      for (const item of gameState.obstacles) {
+        gameContext.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+        gameContext.fillText(item.emoji, item.x, groundY - 19);
+      }
+      gameContext.font = '15px "Comic Sans MS", cursive';
+      gameContext.fillStyle = "#6b7880";
+      gameContext.fillText("Tap Hop or press ↑ / space to jump puddles!", width / 2, 28);
+    }
+
     function movePawCatcher(direction) {
-      if (!gameState.running || gameState.paused) return;
-      gameState.basketX = Math.max(0, Math.min(
-        gameCanvas.width - 76,
-        gameState.basketX + direction * 34
-      ));
+      if (!gameState.running || gameState.paused || gameState.id !== "catcher") return;
+      gameState.basketX = Math.max(0, Math.min(gameCanvas.width - 76, gameState.basketX + direction * 34));
       drawPawCatcher();
     }
 
-    function finishPawCatcher() {
+    function makeMemoryCards() {
+      const emojis = ["🐱", "🐶", "🐰", "🐻", "🐣", "🐼"];
+      const cards = [...emojis, ...emojis].map((emoji, index) => ({ id: index, emoji, matched: false, revealed: false }));
+      for (let index = cards.length - 1; index > 0; index -= 1) {
+        const other = Math.floor(Math.random() * (index + 1));
+        [cards[index], cards[other]] = [cards[other], cards[index]];
+      }
+      gameState.cards = cards;
+      gameState.selectedCards = [];
+      gameState.matchedPairs = 0;
+      gameState.moves = 0;
+      renderMemoryCards();
+    }
+
+    function renderMemoryCards() {
+      memoryGrid.replaceChildren();
+      gameState.cards.forEach((card, index) => {
+        const button = document.createElement("button");
+        button.className = "memory-card";
+        button.type = "button";
+        button.dataset.cardIndex = String(index);
+        button.textContent = card.revealed || card.matched ? card.emoji : "♡";
+        button.setAttribute("aria-label", card.revealed || card.matched ? card.emoji : "Hidden kitty card");
+        button.setAttribute("aria-pressed", String(card.revealed || card.matched));
+        button.disabled = card.matched || !gameState.running;
+        button.addEventListener("click", () => flipMemoryCard(index));
+        memoryGrid.append(button);
+      });
+    }
+
+    function flipMemoryCard(index) {
+      if (!gameState.running || gameState.paused) return;
+      const card = gameState.cards[index];
+      if (!card || card.revealed || card.matched || gameState.selectedCards.length >= 2) return;
+      card.revealed = true;
+      gameState.selectedCards.push(index);
+      renderMemoryCards();
+      if (gameState.selectedCards.length < 2) return;
+
+      gameState.moves += 1;
+      gameScoreValue.textContent = String(gameState.moves);
+      const [firstIndex, secondIndex] = gameState.selectedCards;
+      const first = gameState.cards[firstIndex];
+      const second = gameState.cards[secondIndex];
+      if (first.emoji === second.emoji) {
+        first.matched = true;
+        second.matched = true;
+        gameState.matchedPairs += 1;
+        gameSecondaryValue.textContent = `${gameState.matchedPairs} / 6`;
+        gameState.selectedCards = [];
+        gameStatus.textContent = `A match! ${gameState.matchedPairs} of 6 pairs found.`;
+        renderMemoryCards();
+        if (gameState.matchedPairs === 6) {
+          finishGame(`You found all 6 pairs in ${gameState.moves} moves! Kitty-brain genius! 🐱`);
+        }
+        return;
+      }
+
+      gameStatus.textContent = "No match this time—try to remember where they are!";
+      if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
+      gameState.memoryTimeout = window.setTimeout(() => {
+        gameState.memoryTimeout = null;
+        if (gameState.id !== "memory" || !gameState.running) return;
+        first.revealed = false;
+        second.revealed = false;
+        gameState.selectedCards = [];
+        renderMemoryCards();
+      }, 750);
+    }
+
+    function finishGame(message) {
       gameState.running = false;
       gameState.paused = false;
+      if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+      if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
+      if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
+      for (const timer of gameState.treatTimers) window.clearTimeout(timer);
+      gameState.treatTimers = [];
       gameState.frameId = null;
+      gameState.intervalId = null;
+      gameState.memoryTimeout = null;
+      if (gameState.id === "treats") treatField.replaceChildren();
       gameStartButton.textContent = "Play again";
       setGameControls(false);
-      gameStatus.textContent = `Game over! You caught ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"}. Want another go?`;
-      drawPawCatcher();
+      gameStatus.textContent = message;
+      if (gameState.id === "catcher") drawPawCatcher();
+      if (gameState.id === "bunny") drawBunnyHop();
+      if (gameState.id === "memory") renderMemoryCards();
     }
 
-    function runPawCatcherFrame(timestamp) {
-      if (!gameState.running || gameState.paused) return;
-      const elapsed = gameState.lastFrame ? Math.min(timestamp - gameState.lastFrame, 50) : 0;
-      gameState.lastFrame = timestamp;
+    function runCatcherFrame(elapsed) {
       gameState.spawnElapsed += elapsed;
-
-      if (gameState.spawnElapsed >= 760) {
-        gameState.spawnElapsed -= 760;
+      if (gameState.spawnElapsed >= 1100) {
+        gameState.spawnElapsed -= 1100;
         const cuteThings = ["🐶", "🐱", "🐰", "🐻", "🐣", "🐼", "🦊", "🐸", "💖", "💕", "💗", "🐾"];
         gameState.collectibles.push({
           emoji: cuteThings[Math.floor(Math.random() * cuteThings.length)],
           x: 24 + Math.random() * (gameCanvas.width - 48),
           y: -22,
           radius: 18,
-          speed: 105 + Math.random() * 35 + Math.min(gameState.score * 3, 75),
+          speed: 58 + Math.random() * 18 + Math.min(gameState.score, 20)
         });
       }
 
@@ -1158,61 +1458,264 @@
         if (caught) {
           gameState.collectibles.splice(index, 1);
           gameState.score += 1;
-          gameScoreLabel.textContent = String(gameState.score);
-          if (gameState.score % 5 === 0) {
-            gameStatus.textContent = `${gameState.score} cute things! You're getting good at this.`;
-          } else {
-            gameStatus.textContent = `Caught a ${item.emoji}! ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} so far.`;
-          }
+          gameScoreValue.textContent = String(gameState.score);
+          gameStatus.textContent = `Caught a ${item.emoji}! ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} so far.`;
         } else if (item.y - item.radius > gameCanvas.height) {
           gameState.collectibles.splice(index, 1);
-          gameState.lives -= 1;
-          gameLivesLabel.textContent = String(gameState.lives);
-          gameStatus.textContent = gameState.lives === 0
-            ? "That's your three chances!"
-            : `${gameState.lives} ${gameState.lives === 1 ? "chance" : "chances"} left—keep going!`;
-          if (gameState.lives === 0) break;
+          gameState.misses += 1;
+          gameSecondaryValue.textContent = `${gameState.misses} / 10`;
+          gameStatus.textContent = gameState.misses === 10
+            ? "That's 10 misses! Your basket did its best—fancy another round?"
+            : `${gameState.misses} of 10 misses. No rush, keep catching!`;
+          if (gameState.misses === 10) {
+            drawPawCatcher();
+            finishGame(`Round over! You caught ${gameState.score} cute things before 10 missed. Want another go?`);
+            return;
+          }
         }
       }
-
       drawPawCatcher();
-      if (gameState.lives === 0) {
-        finishPawCatcher();
-        return;
-      }
-      gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
     }
 
-    function startPawCatcher() {
-      if (!gameContext) {
-        gameStatus.textContent = "This browser can't open the game canvas. Try a newer browser.";
-        return;
+    function runBunnyHopFrame(elapsed) {
+      gameState.elapsed += elapsed;
+      gameState.spawnElapsed += elapsed;
+      gameState.bunnyY = Math.max(0, gameState.bunnyY + gameState.bunnyVelocity * elapsed / 1000);
+      gameState.bunnyVelocity -= 950 * elapsed / 1000;
+      if (gameState.bunnyY === 0) gameState.bunnyVelocity = 0;
+
+      if (gameState.spawnElapsed >= 1150) {
+        gameState.spawnElapsed -= 1150;
+        const carrot = Math.random() < .55;
+        gameState.obstacles.push({
+          emoji: carrot ? "🥕" : "💧",
+          kind: carrot ? "carrot" : "puddle",
+          x: gameCanvas.width + 20
+        });
       }
-      if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+
+      const groundY = gameCanvas.height - 62;
+      for (let index = gameState.obstacles.length - 1; index >= 0; index -= 1) {
+        const item = gameState.obstacles[index];
+        item.x -= 175 * elapsed / 1000;
+        if (item.x < 76 && item.x > 40) {
+          if (item.kind === "carrot") {
+            gameState.score += 1;
+            gameScoreValue.textContent = String(gameState.score);
+            gameStatus.textContent = `Carrot collected! ${gameState.score} so far. Keep hopping!`;
+            gameState.obstacles.splice(index, 1);
+            continue;
+          }
+          if (gameState.bunnyY < 28) gameStatus.textContent = "Splash! Hop over the puddles next time 🐰";
+          gameState.obstacles.splice(index, 1);
+          continue;
+        }
+        if (item.x < -30) gameState.obstacles.splice(index, 1);
+      }
+
+      const remaining = Math.max(0, Math.ceil((30000 - gameState.elapsed) / 1000));
+      gameSecondaryValue.textContent = `${remaining}s`;
+      drawBunnyHop();
+      if (gameState.elapsed >= 30000) {
+        finishGame(`Dash complete! You gathered ${gameState.score} carrots. Bunny is ready for a rest 🐰`);
+      }
+    }
+
+    function runGameFrame(timestamp) {
+      if (!gameState.running || gameState.paused) return;
+      const elapsed = gameState.lastFrame ? Math.min(timestamp - gameState.lastFrame, 50) : 0;
+      gameState.lastFrame = timestamp;
+      if (gameState.id === "catcher") runCatcherFrame(elapsed);
+      if (gameState.id === "bunny" && gameState.running) runBunnyHopFrame(elapsed);
+      if (gameState.running && !gameState.paused) {
+        gameState.frameId = window.requestAnimationFrame(runGameFrame);
+      }
+    }
+
+    function spawnPuppyTreat() {
+      if (!gameState.running || gameState.paused || treatField.childElementCount >= 3) return;
+      const target = document.createElement("button");
+      target.className = "treat-target";
+      target.type = "button";
+      const treat = ["🦴", "🍪", "🧁"][Math.floor(Math.random() * 3)];
+      target.textContent = treat;
+      target.setAttribute("aria-label", `Tap the puppy's ${treat} treat`);
+      target.style.left = `${12 + Math.random() * 76}%`;
+      target.style.top = `${16 + Math.random() * 68}%`;
+      target.addEventListener("click", () => {
+        if (!gameState.running || gameState.paused || !target.isConnected) return;
+        target.remove();
+        gameState.score += 1;
+        gameScoreValue.textContent = `${gameState.score} / 10`;
+        gameStatus.textContent = `Treat caught! ${gameState.score} of 10—good puppy! 🐶`;
+        if (gameState.score === 10) finishGame("All 10 treats collected! That puppy is one happy little floof 🐶💖");
+      });
+      treatField.append(target);
+      scheduleTreatExpiry(target);
+    }
+
+    function scheduleTreatExpiry(target) {
+      const timer = window.setTimeout(() => {
+        gameState.treatTimers = gameState.treatTimers.filter((activeTimer) => activeTimer !== timer);
+        if (!target.isConnected) return;
+        if (gameState.running && gameState.paused) {
+          scheduleTreatExpiry(target);
+          return;
+        }
+        target.remove();
+      }, 1900);
+      gameState.treatTimers.push(timer);
+    }
+
+    function showSelectedGame(gameId) {
+      stopCurrentGame();
+      gameState.id = gameId;
+      const games = {
+        catcher: {
+          title: "Paw Catcher",
+          instructions: "Slide your basket to catch falling animals, hearts, and paws. It ends after 10 misses.",
+          scoreLabel: "Cute things",
+          secondaryLabel: "Misses",
+          note: "Use ← → or the buttons. The slower falling things give you time to catch them."
+        },
+        memory: {
+          title: "Kitty Memory",
+          instructions: "Flip two cards at a time and find all 6 matching pairs.",
+          scoreLabel: "Moves",
+          secondaryLabel: "Pairs",
+          note: "Take your time—the game only ends when you find all 6 pairs."
+        },
+        bunny: {
+          title: "Bunny Hop",
+          instructions: "Hop over puddles and collect carrots during a 30-second dash.",
+          scoreLabel: "Carrots",
+          secondaryLabel: "Time",
+          note: "Press ↑ / space or tap Hop. Bumps are okay; the dash always lasts 30 seconds."
+        },
+        treats: {
+          title: "Puppy Treat Tap",
+          instructions: "Tap the treats as they pop up around the garden. Collect 10 to finish!",
+          scoreLabel: "Treats",
+          secondaryLabel: "Goal",
+          note: "Tap with your mouse or finger. A missed treat just pops back up later."
+        }
+      };
+      const game = games[gameId];
+      gamePicker.hidden = true;
+      gamePlay.hidden = false;
+      gameTitle.textContent = game.title;
+      gameInstructions.textContent = game.instructions;
+      gameScoreLabelText.textContent = game.scoreLabel;
+      gameSecondaryLabelText.textContent = game.secondaryLabel;
+      gameNote.textContent = game.note;
+      gameCanvas.hidden = gameId !== "catcher" && gameId !== "bunny";
+      memoryGrid.hidden = gameId !== "memory";
+      treatField.hidden = gameId !== "treats";
+      gameState.running = false;
+      gameState.paused = false;
+      gameState.score = 0;
+      gameStartButton.textContent = "Start game";
+      gamePauseButton.textContent = "Pause";
+      if (gameId === "catcher") {
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "0 / 10";
+        gameCanvas.setAttribute("aria-label", "Paw Catcher. Catch the falling cute emojis; the game ends after ten misses.");
+      } else if (gameId === "memory") {
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "0 / 6";
+        memoryGrid.replaceChildren();
+      } else if (gameId === "bunny") {
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "30s";
+        gameCanvas.setAttribute("aria-label", "Bunny Hop. Jump over puddles and collect carrots for thirty seconds.");
+      } else {
+        gameScoreValue.textContent = "0 / 10";
+        gameSecondaryValue.textContent = "10";
+        treatField.replaceChildren();
+      }
+      gameStatus.textContent = "Ready when you are!";
+      setGameControls(false);
+      gameStartButton.focus();
+    }
+
+    function startSelectedGame() {
+      if (!gameState.id) return;
+      stopCurrentGame();
       gameState.running = true;
       gameState.paused = false;
-      gameState.frameId = null;
       gameState.lastFrame = 0;
       gameState.spawnElapsed = 0;
+      gameState.elapsed = 0;
       gameState.score = 0;
-      gameState.lives = 3;
-      gameState.basketX = (gameCanvas.width - 76) / 2;
-      gameState.collectibles = [];
-      gameScoreLabel.textContent = "0";
-      gameLivesLabel.textContent = "3";
       gameStartButton.textContent = "Start over";
-      gameStatus.textContent = "Catch the cute things! Use ← → or the buttons below.";
       setGameControls(true);
-      drawPawCatcher();
-      gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
+
+      if (gameState.id === "catcher") {
+        if (!gameContext) {
+          gameState.running = false;
+          gameStatus.textContent = "This browser can't open the game canvas. Try a newer browser.";
+          setGameControls(false);
+          return;
+        }
+        gameState.misses = 0;
+        gameState.basketX = (gameCanvas.width - 76) / 2;
+        gameState.collectibles = [];
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "0 / 10";
+        gameStatus.textContent = "Catch the cute things! You can miss 10 before the round ends.";
+        drawPawCatcher();
+      } else if (gameState.id === "memory") {
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "0 / 6";
+        gameStatus.textContent = "Find two matching animal friends!";
+        makeMemoryCards();
+      } else if (gameState.id === "bunny") {
+        if (!gameContext) {
+          gameState.running = false;
+          gameStatus.textContent = "This browser can't open the game canvas. Try a newer browser.";
+          setGameControls(false);
+          return;
+        }
+        gameState.score = 0;
+        gameState.bunnyY = 0;
+        gameState.bunnyVelocity = 0;
+        gameState.obstacles = [];
+        gameScoreValue.textContent = "0";
+        gameSecondaryValue.textContent = "30s";
+        gameStatus.textContent = "Ready, bunny? Let's go!";
+        drawBunnyHop();
+      } else {
+        gameScoreValue.textContent = "0 / 10";
+        gameSecondaryValue.textContent = "10";
+        gameStatus.textContent = "Tap the treats before they disappear!";
+        treatField.replaceChildren();
+        spawnPuppyTreat();
+      }
+      if (gameState.id === "catcher" || gameState.id === "bunny") {
+        gameState.frameId = window.requestAnimationFrame(runGameFrame);
+      } else if (gameState.id === "treats") {
+        gameState.intervalId = window.setInterval(spawnPuppyTreat, 850);
+      }
     }
 
-    function stopPawCatcher() {
+    function stopCurrentGame() {
       gameState.running = false;
       gameState.paused = false;
       if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+      if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
+      if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
+      for (const timer of gameState.treatTimers) window.clearTimeout(timer);
+      gameState.treatTimers = [];
       gameState.frameId = null;
+      gameState.intervalId = null;
+      gameState.memoryTimeout = null;
+      if (gameState.id === "treats") treatField.replaceChildren();
       setGameControls(false);
+    }
+
+    function jumpBunny() {
+      if (!gameState.running || gameState.paused || gameState.id !== "bunny" || gameState.bunnyY > 0) return;
+      gameState.bunnyVelocity = 390;
     }
 
     async function loadRemoteBoard() {
@@ -1471,9 +1974,10 @@
     });
 
     gameOpenButton.addEventListener("click", () => {
-      drawPawCatcher();
+      gamePicker.hidden = false;
+      gamePlay.hidden = true;
       gameDialog.showModal();
-      gameStartButton.focus();
+      gamePickerButtons[0]?.focus();
     });
 
     gameCloseButton.addEventListener("click", () => gameDialog.close());
@@ -1482,41 +1986,58 @@
     });
 
     gameDialog.addEventListener("close", () => {
-      if (gameState.running || gameState.paused) {
-        stopPawCatcher();
-        gameStartButton.textContent = "Play again";
-        gameStatus.textContent = "Round paused—come back whenever. Start over to play again.";
-      } else {
-        stopPawCatcher();
-      }
+      stopCurrentGame();
+      gamePicker.hidden = false;
+      gamePlay.hidden = true;
     });
 
-    gameStartButton.addEventListener("click", startPawCatcher);
+    gamePickerButtons.forEach((button) => {
+      button.addEventListener("click", () => showSelectedGame(button.dataset.gameId));
+    });
+
+    gameBackButton.addEventListener("click", () => {
+      stopCurrentGame();
+      gamePlay.hidden = true;
+      gamePicker.hidden = false;
+      gamePickerButtons[0]?.focus();
+    });
+
+    gameStartButton.addEventListener("click", startSelectedGame);
     gameLeftButton.addEventListener("click", () => movePawCatcher(-1));
     gameRightButton.addEventListener("click", () => movePawCatcher(1));
+    gameJumpButton.addEventListener("click", jumpBunny);
     gamePauseButton.addEventListener("click", () => {
       if (!gameState.running) return;
       gameState.paused = !gameState.paused;
       setGameControls(true);
       if (gameState.paused) {
         if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
+        if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
         gameState.frameId = null;
+        gameState.intervalId = null;
         gameStatus.textContent = "Paused. Take your time.";
       } else {
         gameState.lastFrame = 0;
-        gameStatus.textContent = "Back at it! Catch those cute things.";
-        gameState.frameId = window.requestAnimationFrame(runPawCatcherFrame);
+        gameStatus.textContent = "Back at it! You got this 💕";
+        if (gameState.id === "catcher" || gameState.id === "bunny") {
+          gameState.frameId = window.requestAnimationFrame(runGameFrame);
+        } else if (gameState.id === "treats") {
+          gameState.intervalId = window.setInterval(spawnPuppyTreat, 850);
+        }
       }
     });
 
     document.addEventListener("keydown", (event) => {
       if (!gameDialog.open || !gameState.running || gameState.paused) return;
-      if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+      if (gameState.id === "catcher" && (event.key === "ArrowLeft" || event.key.toLowerCase() === "a")) {
         event.preventDefault();
         movePawCatcher(-1);
-      } else if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+      } else if (gameState.id === "catcher" && (event.key === "ArrowRight" || event.key.toLowerCase() === "d")) {
         event.preventDefault();
         movePawCatcher(1);
+      } else if (gameState.id === "bunny" && (event.key === "ArrowUp" || event.key === " ")) {
+        event.preventDefault();
+        jumpBunny();
       }
     });
 
