@@ -741,7 +741,13 @@
       font-weight: 900;
     }
 
-    .progress-count { color: #637e8a; font-size: .83rem; font-weight: 800; }
+    .progress-count {
+      flex-shrink: 0;
+      color: #637e8a;
+      font-size: .83rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
 
     .progress-track {
       height: 10px;
@@ -1198,10 +1204,10 @@
             <p class="side-kicker">So far</p>
             <div class="progress-heading">
               <h2>Subaba's timeline</h2>
-              <span class="progress-count" id="progress-count">0 / 24</span>
+              <span class="progress-count" id="progress-count">1 / 25</span>
             </div>
-            <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0">
-              <div class="progress-fill" id="progress-fill"></div>
+            <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
+              <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
             </div>
             <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
           </div>
@@ -2325,12 +2331,12 @@
     }
 
     function updateProgress(announceNewLines = true) {
-      const completed = squares.filter((square, index) => index !== 12 && square.checked).length;
+      const completed = squares.filter((square) => square.checked).length;
       const completedLines = getBingoLines();
       const currentLineKeys = new Set(completedLines.map((line) => `${line.type}-${line.number}`));
-      progressCount.textContent = `${completed} / 24`;
+      progressCount.textContent = `${completed} / 25`;
       progressTrack.setAttribute("aria-valuenow", String(completed));
-      progressFill.style.width = `${(completed / 24) * 100}%`;
+      progressFill.style.width = `${(completed / 25) * 100}%`;
       bingoCount.textContent = completedLines.length === 0
         ? "No bingo yet. We're just getting started."
         : `${completedLines.length} ${completedLines.length === 1 ? "bingo" : "bingos"} — okay, look at you!`;
@@ -2343,7 +2349,7 @@
 
       if (!progressInitialized || !announceNewLines) return [];
 
-      const completedBoardJustFinished = completed === 24 && previousCompletedSquares !== 24;
+      const completedBoardJustFinished = completed === 25 && previousCompletedSquares !== 25;
       previousCompletedSquares = completed;
       const newLines = completedLines.filter((line) => !previousBingoLines.has(`${line.type}-${line.number}`));
       previousBingoLines = currentLineKeys;

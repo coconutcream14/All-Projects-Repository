@@ -17,7 +17,7 @@ alter table public.bingo_squares
 alter table public.bingo_squares enable row level security;
 
 insert into public.bingo_squares (id, text, checked) values
-  (0, 'get a new FAV♡RITE teacher 🍎', false),
+  (0, 'Get a new FAV♡RITE teacher 🍎', false),
   (1, 'Have a perfect-fit day 👚', false),
   (2, 'Make a new friend 𖠋𖠋', false),
   (3, 'Tardy to class (5+ min) 😟', false),
