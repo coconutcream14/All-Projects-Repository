@@ -808,6 +808,7 @@
       color: #877c96;
       font-size: .68rem;
       line-height: 1.4;
+      overflow-wrap: anywhere;
     }
 
     .action {
@@ -1216,7 +1217,7 @@
                 <li><span>🐰 Bunny Hop</span><strong>Not yet played</strong></li>
                 <li><span>🐶 Puppy Treat Tap</span><strong>Not yet played</strong></li>
               </ol>
-              <p class="mini-leaderboard-status" id="mini-leaderboard-status" aria-live="polite">Loading shared scores · fewer Kitty Memory moves is better.</p>
+              <p class="mini-leaderboard-status" id="mini-leaderboard-status" aria-live="polite">Loading shared scores · saved when a game is completed · fewer Kitty Memory moves is better.</p>
             </section>
           </div>
 
@@ -1596,7 +1597,8 @@
 
     function reportGameLeaderboardError(error, action) {
       console.error(`Could not ${action} the shared mini-game leaderboard.`, error);
-      gameLeaderboardStatus.textContent = "Leaderboard unavailable. Run the updated setup.sql, then try again.";
+      const detail = error instanceof Error ? error.message : String(error);
+      gameLeaderboardStatus.textContent = `Leaderboard unavailable. Run the latest setup.sql in Supabase. Details: ${detail}`;
     }
 
     async function saveGameBestScore(gameId, score) {
@@ -1932,6 +1934,7 @@
       const completedGameId = gameState.id;
       const completedScore = completedGameId === "memory" ? gameState.moves : gameState.score;
       if (gameLeaderboardScores.has(completedGameId)) {
+        gameLeaderboardStatus.textContent = "Game goal completed! Saving your score…";
         void saveGameBestScore(completedGameId, completedScore);
       }
     }
