@@ -17,7 +17,7 @@ To change prompt text on the existing shared board, open the Supabase project's 
 
 ### 3. Add your own animal pictures (optional)
 
-Click any baby animal above the board to open its picture popup. To add a photo:
+Click any baby animal around the board to open its picture popup. To add a photo:
 
 1. Create an `animals` folder beside `index.html` inside `Suhana Junior Year Bingo Sheet`.
 2. Add your pictures to that folder with these exact names:

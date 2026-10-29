@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#fff4f7">
+  <meta name="theme-color" content="#eee9ef">
   <title>Junior Year Bingo · Suhana's year, her way</title>
   <style>
     :root {
       color-scheme: light;
-      --ink: #4b354e;
-      --muted: #7f718b;
-      --pink: #f278a5;
-      --pink-dark: #d94f83;
-      --pink-light: #ffe3ed;
-      --blue: #8bc9e8;
-      --lavender: #c6b8eb;
-      --mint: #a9d8c5;
-      --peach: #f6c6a9;
-      --cream: #fffaf5;
-      --paper: #fffefd;
-      --line: #e9ddeb;
-      --shadow: 0 24px 70px rgba(94, 77, 119, .13);
+      --ink: #4a4654;
+      --muted: #777382;
+      --pink: #d995ad;
+      --pink-dark: #a96380;
+      --pink-light: #f2e3e9;
+      --blue: #94b5ca;
+      --lavender: #b4a8c9;
+      --mint: #a8c4b5;
+      --peach: #d7b6a4;
+      --cream: #f5f1eb;
+      --paper: #f7f5f2;
+      --line: #ddd9df;
+      --shadow: 0 22px 58px rgba(73, 67, 82, .11);
     }
 
     * { box-sizing: border-box; }
@@ -32,11 +32,11 @@
       padding: 38px 20px 48px;
       color: var(--ink);
       background:
-        radial-gradient(ellipse at 8% 12%, rgba(255, 255, 255, .95), transparent 25rem),
-        radial-gradient(ellipse at 92% 15%, rgba(207, 235, 250, .78), transparent 27rem),
-        radial-gradient(ellipse at 88% 88%, rgba(255, 216, 226, .76), transparent 28rem),
-        radial-gradient(ellipse at 14% 82%, rgba(217, 240, 226, .66), transparent 25rem),
-        #fbf7ff;
+        radial-gradient(ellipse at 8% 12%, rgba(248, 244, 241, .7), transparent 25rem),
+        radial-gradient(ellipse at 92% 15%, rgba(202, 216, 223, .34), transparent 27rem),
+        radial-gradient(ellipse at 88% 88%, rgba(224, 202, 210, .38), transparent 28rem),
+        radial-gradient(ellipse at 14% 82%, rgba(202, 219, 207, .35), transparent 25rem),
+        #eee9ef;
       font-family: "Trebuchet MS", "Avenir Next", sans-serif;
     }
 
@@ -51,7 +51,7 @@
       justify-content: center;
       gap: 9px;
       margin-bottom: 15px;
-      color: var(--pink-dark);
+      color: #96677d;
       font-size: .73rem;
       font-weight: 800;
       letter-spacing: .18em;
@@ -61,41 +61,36 @@
 
     .hero { margin-bottom: 27px; text-align: center; }
 
-    .animal-garden {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin: -9px auto -11px;
-      position: relative;
-      z-index: 1;
-    }
+    .animal-garden { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 
     .animal-sticker {
       display: grid;
+      position: absolute;
       width: 48px;
       height: 48px;
       place-items: center;
       padding: 0;
-      border: 3px solid rgba(255, 255, 255, .9);
+      border: 2px solid rgba(248, 246, 245, .95);
       border-radius: 42% 58% 48% 52% / 54% 43% 57% 46%;
-      box-shadow: 0 5px 13px rgba(94, 77, 119, .12);
+      box-shadow: 0 4px 11px rgba(73, 67, 82, .12);
       color: inherit;
       cursor: pointer;
       font-size: 1.45rem;
+      pointer-events: auto;
       transform: rotate(var(--tilt));
       transition: transform .2s ease, box-shadow .2s ease;
     }
 
-    .animal-sticker:nth-child(1) { --tilt: -9deg; background: #fff0c9; }
-    .animal-sticker:nth-child(2) { --tilt: 7deg; background: #e5f5ff; }
-    .animal-sticker:nth-child(3) { --tilt: -5deg; background: #f0eaff; }
-    .animal-sticker:nth-child(4) { --tilt: 8deg; background: #e6f5e9; }
-    .animal-sticker:nth-child(5) { --tilt: -7deg; background: #ffe8ec; }
+    .animal-sticker:nth-child(1) { --tilt: -9deg; top: -18px; left: -18px; background: #eee5ce; }
+    .animal-sticker:nth-child(2) { --tilt: 7deg; top: -18px; right: -18px; background: #dce8ed; }
+    .animal-sticker:nth-child(3) { --tilt: -5deg; top: 42%; left: -21px; background: #e4dfee; }
+    .animal-sticker:nth-child(4) { --tilt: 8deg; top: 42%; right: -21px; background: #dce8df; }
+    .animal-sticker:nth-child(5) { --tilt: -7deg; bottom: -19px; left: calc(50% - 24px); background: #eedde2; }
     .animal-sticker:hover, .animal-sticker:focus-visible {
       z-index: 2;
-      outline: 3px solid white;
+      outline: 3px solid #f7f4f2;
       outline-offset: 3px;
-      box-shadow: 0 9px 18px rgba(94, 77, 119, .2);
+      box-shadow: 0 8px 17px rgba(73, 67, 82, .18);
       animation: animal-float .65s ease-in-out infinite alternate;
     }
 
@@ -111,10 +106,10 @@
       max-height: min(85vh, 700px);
       padding: 22px;
       overflow: auto;
-      border: 2px solid rgba(255, 255, 255, .95);
+      border: 2px solid rgba(246, 243, 241, .95);
       border-radius: 26px;
-      background: linear-gradient(145deg, #fff5f8, #f1f9ff 60%, #f6f2ff);
-      box-shadow: 0 24px 80px rgba(69, 54, 91, .26);
+      background: linear-gradient(145deg, #eee4e6, #e5ebed 60%, #eae6ed);
+      box-shadow: 0 24px 80px rgba(69, 64, 77, .24);
       color: var(--ink);
     }
 
@@ -152,7 +147,7 @@
       overflow: hidden;
       border: 2px dashed #c9badd;
       border-radius: 20px;
-      background: rgba(255, 255, 255, .72);
+      background: rgba(242, 239, 236, .8);
     }
 
     .animal-photo {
@@ -202,9 +197,9 @@
 
     .card {
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, .9);
+      border: 1px solid rgba(246, 243, 241, .9);
       border-radius: 30px;
-      background: rgba(255, 254, 253, .91);
+      background: rgba(244, 241, 238, .94);
       box-shadow: var(--shadow);
       backdrop-filter: blur(12px);
     }
@@ -215,8 +210,8 @@
       justify-content: space-between;
       gap: 16px;
       padding: 21px 27px;
-      border-bottom: 1px solid #eee6f2;
-      background: linear-gradient(100deg, #fff5f8, #f3faff 55%, #f7f3ff);
+      border-bottom: 1px solid #dfd9df;
+      background: linear-gradient(100deg, #eee4e6, #e6ecee 55%, #eae6ed);
     }
 
     .year-label {
@@ -235,7 +230,7 @@
       height: 37px;
       place-items: center;
       border-radius: 13px;
-      background: var(--pink-light);
+      background: #e8dde1;
       font-size: 1.1rem;
     }
 
@@ -243,22 +238,24 @@
 
     .game-layout {
       display: grid;
+      position: relative;
       grid-template-columns: minmax(0, 1fr) 248px;
       gap: 29px;
       align-items: center;
       padding: 28px;
-      background: linear-gradient(145deg, rgba(255, 250, 252, .64), rgba(246, 250, 255, .52) 55%, rgba(250, 248, 255, .64));
+      background: linear-gradient(145deg, rgba(238, 230, 231, .7), rgba(228, 235, 237, .65) 55%, rgba(234, 229, 237, .7));
     }
 
     .board-wrap {
       width: 100%;
       max-width: 650px;
       margin: 0 auto;
-      padding: 12px;
-      border: 1px solid rgba(255, 255, 255, .95);
+      position: relative;
+      padding: 30px 32px;
+      border: 1px solid rgba(246, 243, 241, .92);
       border-radius: 25px;
-      background: linear-gradient(135deg, #fff0f5, #eef8ff 48%, #f2f8f0);
-      box-shadow: inset 0 1px 5px rgba(94, 77, 119, .06);
+      background: linear-gradient(135deg, #ede1e5, #e2eaec 48%, #e4e9e2);
+      box-shadow: inset 0 1px 5px rgba(73, 67, 82, .06);
     }
 
     .board {
@@ -274,10 +271,10 @@
       aspect-ratio: 1;
       place-items: center;
       padding: 9px;
-      border: 1.5px solid rgba(190, 177, 205, .46);
+      border: 1.5px solid rgba(169, 162, 174, .42);
       border-radius: 18px 15px 19px 16px;
-      background: var(--paper);
-      box-shadow: 0 3px 0 rgba(139, 122, 159, .1);
+      background: #f0edeb;
+      box-shadow: 0 3px 0 rgba(96, 91, 101, .09);
       color: #59455d;
       cursor: pointer;
       font-size: clamp(.65rem, 1.2vw, .81rem);
@@ -290,53 +287,53 @@
 
     .bingo-cell:hover:not(:disabled) {
       transform: translateY(-3px) rotate(-1deg);
-      border-color: #a8cfe4;
-      box-shadow: 0 7px 13px rgba(112, 149, 179, .17);
+      border-color: #9eb4bd;
+      box-shadow: 0 7px 13px rgba(83, 106, 115, .15);
     }
 
     .bingo-cell:focus-visible, .action:focus-visible {
-      outline: 3px solid #6aaed1;
+      outline: 3px solid #758f9b;
       outline-offset: 3px;
     }
 
     .bingo-cell.checked {
-      border-color: var(--pink);
-      background: linear-gradient(145deg, #ffd1df, #f5a2c0);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .52), 0 4px 0 #e78bab;
-      color: #632342;
+      border-color: #bd8297;
+      background: linear-gradient(145deg, #ebcbd5, #dbadbd);
+      box-shadow: inset 0 0 0 2px rgba(248, 245, 242, .52), 0 4px 0 #bd8297;
+      color: #4e3740;
     }
 
-    .bingo-cell:nth-child(5n + 2):not(.checked) { background: #f0f9ff; }
-    .bingo-cell:nth-child(5n + 3):not(.checked) { background: #f7f3ff; }
-    .bingo-cell:nth-child(5n + 4):not(.checked) { background: #eff9f3; }
-    .bingo-cell:nth-child(5n):not(.checked) { background: #fff5ed; }
+    .bingo-cell:nth-child(5n + 2):not(.checked) { background: #e6ecee; }
+    .bingo-cell:nth-child(5n + 3):not(.checked) { background: #eae6ed; }
+    .bingo-cell:nth-child(5n + 4):not(.checked) { background: #e5ebe6; }
+    .bingo-cell:nth-child(5n):not(.checked) { background: #eee7e1; }
 
     .bingo-cell:nth-child(5n + 2).checked {
-      border-color: #83b9da;
-      background: linear-gradient(145deg, #d5f0ff, #a9d8f1);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55), 0 4px 0 #88bfdc;
-      color: #294d64;
+      border-color: #7e9eae;
+      background: linear-gradient(145deg, #d2e1e7, #b5cbd4);
+      box-shadow: inset 0 0 0 2px rgba(248, 245, 242, .55), 0 4px 0 #91adba;
+      color: #344c57;
     }
 
     .bingo-cell:nth-child(5n + 3).checked {
-      border-color: #b7a5e3;
-      background: linear-gradient(145deg, #e8ddff, #c8b7ef);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55), 0 4px 0 #ad9bd9;
-      color: #493c6b;
+      border-color: #a294b7;
+      background: linear-gradient(145deg, #e0d9e8, #c8bfd5);
+      box-shadow: inset 0 0 0 2px rgba(248, 245, 242, .55), 0 4px 0 #a99bb8;
+      color: #4b4356;
     }
 
     .bingo-cell:nth-child(5n + 4).checked {
-      border-color: #8bc8a7;
-      background: linear-gradient(145deg, #d9f3e2, #addcbe);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55), 0 4px 0 #8dc4a1;
-      color: #345b44;
+      border-color: #88a995;
+      background: linear-gradient(145deg, #d4e4d8, #b9d0c0);
+      box-shadow: inset 0 0 0 2px rgba(248, 245, 242, .55), 0 4px 0 #91b19c;
+      color: #3f5646;
     }
 
     .bingo-cell:nth-child(5n).checked {
-      border-color: #e9af8b;
-      background: linear-gradient(145deg, #ffe5d4, #f4c09e);
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .55), 0 4px 0 #dfa982;
-      color: #694532;
+      border-color: #c19b83;
+      background: linear-gradient(145deg, #ecded3, #d9c0ad);
+      box-shadow: inset 0 0 0 2px rgba(248, 245, 242, .55), 0 4px 0 #c4a58f;
+      color: #58463b;
     }
 
     .bingo-cell.checked::after {
@@ -350,10 +347,10 @@
 
     .bingo-cell.picked {
       z-index: 1;
-      border: 3px solid #9874bd !important;
-      outline: 3px dashed rgba(255, 255, 255, .95);
+      border: 3px solid #88769a !important;
+      outline: 3px dashed rgba(247, 244, 241, .92);
       outline-offset: -8px;
-      box-shadow: 0 0 0 4px #fff, 0 0 0 8px #d2b9ec, 0 10px 24px rgba(115, 82, 153, .24) !important;
+      box-shadow: 0 0 0 4px #f4f0ed, 0 0 0 8px #c9c0d0, 0 10px 24px rgba(82, 73, 91, .2) !important;
       transform: scale(1.055);
       animation: picked-bounce .7s ease-in-out infinite alternate;
     }
@@ -368,7 +365,7 @@
       place-items: center;
       border: 2px solid white;
       border-radius: 50%;
-      background: #9874bd;
+      background: #88769a;
       box-shadow: 0 2px 6px rgba(79, 58, 103, .2);
       color: white;
       content: "🐾";
@@ -376,14 +373,39 @@
     }
 
     .bingo-cell.free {
-      border-color: #f2b1cb;
-      background: #fff0f5;
-      color: var(--pink-dark);
+      border-color: #c99bad;
+      background: #eee2e5;
+      color: #885d70;
       letter-spacing: .06em;
     }
 
     .bingo-cell.free.checked {
-      background: linear-gradient(145deg, #ffcfe0, #f692b5);
+      background: linear-gradient(145deg, #ead5dc, #d8b8c4);
+    }
+
+    .bingo-cell.bingo-winner {
+      z-index: 1;
+      animation: winning-cell-pop .72s ease-in-out 3;
+    }
+
+    .bingo-cell.bingo-row {
+      border: 2px solid #b6748d;
+      box-shadow: 0 0 0 3px rgba(204, 157, 174, .52), 0 5px 13px rgba(115, 73, 91, .17);
+    }
+
+    .bingo-cell.bingo-column {
+      border: 2px solid #6f98ab;
+      box-shadow: 0 0 0 3px rgba(142, 175, 188, .54), 0 5px 13px rgba(63, 91, 103, .17);
+    }
+
+    .bingo-cell.bingo-diagonal {
+      border: 2px solid #9283a7;
+      box-shadow: 0 0 0 3px rgba(173, 162, 188, .54), 0 5px 13px rgba(76, 65, 92, .17);
+    }
+
+    @keyframes winning-cell-pop {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.09) rotate(-1deg); }
     }
 
     .side-panel {
@@ -391,14 +413,14 @@
       flex-direction: column;
       gap: 19px;
       padding: 21px;
-      border: 1px solid #eee4f1;
+      border: 1px solid #ded9df;
       border-radius: 22px;
-      background: linear-gradient(155deg, #fff3f7, #f1f9ff 52%, #f6f2ff 100%);
+      background: linear-gradient(155deg, #eee5e6, #e5ebed 52%, #eae6ed 100%);
     }
 
     .side-kicker {
       margin: 0 0 7px;
-      color: #b65b87;
+      color: #916d7d;
       font-size: .69rem;
       font-weight: 800;
       letter-spacing: .14em;
@@ -418,27 +440,27 @@
       font-size: 1.35rem;
     }
 
-    .progress-count { color: #638eae; font-size: .83rem; font-weight: 800; }
+    .progress-count { color: #637e8a; font-size: .83rem; font-weight: 800; }
 
     .progress-track {
       height: 10px;
       margin-top: 12px;
       overflow: hidden;
       border-radius: 99px;
-      background: #e5f1f8;
+      background: #dce4e7;
     }
 
     .progress-fill {
       width: 0;
       height: 100%;
       border-radius: inherit;
-      background: linear-gradient(90deg, #f3a5c1, #c0b1e8 52%, #83c4db);
+      background: linear-gradient(90deg, #c995a7, #a89bb8 52%, #86aeb8);
       transition: width .35s ease;
     }
 
     .bingo-count { margin: 9px 0 0; color: var(--muted); font-size: .77rem; }
 
-    .divider { height: 1px; background: linear-gradient(90deg, #f1dce5, #dcebf2, #e8dff2); }
+    .divider { height: 1px; background: linear-gradient(90deg, #dfd4d7, #d2dcdf, #dcd5e0); }
 
     .side-copy {
       margin: 0;
@@ -471,17 +493,17 @@
     .action.pick-button {
       min-height: 50px;
       padding: 12px 18px;
-      border: 2px solid rgba(255, 255, 255, .9);
-      background: linear-gradient(105deg, #e783aa, #b995db 54%, #78b9d6);
-      box-shadow: 0 5px 0 #8e78b0, 0 9px 17px rgba(107, 105, 161, .16);
+      border: 2px solid rgba(246, 243, 241, .9);
+      background: linear-gradient(105deg, #b77c91, #9b8ba9 54%, #7299a2);
+      box-shadow: 0 5px 0 #766883, 0 9px 17px rgba(75, 70, 91, .14);
       color: white;
       font-size: .9rem;
       letter-spacing: .015em;
     }
 
     .action.pick-button:hover:not(:disabled) {
-      background: linear-gradient(105deg, #dc719d, #a984d0 54%, #67aecd);
-      box-shadow: 0 7px 0 #8e78b0, 0 12px 20px rgba(107, 105, 161, .2);
+      background: linear-gradient(105deg, #a66c82, #8b7b9b 54%, #638a94);
+      box-shadow: 0 7px 0 #766883, 0 12px 20px rgba(75, 70, 91, .17);
     }
 
     .pick-paw { font-size: 1.1rem; }
@@ -493,10 +515,10 @@
 
     .note-card {
       padding: 13px 14px;
-      border: 1px dashed #c9badd;
+      border: 1px dashed #c9c0cc;
       border-radius: 17px 14px 18px 15px;
-      background: rgba(255, 255, 255, .7);
-      color: #786583;
+      background: rgba(241, 238, 236, .78);
+      color: #6f6876;
       font-family: Georgia, "Times New Roman", serif;
       font-size: .83rem;
       font-style: italic;
@@ -507,12 +529,68 @@
     .note-card span { display: block; margin-top: 5px; font-size: 1rem; }
 
     .message {
-      min-height: 24px;
-      margin: 15px 3px 0;
-      color: #ae6386;
-      font-size: .82rem;
+      display: grid;
+      min-height: 42px;
+      place-items: center;
+      margin: 18px 4px 0;
+      padding: 8px 12px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      color: #7e6471;
+      font-size: .84rem;
       font-weight: 700;
+      line-height: 1.5;
       text-align: center;
+      transition: background .2s ease, border-color .2s ease, transform .2s ease;
+    }
+
+    .message[data-reaction="row"], .message[data-reaction="column"],
+    .message[data-reaction="diagonal"], .message[data-reaction="multiple"] {
+      min-height: 68px;
+      padding: 12px 16px;
+      border-width: 2px;
+      border-style: solid;
+      font-size: clamp(.95rem, 2vw, 1.15rem);
+      font-weight: 900;
+      animation: reaction-arrive .42s cubic-bezier(.2, .8, .25, 1.2);
+    }
+
+    .message[data-reaction="row"] {
+      border-color: #b6748d;
+      background: linear-gradient(110deg, #eee0e5, #e9d8de);
+      box-shadow: 0 4px 0 #c39aaa;
+      color: #674452;
+    }
+
+    .message[data-reaction="column"] {
+      border-color: #6f98ab;
+      background: linear-gradient(110deg, #e0e9ec, #d6e4e8);
+      box-shadow: 0 4px 0 #8eabb6;
+      color: #3e5a65;
+    }
+
+    .message[data-reaction="diagonal"] {
+      border-color: #9283a7;
+      background: linear-gradient(110deg, #e8e2eb, #ddd6e4);
+      box-shadow: 0 4px 0 #aaa0b7;
+      color: #51465e;
+    }
+
+    .message[data-reaction="multiple"] {
+      border-color: #a38b9e;
+      background: linear-gradient(110deg, #eee0e5, #e0e6e8, #e6e0e9);
+      box-shadow: 0 4px 0 #aaa0b2;
+      color: #594956;
+    }
+
+    .message[data-reaction="check"] { color: #57705f; }
+    .message[data-reaction="uncheck"] { color: #6d7180; }
+    .message[data-reaction="picked"] { color: #655975; }
+
+    @keyframes reaction-arrive {
+      0% { opacity: .5; transform: scale(.94) translateY(5px); }
+      70% { transform: scale(1.025); }
+      100% { opacity: 1; transform: scale(1); }
     }
 
     .footer {
@@ -549,11 +627,15 @@
       body { padding-right: 10px; padding-left: 10px; }
       .board { gap: 6px; }
       .bingo-cell { padding: 4px; border-radius: 11px; font-size: clamp(.58rem, 2.45vw, .7rem); }
-      .board-wrap { padding: 7px; border-radius: 19px; }
+      .board-wrap { padding: 25px 24px; border-radius: 19px; }
       .game-layout { padding: 13px; }
       .side-panel { gap: 11px; padding: 14px; }
-      .animal-garden { gap: 8px; }
       .animal-sticker { width: 41px; height: 41px; font-size: 1.25rem; }
+      .animal-sticker:nth-child(1) { top: -15px; left: -15px; }
+      .animal-sticker:nth-child(2) { top: -15px; right: -15px; }
+      .animal-sticker:nth-child(3) { left: -18px; }
+      .animal-sticker:nth-child(4) { right: -18px; }
+      .animal-sticker:nth-child(5) { bottom: -16px; left: calc(50% - 21px); }
       .animal-dialog { padding: 17px; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
       .card-top { padding: 14px; }
@@ -572,14 +654,6 @@
       <h1>Junior year <span>bingo</span></h1>
       <p class="subtitle">A whole year of new memories, tiny victories, and <strong>main-character moments</strong> — made just for Suhana.</p>
     </header>
-
-    <div class="animal-garden" role="group" aria-label="Meet the baby animals">
-      <button class="animal-sticker" type="button" data-animal="Baby chick" data-photo="animals/baby-chick.jpg" aria-label="Meet the baby chick">🐣</button>
-      <button class="animal-sticker" type="button" data-animal="Baby bunny" data-photo="animals/baby-bunny.jpg" aria-label="Meet the baby bunny">🐰</button>
-      <button class="animal-sticker" type="button" data-animal="Baby bear" data-photo="animals/baby-bear.jpg" aria-label="Meet the baby bear">🐻</button>
-      <button class="animal-sticker" type="button" data-animal="Baby cat" data-photo="animals/baby-cat.jpg" aria-label="Meet the baby cat">🐱</button>
-      <button class="animal-sticker" type="button" data-animal="Baby puppy" data-photo="animals/baby-puppy.jpg" aria-label="Meet the baby puppy">🐶</button>
-    </div>
 
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
       <button class="dialog-close" id="animal-dialog-close" type="button" aria-label="Close animal picture">Close ×</button>
@@ -602,6 +676,13 @@
 
       <div class="game-layout">
         <div class="board-wrap">
+          <div class="animal-garden" role="group" aria-label="Meet the baby animals">
+            <button class="animal-sticker" type="button" data-animal="Baby chick" data-photo="animals/baby-chick.jpg" aria-label="Meet the baby chick">🐣</button>
+            <button class="animal-sticker" type="button" data-animal="Baby bunny" data-photo="animals/baby-bunny.jpg" aria-label="Meet the baby bunny">🐰</button>
+            <button class="animal-sticker" type="button" data-animal="Baby bear" data-photo="animals/baby-bear.jpg" aria-label="Meet the baby bear">🐻</button>
+            <button class="animal-sticker" type="button" data-animal="Baby cat" data-photo="animals/baby-cat.jpg" aria-label="Meet the baby cat">🐱</button>
+            <button class="animal-sticker" type="button" data-animal="Baby puppy" data-photo="animals/baby-puppy.jpg" aria-label="Meet the baby puppy">🐶</button>
+          </div>
           <div class="board" id="board" role="group" aria-label="Junior year bingo board"></div>
           <p class="message" id="message" aria-live="polite"></p>
         </div>
@@ -668,11 +749,13 @@
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
     let connected = false;
     let saving = false;
-    let previousBingos = 0;
     let polling = false;
     let pickedSquareIndex = null;
     let pickedSquareTimeout = null;
     let previousBingoLines = new Set();
+    let winningSquareTypes = new Map();
+    let winningSquareTimeout = null;
+    let reactionTimeout = null;
     let progressInitialized = false;
     let animalPhotoRequest = 0;
 
@@ -713,6 +796,25 @@
       return text ? JSON.parse(text) : null;
     }
 
+    function setMessage(text, reaction = "") {
+      if (reactionTimeout !== null) window.clearTimeout(reactionTimeout);
+      reactionTimeout = null;
+      message.textContent = text;
+      if (reaction) {
+        message.dataset.reaction = reaction;
+      } else {
+        delete message.dataset.reaction;
+      }
+    }
+
+    function showReaction(text, type, duration = 4800) {
+      setMessage(text, type);
+      reactionTimeout = window.setTimeout(() => {
+        if (message.textContent === text) delete message.dataset.reaction;
+        reactionTimeout = null;
+      }, duration);
+    }
+
     async function loadRemoteBoard() {
       const rows = await request("/rest/v1/bingo_squares?select=id,text,checked&order=id.asc");
       if (!Array.isArray(rows) || rows.length !== 25 ||
@@ -735,9 +837,8 @@
     function showConnectionError(error) {
       console.error("Could not sync the shared bingo board.", error);
       connected = false;
-      message.textContent = "Can't reach the shared board. Check setup and internet, then reload.";
+      setMessage("Can't reach the shared board. Check setup and internet, then reload.");
       renderBoard();
-      message.textContent = "Can't reach the shared board. Check setup and internet, then reload.";
     }
 
     function getBingoLines() {
@@ -785,11 +886,25 @@
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
         const reactions = {
-          row: (number) => `🐰 Row ${number}! Bunny's doing a happy hop!`,
-          column: (number) => `🐬 Column ${number}! Dolphin says, "high fin!"`,
-          diagonal: (number) => `🦊 Diagonal ${number}! Fox says, "that was clever!"`
+          row: (number) => `🐰 ROW ${number} COMPLETE! Bunny's doing a happy hop!`,
+          column: (number) => `🐬 COLUMN ${number} COMPLETE! Dolphin says, "high fin!"`,
+          diagonal: (number) => `🦊 DIAGONAL ${number} COMPLETE! Fox says, "that was clever!"`
         };
-        message.textContent = newLines.map((line) => reactions[line.type](line.number)).join(" ");
+        const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
+        showReaction(newLines.map((line) => reactions[line.type](line.number)).join(" "), reactionType, 6500);
+        winningSquareTypes = new Map();
+        for (const line of newLines) {
+          for (const index of line.squares) winningSquareTypes.set(index, line.type);
+        }
+        for (const [index, type] of winningSquareTypes) {
+          board.querySelector(`[data-index="${index}"]`)?.classList.add("bingo-winner", `bingo-${type}`);
+        }
+        if (winningSquareTimeout !== null) window.clearTimeout(winningSquareTimeout);
+        winningSquareTimeout = window.setTimeout(() => {
+          winningSquareTypes.clear();
+          winningSquareTimeout = null;
+          renderBoard(false);
+        }, 3600);
         celebrate(newLines.map((line) => line.type));
       }
       return newLines;
@@ -800,6 +915,9 @@
       squares.forEach((square, index) => {
         const cell = document.createElement("button");
         cell.className = `bingo-cell${square.checked ? " checked" : ""}${index === 12 ? " free" : ""}${pickedSquareIndex === index ? " picked" : ""}`;
+        if (winningSquareTypes.has(index)) {
+          cell.classList.add("bingo-winner", `bingo-${winningSquareTypes.get(index)}`);
+        }
         cell.type = "button";
         cell.dataset.index = String(index);
         cell.disabled = !connected || saving || index === 12;
@@ -812,12 +930,22 @@
           squares[index].checked = checked;
           saving = true;
           renderBoard(false);
-          message.textContent = "Saving your square…";
+          setMessage("Saving your square…");
           try {
             await updateSquare(index, { checked });
-            const completedLines = renderBoard(true);
-            if (completedLines.length === 0) {
-              message.textContent = checked ? "One more little memory checked off! ♡" : "Square unchecked.";
+            const newLines = renderBoard(true);
+            if (newLines.length === 0 && checked) {
+              const reactions = [
+                "🐣 Chirp chirp! One little memory saved!",
+                "🐱 Purr-fect! Another square checked!",
+                "🐶 Tail wags for this one!",
+                "🐻 Bear-y proud of you!",
+                "🐰 Hop, hop—one more memory!"
+              ];
+              showReaction(reactions[Math.floor(Math.random() * reactions.length)], "check");
+              celebrate(["check"]);
+            } else if (newLines.length === 0) {
+              showReaction("All good—this memory can wait for another day ♡", "uncheck");
             }
             if (checked && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
               board.querySelector(`[data-index="${index}"]`)?.animate(
@@ -828,7 +956,7 @@
           } catch (error) {
             console.error("Could not save a bingo check-off.", error);
             squares[index].checked = !checked;
-            message.textContent = "That check-off couldn't be saved. Check your connection and try again.";
+            setMessage("That check-off couldn't be saved. Check your connection and try again.");
             renderBoard();
           } finally {
             saving = false;
@@ -845,11 +973,13 @@
     function celebrate(lineTypes) {
       const symbols = ["✦", "✧", "♡", "✿", "★"];
       const colorsByType = {
-        row: ["#e783aa", "#f0a2bd", "#f4bd6c"],
-        column: ["#6eadd1", "#83c4db", "#a9d8c5"],
-        diagonal: ["#9874bd", "#c6b8eb", "#e783aa"]
+        row: ["#b77c91", "#c69aaa", "#b99b80"],
+        column: ["#7299a2", "#91afb4", "#a8b99f"],
+        diagonal: ["#897c9a", "#aa9bb2", "#b77c91"],
+        check: ["#a9b49c", "#c69aaa", "#91afb4"]
       };
-      for (let index = 0; index < 18 * Math.min(lineTypes.length, 3); index += 1) {
+      const particleCount = lineTypes.includes("check") ? 8 : 18 * Math.min(lineTypes.length, 3);
+      for (let index = 0; index < particleCount; index += 1) {
         const sparkle = document.createElement("span");
         sparkle.className = "sparkle";
         sparkle.textContent = symbols[index % symbols.length];
@@ -900,7 +1030,7 @@
       if (!connected || saving) return;
       const available = Array.from(board.querySelectorAll(".bingo-cell:not(.checked)"));
       if (available.length === 0) {
-        message.textContent = "Every square is checked — you did it! You're a junior-year legend! 🎉";
+        showReaction("Every square is checked — you did it! You're a junior-year legend! 🎉", "multiple");
         return;
       }
       const chosen = available[Math.floor(Math.random() * available.length)];
@@ -917,7 +1047,7 @@
           { duration: 700, easing: "ease-out" }
         );
       }
-      message.textContent = `🐾 This one's picked for you: ${pickedCell.textContent}`;
+      showReaction(`🐾 This one's picked for you: ${pickedCell.textContent}`, "picked");
       pickedSquareTimeout = window.setTimeout(() => {
         if (pickedSquareIndex !== selectedIndex) return;
         pickedSquareIndex = null;
@@ -929,7 +1059,7 @@
     async function start() {
       renderBoard();
       if (!backendConfigured) {
-        message.textContent = "Online setup needed: follow the project's README to connect Supabase.";
+        setMessage("Online setup needed: follow the project's README to connect Supabase.");
         surpriseButton.disabled = true;
         return;
       }
@@ -945,7 +1075,7 @@
           await loadRemoteBoard();
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
-          message.textContent = "Board sync paused. Check your connection; we'll try again.";
+          setMessage("Board sync paused. Check your connection; we'll try again.");
         } finally {
           polling = false;
         }
