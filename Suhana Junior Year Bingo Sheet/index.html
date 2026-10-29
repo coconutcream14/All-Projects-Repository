@@ -75,12 +75,15 @@
       width: 48px;
       height: 48px;
       place-items: center;
+      padding: 0;
       border: 3px solid rgba(255, 255, 255, .9);
       border-radius: 42% 58% 48% 52% / 54% 43% 57% 46%;
       box-shadow: 0 5px 13px rgba(94, 77, 119, .12);
+      color: inherit;
+      cursor: pointer;
       font-size: 1.45rem;
       transform: rotate(var(--tilt));
-      transition: transform .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease;
     }
 
     .animal-sticker:nth-child(1) { --tilt: -9deg; background: #fff0c9; }
@@ -88,7 +91,92 @@
     .animal-sticker:nth-child(3) { --tilt: -5deg; background: #f0eaff; }
     .animal-sticker:nth-child(4) { --tilt: 8deg; background: #e6f5e9; }
     .animal-sticker:nth-child(5) { --tilt: -7deg; background: #ffe8ec; }
-    .animal-sticker:hover { transform: translateY(-4px) rotate(0); }
+    .animal-sticker:hover, .animal-sticker:focus-visible {
+      z-index: 2;
+      outline: 3px solid white;
+      outline-offset: 3px;
+      box-shadow: 0 9px 18px rgba(94, 77, 119, .2);
+      animation: animal-float .65s ease-in-out infinite alternate;
+    }
+
+    @keyframes animal-float {
+      from { transform: translateY(-2px) rotate(var(--tilt)); }
+      to { transform: translateY(-9px) rotate(var(--tilt)); }
+    }
+
+    .animal-dialog {
+      position: fixed;
+      width: min(440px, calc(100vw - 32px));
+      max-width: none;
+      max-height: min(85vh, 700px);
+      padding: 22px;
+      overflow: auto;
+      border: 2px solid rgba(255, 255, 255, .95);
+      border-radius: 26px;
+      background: linear-gradient(145deg, #fff5f8, #f1f9ff 60%, #f6f2ff);
+      box-shadow: 0 24px 80px rgba(69, 54, 91, .26);
+      color: var(--ink);
+    }
+
+    .animal-dialog[open] { animation: dialog-pop .2s ease-out; }
+    .animal-dialog::backdrop { background: rgba(68, 53, 78, .38); backdrop-filter: blur(5px); }
+    .dialog-close {
+      display: block;
+      margin: 0 0 12px auto;
+      padding: 7px 12px;
+      border: 1px solid #d6cce3;
+      border-radius: 999px;
+      background: white;
+      color: #765a83;
+      cursor: pointer;
+      font: inherit;
+      font-size: .82rem;
+      font-weight: 800;
+    }
+
+    .dialog-close:hover { background: #f7f3ff; }
+
+    .animal-dialog h2 {
+      margin: 0 0 14px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+
+    .animal-photo-frame {
+      display: grid;
+      min-height: 210px;
+      aspect-ratio: 4 / 3;
+      place-items: center;
+      overflow: hidden;
+      border: 2px dashed #c9badd;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, .72);
+    }
+
+    .animal-photo {
+      width: 100%;
+      height: 100%;
+      max-height: 52vh;
+      object-fit: cover;
+    }
+
+    .animal-photo-placeholder {
+      padding: 24px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .animal-photo-placeholder[hidden] { display: none; }
+    .animal-photo-placeholder .placeholder-emoji { display: block; margin-bottom: 10px; font-size: 3.5rem; }
+    .animal-photo-placeholder code { color: #765a83; font-size: .83em; overflow-wrap: anywhere; }
+    .animal-dialog-note { margin: 13px 0 0; color: var(--muted); font-size: .8rem; text-align: center; }
+
+    @keyframes dialog-pop {
+      from { opacity: 0; transform: scale(.94) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
 
     h1 {
       margin: 0;
@@ -465,12 +553,14 @@
       .side-panel { gap: 11px; padding: 14px; }
       .animal-garden { gap: 8px; }
       .animal-sticker { width: 41px; height: 41px; font-size: 1.25rem; }
+      .animal-dialog { padding: 17px; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
       .card-top { padding: 14px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      .animal-sticker:hover, .animal-sticker:focus-visible, .bingo-cell.picked { animation: none !important; }
     }
   </style>
 </head>
@@ -482,13 +572,26 @@
       <p class="subtitle">A whole year of new memories, tiny victories, and <strong>main-character moments</strong> — made just for Suhana.</p>
     </header>
 
-    <div class="animal-garden" aria-hidden="true">
-      <span class="animal-sticker">🐣</span>
-      <span class="animal-sticker">🐰</span>
-      <span class="animal-sticker">🐻</span>
-      <span class="animal-sticker">🐱</span>
-      <span class="animal-sticker">🐶</span>
+    <div class="animal-garden" aria-label="Meet the baby animals">
+      <button class="animal-sticker" type="button" data-animal="Baby chick" data-photo="animals/baby-chick.jpg" aria-label="Meet the baby chick">🐣</button>
+      <button class="animal-sticker" type="button" data-animal="Baby bunny" data-photo="animals/baby-bunny.jpg" aria-label="Meet the baby bunny">🐰</button>
+      <button class="animal-sticker" type="button" data-animal="Baby bear" data-photo="animals/baby-bear.jpg" aria-label="Meet the baby bear">🐻</button>
+      <button class="animal-sticker" type="button" data-animal="Baby cat" data-photo="animals/baby-cat.jpg" aria-label="Meet the baby cat">🐱</button>
+      <button class="animal-sticker" type="button" data-animal="Baby puppy" data-photo="animals/baby-puppy.jpg" aria-label="Meet the baby puppy">🐶</button>
     </div>
+
+    <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
+      <button class="dialog-close" id="animal-dialog-close" type="button" aria-label="Close animal picture">Close ×</button>
+      <h2 id="animal-dialog-title"></h2>
+      <div class="animal-photo-frame">
+        <img class="animal-photo" id="animal-photo" alt="" hidden>
+        <div class="animal-photo-placeholder" id="animal-photo-placeholder">
+          <span class="placeholder-emoji" id="animal-placeholder-emoji" aria-hidden="true"></span>
+          <span id="animal-placeholder-copy"></span>
+        </div>
+      </div>
+      <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
+    </dialog>
 
     <section class="card" aria-label="Suhana's junior year bingo game">
       <div class="card-top">
@@ -552,6 +655,14 @@
     const progressTrack = document.getElementById("progress-track");
     const progressFill = document.getElementById("progress-fill");
     const bingoCount = document.getElementById("bingo-count");
+    const animalDialog = document.getElementById("animal-dialog");
+    const animalDialogClose = document.getElementById("animal-dialog-close");
+    const animalDialogTitle = document.getElementById("animal-dialog-title");
+    const animalPhoto = document.getElementById("animal-photo");
+    const animalPhotoPlaceholder = document.getElementById("animal-photo-placeholder");
+    const animalPlaceholderEmoji = document.getElementById("animal-placeholder-emoji");
+    const animalPlaceholderCopy = document.getElementById("animal-placeholder-copy");
+    const animalButtons = document.querySelectorAll(".animal-sticker");
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
     let connected = false;
@@ -560,6 +671,9 @@
     let polling = false;
     let pickedSquareIndex = null;
     let pickedSquareTimeout = null;
+    let previousBingoLines = new Set();
+    let progressInitialized = false;
+    let animalPhotoRequest = 0;
 
     const config = window.BINGO_CONFIG || {};
     const supabaseUrl = (config.supabaseUrl || "").replace(/\/+$/, "");
@@ -628,33 +742,59 @@
     function getBingoLines() {
       const lines = [];
       for (let row = 0; row < 5; row += 1) {
-        lines.push(Array.from({ length: 5 }, (_, column) => row * 5 + column));
+        lines.push({
+          type: "row",
+          number: row + 1,
+          squares: Array.from({ length: 5 }, (_, column) => row * 5 + column)
+        });
       }
       for (let column = 0; column < 5; column += 1) {
-        lines.push(Array.from({ length: 5 }, (_, row) => row * 5 + column));
+        lines.push({
+          type: "column",
+          number: column + 1,
+          squares: Array.from({ length: 5 }, (_, row) => row * 5 + column)
+        });
       }
-      lines.push([0, 6, 12, 18, 24], [4, 8, 12, 16, 20]);
-      return lines.filter((line) => line.every((index) => squares[index].checked));
+      lines.push(
+        { type: "diagonal", number: 1, squares: [0, 6, 12, 18, 24] },
+        { type: "diagonal", number: 2, squares: [4, 8, 12, 16, 20] }
+      );
+      return lines.filter((line) => line.squares.every((index) => squares[index].checked));
     }
 
-    function updateProgress() {
+    function updateProgress(announceNewLines = true) {
       const completed = squares.filter((square, index) => index !== 12 && square.checked).length;
-      const bingos = getBingoLines().length;
+      const completedLines = getBingoLines();
+      const currentLineKeys = new Set(completedLines.map((line) => `${line.type}-${line.number}`));
       progressCount.textContent = `${completed} / 24`;
       progressTrack.setAttribute("aria-valuenow", String(completed));
       progressFill.style.width = `${(completed / 24) * 100}%`;
-      bingoCount.textContent = bingos === 0
+      bingoCount.textContent = completedLines.length === 0
         ? "No bingo lines yet — your story is just starting!"
-        : `${bingos} bingo ${bingos === 1 ? "line" : "lines"} — you're on a roll!`;
+        : `${completedLines.length} bingo ${completedLines.length === 1 ? "line" : "lines"} — you're on a roll!`;
 
-      if (bingos > previousBingos) {
-        message.textContent = bingos === 1 ? "BINGO! Your first junior-year line! ✨" : `BINGO! That's ${bingos} lines! ✨`;
-        celebrate();
+      if (!progressInitialized && connected) {
+        previousBingoLines = currentLineKeys;
+        progressInitialized = true;
       }
-      previousBingos = bingos;
+
+      if (!progressInitialized || !announceNewLines) return [];
+
+      const newLines = completedLines.filter((line) => !previousBingoLines.has(`${line.type}-${line.number}`));
+      previousBingoLines = currentLineKeys;
+      if (newLines.length > 0) {
+        const reactions = {
+          row: (number) => `🐰 Row ${number}! Bunny's doing a happy hop!`,
+          column: (number) => `🐬 Column ${number}! Dolphin says, "high fin!"`,
+          diagonal: (number) => `🦊 Diagonal ${number}! Fox says, "that was clever!"`
+        };
+        message.textContent = newLines.map((line) => reactions[line.type](line.number)).join(" ");
+        celebrate(newLines.map((line) => line.type));
+      }
+      return newLines;
     }
 
-    function renderBoard() {
+    function renderBoard(announceNewLines = true) {
       board.replaceChildren();
       squares.forEach((square, index) => {
         const cell = document.createElement("button");
@@ -690,7 +830,7 @@
       });
       board.setAttribute("aria-label", "Junior year bingo board");
       surpriseButton.disabled = !connected || saving;
-      updateProgress();
+      return updateProgress(announceNewLines);
     }
 
     function celebrate() {
