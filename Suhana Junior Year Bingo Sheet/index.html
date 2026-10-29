@@ -135,6 +135,7 @@
     }
 
     .dialog-close:hover { background: #f7f3ff; }
+    .dialog-close:focus-visible { outline: 3px solid #6aaed1; outline-offset: 3px; }
 
     .animal-dialog h2 {
       margin: 0 0 14px;
@@ -572,7 +573,7 @@
       <p class="subtitle">A whole year of new memories, tiny victories, and <strong>main-character moments</strong> — made just for Suhana.</p>
     </header>
 
-    <div class="animal-garden" aria-label="Meet the baby animals">
+    <div class="animal-garden" role="group" aria-label="Meet the baby animals">
       <button class="animal-sticker" type="button" data-animal="Baby chick" data-photo="animals/baby-chick.jpg" aria-label="Meet the baby chick">🐣</button>
       <button class="animal-sticker" type="button" data-animal="Baby bunny" data-photo="animals/baby-bunny.jpg" aria-label="Meet the baby bunny">🐰</button>
       <button class="animal-sticker" type="button" data-animal="Baby bear" data-photo="animals/baby-bear.jpg" aria-label="Meet the baby bear">🐻</button>
@@ -683,18 +684,18 @@
       supabaseAnonKey.length > 20 &&
       !supabaseAnonKey.includes("YOUR_");
 
-    function apiHeaders(token = supabaseAnonKey) {
+    function apiHeaders() {
       return {
         apikey: supabaseAnonKey,
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${supabaseAnonKey}`,
         "Content-Type": "application/json"
       };
     }
 
-    async function request(path, options = {}, token = supabaseAnonKey) {
+    async function request(path, options = {}) {
       const response = await fetch(`${supabaseUrl}${path}`, {
         ...options,
-        headers: { ...apiHeaders(token), ...(options.headers || {}) }
+        headers: { ...apiHeaders(), ...(options.headers || {}) }
       });
       if (!response.ok) {
         const detail = await response.text();
@@ -810,12 +811,20 @@
           const checked = !squares[index].checked;
           squares[index].checked = checked;
           saving = true;
-          renderBoard();
+          renderBoard(false);
           message.textContent = "Saving your square…";
           try {
             await updateSquare(index, { checked });
-            message.textContent = checked ? "One more little memory checked off! ♡" : "Square unchecked.";
-            renderBoard();
+            const completedLines = renderBoard(true);
+            if (completedLines.length === 0) {
+              message.textContent = checked ? "One more little memory checked off! ♡" : "Square unchecked.";
+            }
+            if (checked && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+              board.querySelector(`[data-index="${index}"]`)?.animate(
+                [{ transform: "scale(1)" }, { transform: "scale(1.13) rotate(-2deg)" }, { transform: "scale(1)" }],
+                { duration: 360, easing: "ease-out" }
+              );
+            }
           } catch (error) {
             console.error("Could not save a bingo check-off.", error);
             squares[index].checked = !checked;
@@ -833,22 +842,59 @@
       return updateProgress(announceNewLines);
     }
 
-    function celebrate() {
+    function celebrate(lineTypes) {
       const symbols = ["✦", "✧", "♡", "✿", "★"];
-      for (let index = 0; index < 18; index += 1) {
+      const colorsByType = {
+        row: ["#e783aa", "#f0a2bd", "#f4bd6c"],
+        column: ["#6eadd1", "#83c4db", "#a9d8c5"],
+        diagonal: ["#9874bd", "#c6b8eb", "#e783aa"]
+      };
+      for (let index = 0; index < 18 * Math.min(lineTypes.length, 3); index += 1) {
         const sparkle = document.createElement("span");
         sparkle.className = "sparkle";
         sparkle.textContent = symbols[index % symbols.length];
         sparkle.setAttribute("aria-hidden", "true");
         sparkle.style.left = `${15 + Math.random() * 70}vw`;
         sparkle.style.top = `${35 + Math.random() * 40}vh`;
-        sparkle.style.color = ["#df5788", "#f0a2bd", "#bd68a0", "#f4bd6c"][index % 4];
+        const colors = colorsByType[lineTypes[index % lineTypes.length]];
+        sparkle.style.color = colors[index % colors.length];
         sparkle.style.fontSize = `${14 + Math.random() * 17}px`;
         sparkle.style.setProperty("--drift", `${Math.random() * 70 - 35}px`);
         document.body.append(sparkle);
         window.setTimeout(() => sparkle.remove(), 900);
       }
     }
+
+    animalButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const animalName = button.dataset.animal;
+        const photoPath = button.dataset.photo;
+        const requestId = ++animalPhotoRequest;
+        animalDialogTitle.textContent = animalName;
+        animalPlaceholderEmoji.textContent = button.textContent;
+        animalPlaceholderCopy.textContent = `Add a picture named "${photoPath.split("/").pop()}" to the animals folder to see it here.`;
+        animalPhoto.hidden = true;
+        animalPhotoPlaceholder.hidden = false;
+        animalPhoto.alt = animalName;
+        animalPhoto.onload = () => {
+          if (requestId !== animalPhotoRequest) return;
+          animalPhoto.hidden = false;
+          animalPhotoPlaceholder.hidden = true;
+        };
+        animalPhoto.onerror = () => {
+          if (requestId !== animalPhotoRequest) return;
+          animalPhoto.hidden = true;
+          animalPhotoPlaceholder.hidden = false;
+        };
+        animalPhoto.src = photoPath;
+        if (!animalDialog.open) animalDialog.showModal();
+      });
+    });
+
+    animalDialogClose.addEventListener("click", () => animalDialog.close());
+    animalDialog.addEventListener("click", (event) => {
+      if (event.target === animalDialog) animalDialog.close();
+    });
 
     surpriseButton.addEventListener("click", () => {
       if (!connected || saving) return;
