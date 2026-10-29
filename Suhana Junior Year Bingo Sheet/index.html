@@ -581,6 +581,23 @@
 
     .save-note { color: var(--muted); font-size: .78rem; }
 
+    .card-top-tools { display: flex; align-items: center; gap: 12px; }
+
+    .sound-toggle {
+      min-height: 38px;
+      padding: 6px 12px;
+      border: 1px solid #c8c0ce;
+      border-radius: 999px;
+      background: rgba(255, 250, 248, .78);
+      color: #65566d;
+      cursor: pointer;
+      font-size: .76rem;
+      font-weight: 800;
+    }
+
+    .sound-toggle:hover { background: #f7f0f3; }
+    .sound-toggle:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
+
     .game-layout {
       display: grid;
       position: relative;
@@ -1136,7 +1153,9 @@
       .animal-sticker:nth-child(5) { bottom: -16px; left: calc(50% - 21px); }
       .animal-dialog, .game-dialog { padding: 17px; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
-      .card-top { padding: 14px; }
+      .card-top { flex-wrap: wrap; padding: 14px; }
+      .card-top-tools { width: 100%; justify-content: space-between; }
+      .save-note { max-width: none; text-align: left; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1228,7 +1247,10 @@
     <section class="card" aria-label="Subaba's junior year bingo game">
       <div class="card-top">
         <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> Subaba's junior year</div>
-        <div class="save-note">It saves as you go ♡</div>
+        <div class="card-top-tools">
+          <div class="save-note">It saves as you go ♡</div>
+          <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Mute sound effects" aria-pressed="true">Sound on 🔊</button>
+        </div>
       </div>
 
       <div class="game-layout">
@@ -1318,6 +1340,7 @@
     const gameDialog = document.getElementById("game-dialog");
     const gameCanvas = document.getElementById("game-canvas");
     const gameContext = gameCanvas.getContext("2d");
+    const soundToggleButton = document.getElementById("sound-toggle");
     const gameOpenButton = document.getElementById("game-open");
     const gameLeaderboardList = document.getElementById("mini-leaderboard-list");
     const gameLeaderboardStatus = document.getElementById("mini-leaderboard-status");
@@ -1365,6 +1388,98 @@
     let fullBoardCelebrationTimeout = null;
     let animalPhotoRequest = 0;
     let tapHeartIndex = 0;
+    let soundEnabled = true;
+    let audioContext = null;
+    let soundMasterGain = null;
+    const lastSoundTimes = new Map();
+    const soundPatterns = {
+      tap: { notes: [660], wave: "sine", gain: 0.16, gap: 0.06 },
+      heart: { notes: [523, 784], wave: "sine", gain: 0.2, gap: 0.07 },
+      animal: { notes: [440, 554], wave: "sine", gain: 0.17, gap: 0.07 },
+      pick: { notes: [587, 740], wave: "sine", gain: 0.18, gap: 0.07 },
+      check: { notes: [523, 659], wave: "sine", gain: 0.2, gap: 0.07 },
+      uncheck: { notes: [440, 349], wave: "sine", gain: 0.16, gap: 0.07 },
+      bingo: { notes: [523, 659, 784], wave: "triangle", gain: 0.2, gap: 0.08 },
+      fullBoard: { notes: [523, 659, 784, 1047], wave: "triangle", gain: 0.22, gap: 0.09 },
+      error: { notes: [247, 196], wave: "sine", gain: 0.18, gap: 0.09 },
+      start: { notes: [440, 587, 784], wave: "triangle", gain: 0.18, gap: 0.08 },
+      pause: { notes: [523, 392], wave: "sine", gain: 0.16, gap: 0.08 },
+      resume: { notes: [392, 523], wave: "sine", gain: 0.16, gap: 0.08 },
+      finish: { notes: [523, 659, 784], wave: "triangle", gain: 0.22, gap: 0.09 },
+      catch: { notes: [659, 880], wave: "sine", gain: 0.17, gap: 0.06 },
+      miss: { notes: [294, 220], wave: "sine", gain: 0.15, gap: 0.08 },
+      jump: { notes: [392, 659], wave: "triangle", gain: 0.16, gap: 0.07 },
+      carrot: { notes: [659, 880], wave: "triangle", gain: 0.17, gap: 0.06 },
+      dodge: { notes: [587, 740], wave: "sine", gain: 0.16, gap: 0.06 },
+      puddle: { notes: [330, 247], wave: "sine", gain: 0.17, gap: 0.08 },
+      shield: { notes: [523, 698, 880], wave: "triangle", gain: 0.17, gap: 0.06 },
+      treat: { notes: [587, 784], wave: "sine", gain: 0.17, gap: 0.06 },
+      treatMiss: { notes: [330], wave: "sine", gain: 0.12, gap: 0.06 },
+      memoryFlip: { notes: [494], wave: "sine", gain: 0.14, gap: 0.06 },
+      memoryMatch: { notes: [523, 659, 784], wave: "triangle", gain: 0.18, gap: 0.07 },
+      memoryMismatch: { notes: [370, 311], wave: "sine", gain: 0.15, gap: 0.08 },
+      power: { notes: [587, 784, 988], wave: "triangle", gain: 0.18, gap: 0.06 },
+      ready: { notes: [659, 880], wave: "sine", gain: 0.15, gap: 0.07 },
+      save: { notes: [587, 740], wave: "sine", gain: 0.15, gap: 0.06 }
+    };
+
+    function updateSoundToggle() {
+      soundToggleButton.textContent = soundEnabled ? "Sound on 🔊" : "Sound off 🔇";
+      soundToggleButton.setAttribute("aria-pressed", String(soundEnabled));
+      soundToggleButton.setAttribute("aria-label", soundEnabled ? "Mute sound effects" : "Turn on sound effects");
+    }
+
+    function disableSound(error) {
+      console.warn("Sound effects are unavailable.", error);
+      soundEnabled = false;
+      soundToggleButton.disabled = true;
+      soundToggleButton.textContent = "Sound unavailable";
+      soundToggleButton.setAttribute("aria-label", "Sound effects are unavailable in this browser");
+      soundToggleButton.setAttribute("aria-pressed", "false");
+    }
+
+    function playSound(name) {
+      if (!soundEnabled) return;
+      const pattern = soundPatterns[name];
+      if (!pattern) throw new Error(`Missing sound effect pattern for "${name}".`);
+      const now = performance.now();
+      if (lastSoundTimes.has(name) && now - lastSoundTimes.get(name) < 70) return;
+      lastSoundTimes.set(name, now);
+
+      try {
+        if (!audioContext) {
+          audioContext = new window.AudioContext();
+          soundMasterGain = audioContext.createGain();
+          soundMasterGain.gain.value = 0.12;
+          soundMasterGain.connect(audioContext.destination);
+        }
+        if (audioContext.state === "suspended") {
+          void audioContext.resume().catch(disableSound);
+        }
+
+        pattern.notes.forEach((frequency, index) => {
+          const startsAt = audioContext.currentTime + index * pattern.gap;
+          const oscillator = audioContext.createOscillator();
+          const envelope = audioContext.createGain();
+          oscillator.type = pattern.wave;
+          oscillator.frequency.setValueAtTime(frequency, startsAt);
+          envelope.gain.setValueAtTime(0.0001, startsAt);
+          envelope.gain.linearRampToValueAtTime(pattern.gain, startsAt + 0.015);
+          envelope.gain.exponentialRampToValueAtTime(0.0001, startsAt + 0.13);
+          oscillator.connect(envelope);
+          envelope.connect(soundMasterGain);
+          oscillator.start(startsAt);
+          oscillator.stop(startsAt + 0.14);
+        });
+      } catch (error) {
+        disableSound(error);
+      }
+    }
+
+    if (typeof window.AudioContext !== "function") {
+      disableSound(new Error("This browser does not support the Web Audio API."));
+    }
+
     const tapHeartEmojis = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🩷", "🤍", "💖", "💕"];
     const bingoCelebrationMessages = [
       "Subaba, look at you go! Keep being your brilliant self ✨",
@@ -1694,12 +1809,14 @@
           throw new Error("The shared score update returned an unexpected response.");
         }
         await loadGameLeaderboard();
+        playSound("save");
         if (improved) {
           gameLeaderboardStatus.textContent = "New shared best saved! 🏆";
         } else {
           gameLeaderboardStatus.textContent = "Your finish is on the shared board! 🎉";
         }
       } catch (error) {
+        playSound("error");
         reportGameLeaderboardError(error, "save");
       }
     }
@@ -1772,6 +1889,7 @@
     }
 
     function shootTapHeart(x, y, animalHeart = false) {
+      playSound("heart");
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
       heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
@@ -1883,7 +2001,9 @@
             state.activeMs = Math.max(0, state.activeMs - 100);
             if (power.id === "memoryPeek" && state.activeMs === 0) memoryPeekEnded = true;
           } else {
+            const wasReady = state.chargeMs >= power.cooldownMs;
             state.chargeMs = Math.min(power.cooldownMs, state.chargeMs + 100);
+            if (!wasReady && state.chargeMs === power.cooldownMs) playSound("ready");
           }
         }
         if (memoryPeekEnded) renderMemoryCards();
@@ -1899,6 +2019,7 @@
       if (powerId === "memoryPeek" && gameState.selectedCards.length > 0) return;
       state.chargeMs = 0;
       state.activeMs = power.durationMs;
+      playSound("power");
       const messages = {
         catcherMagnet: "Paw magnet on! The animals are getting pulled toward your basket 🧲",
         memoryPeek: "Kitty peek! Memorize those little faces while they sparkle 🐱",
@@ -2019,7 +2140,9 @@
 
     function movePawCatcher(direction) {
       if (!gameState.running || gameState.paused || gameState.id !== "catcher") return;
+      const previousX = gameState.basketX;
       gameState.basketX = Math.max(0, Math.min(gameCanvas.width - 76, gameState.basketX + direction * 34));
+      if (gameState.basketX !== previousX) playSound("tap");
       drawPawCatcher();
     }
 
@@ -2080,6 +2203,7 @@
       renderMemoryCards();
       updateGamePowerUI();
       if (gameState.selectedCards.length < 2) {
+        playSound("memoryFlip");
         gameStatus.textContent = gameEncouragement("memoryFlip");
         showGameReaction("memoryFlip", memoryGrid.querySelector(`[data-card-index="${index}"]`));
         return;
@@ -2091,6 +2215,7 @@
       const first = gameState.cards[firstIndex];
       const second = gameState.cards[secondIndex];
       if (first.emoji === second.emoji) {
+        playSound("memoryMatch");
         first.matched = true;
         second.matched = true;
         gameState.matchedPairs += 1;
@@ -2107,6 +2232,7 @@
         return;
       }
 
+      playSound("memoryMismatch");
       gameStatus.textContent = gameEncouragement("memoryMismatch");
       showGameReaction("memoryMismatch", memoryGrid);
       animateMemoryCards([firstIndex, secondIndex], "mismatch");
@@ -2123,6 +2249,7 @@
     }
 
     function finishGame(message) {
+      playSound("finish");
       gameState.running = false;
       gameState.paused = false;
       for (const powerState of gameState.powerStates.values()) powerState.activeMs = 0;
@@ -2184,13 +2311,17 @@
           gameState.score += 1;
           gameScoreValue.textContent = String(gameState.score);
           gameStatus.textContent = `${gameEncouragement("catcherCatch")} ${gameState.score} ${gameState.score === 1 ? "animal" : "animals"} caught.`;
+          playSound("catch");
           showGameReaction("catcherCatch", gameCanvas);
         } else if (item.y - item.radius > gameCanvas.height) {
           gameState.collectibles.splice(index, 1);
           gameState.misses += 1;
           gameSecondaryValue.textContent = `${gameState.misses} / 5`;
           gameStatus.textContent = `${gameEncouragement("catcherMiss")} ${gameState.misses} of 5 misses.`;
-          showGameReaction("catcherMiss", gameCanvas);
+          if (gameState.misses < 5) {
+            playSound("miss");
+            showGameReaction("catcherMiss", gameCanvas);
+          }
           if (gameState.misses === 5) {
             drawPawCatcher();
             finishGame(`${gameEncouragement("catcherFinish")} You caught ${gameState.score} ${gameState.score === 1 ? "animal" : "animals"}.`);
@@ -2231,21 +2362,25 @@
             gameState.score += carrotPoints;
             gameScoreValue.textContent = String(gameState.score);
             gameStatus.textContent = `${gameEncouragement("bunnyCarrot")} ${carrotPoints === 2 ? "Dash bonus! " : ""}${gameState.score} so far.`;
+            playSound("carrot");
             showGameReaction("bunnyCarrot", gameCanvas);
             gameState.obstacles.splice(index, 1);
             continue;
           }
           if (gameState.bunnyY >= 28) {
             gameStatus.textContent = gameEncouragement("bunnyDodge");
+            playSound("dodge");
             showGameReaction("bunnyDodge", gameCanvas);
           } else if (isGamePowerActive("bunnyShield")) {
             gameStatus.textContent = "Puddle blocked! Your shield kept every carrot safe 🛡️";
+            playSound("shield");
             showGameReaction("bunnyShieldPower");
           } else {
             gameState.score = Math.max(0, gameState.score - 1);
             gameScoreValue.textContent = String(gameState.score);
             gameState.splashFlash = 420;
             gameStatus.textContent = `${gameEncouragement("bunnyPuddle")} ${gameState.score} carrots left.`;
+            playSound("puddle");
             showGameReaction("bunnyPuddle", gameCanvas);
           }
           gameState.obstacles.splice(index, 1);
@@ -2291,6 +2426,7 @@
         gameState.score += 1;
         gameScoreValue.textContent = `${gameState.score} / 15`;
         gameStatus.textContent = `${gameEncouragement("treatCatch")} ${gameState.score} of 15.`;
+        playSound("treat");
         showGameReaction("treatCatch", {
           getBoundingClientRect: () => treatBounds
         });
@@ -2317,6 +2453,7 @@
         target.remove();
         if (gameState.running && gameState.id === "treats") {
           gameStatus.textContent = gameEncouragement("treatMiss");
+          playSound("treatMiss");
           showGameReaction("treatMiss", treatField);
         }
       }, delayMs);
@@ -2420,6 +2557,7 @@
       gameState.score = 0;
       gameState.selectedCards = [];
       configureGamePowers();
+      playSound("start");
       gameStartButton.textContent = "Start over";
       setGameControls(true);
 
@@ -2499,6 +2637,7 @@
       if (!gameState.running || gameState.paused || gameState.id !== "bunny" || gameState.bunnyY > 0) return;
       gameState.bunnyVelocity = 390;
       gameStatus.textContent = gameEncouragement("bunnyJump");
+      playSound("jump");
       showGameReaction("bunnyJump", gameCanvas);
     }
 
@@ -2594,7 +2733,12 @@
         }, 3600);
         celebrate(newLines.map((line) => line.type));
       }
-      if (completedBoardJustFinished) celebrateFullBoard();
+      if (completedBoardJustFinished) {
+        playSound("fullBoard");
+        celebrateFullBoard();
+      } else if (newLines.length > 0) {
+        playSound("bingo");
+      }
       return newLines;
     }
 
@@ -2616,6 +2760,7 @@
           if (!connected || saving) return;
           const checked = !squares[index].checked;
           squares[index].checked = checked;
+          playSound(checked ? "check" : "uncheck");
           saving = true;
           renderBoard(false);
           setMessage("Adding that to the lore…");
@@ -2643,6 +2788,7 @@
             }
           } catch (error) {
             console.error("Could not save a bingo check-off.", error);
+            playSound("error");
             squares[index].checked = !checked;
             setMessage("Hmm, that didn't save. Try that square again in a sec.");
             renderBoard();
@@ -2728,6 +2874,7 @@
 
     animalButtons.forEach((button) => {
       button.addEventListener("click", () => {
+        playSound("animal");
         const animalName = button.dataset.animal;
         const photoPath = button.dataset.photo;
         const requestId = ++animalPhotoRequest;
@@ -2761,6 +2908,24 @@
       shootTapHeart(event.clientX, event.clientY);
     });
 
+    document.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) return;
+      const button = event.target.closest("button");
+      if (!button || button.disabled ||
+          button.matches(".bingo-cell, .animal-sticker, #surprise-button, #sound-toggle") ||
+          button.closest("#game-play")) return;
+      playSound("tap");
+    });
+
+    soundToggleButton.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      if (audioContext && soundMasterGain) {
+        soundMasterGain.gain.setTargetAtTime(soundEnabled ? 0.12 : 0, audioContext.currentTime, 0.015);
+      }
+      updateSoundToggle();
+      if (soundEnabled) playSound("tap");
+    });
+
     animalPhoto.addEventListener("click", (event) => {
       if (event.detail === 0) {
         const bounds = animalPhoto.getBoundingClientRect();
@@ -2778,8 +2943,12 @@
     });
 
     animalDialogClose.addEventListener("click", () => animalDialog.close());
+    animalDialog.addEventListener("cancel", () => playSound("tap"));
     animalDialog.addEventListener("click", (event) => {
-      if (event.target === animalDialog) animalDialog.close();
+      if (event.target === animalDialog) {
+        playSound("tap");
+        animalDialog.close();
+      }
     });
 
     gameOpenButton.addEventListener("click", () => {
@@ -2793,9 +2962,13 @@
     });
 
     gameCloseButton.addEventListener("click", () => gameDialog.close());
+    gameDialog.addEventListener("cancel", () => playSound("tap"));
     gameDialog.addEventListener("close", stopCurrentGame);
     gameDialog.addEventListener("click", (event) => {
-      if (event.target === gameDialog) gameDialog.close();
+      if (event.target === gameDialog) {
+        playSound("tap");
+        gameDialog.close();
+      }
     });
 
     gameDialog.addEventListener("close", () => {
@@ -2809,6 +2982,7 @@
     });
 
     gameBackButton.addEventListener("click", () => {
+      playSound("tap");
       stopCurrentGame();
       gamePlay.hidden = true;
       gamePicker.hidden = false;
@@ -2830,10 +3004,12 @@
         gameState.frameId = null;
         gameState.intervalId = null;
         gameState.powerIntervalId = null;
+        playSound("pause");
         gameStatus.textContent = gameEncouragement("gamePause");
         showGameReaction("gamePause");
       } else {
         gameState.lastFrame = 0;
+        playSound("resume");
         gameStatus.textContent = gameEncouragement("gameResume");
         showGameReaction("gameResume");
         startGamePowerClock();
@@ -2873,9 +3049,11 @@
       if (!connected || saving) return;
       const available = Array.from(board.querySelectorAll(".bingo-cell:not(.checked)"));
       if (available.length === 0) {
+        playSound("fullBoard");
         showReaction("You did the whole board!! Knew you would, Subaba 🎉", "multiple");
         return;
       }
+      playSound("pick");
       const chosen = available[Math.floor(Math.random() * available.length)];
       const selectedIndex = Number(chosen.dataset.index);
       pickedSquareIndex = selectedIndex;
