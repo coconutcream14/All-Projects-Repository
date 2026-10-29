@@ -238,6 +238,7 @@
 
     .game-back:hover:not(:disabled) { background: #5f4b69; }
     .game-back:focus-visible { outline: 3px solid #4d7180; outline-offset: 3px; }
+    .game-play { position: relative; }
     .game-play h2 { margin-bottom: 7px; }
 
     .game-instructions {
@@ -357,6 +358,63 @@
       font-size: .85rem;
       line-height: 1.45;
       text-align: center;
+    }
+
+    .game-status[data-effect] {
+      padding: 8px 12px;
+      border: 2px solid #d5c7d7;
+      border-radius: 16px;
+      background: rgba(255, 250, 248, .82);
+      animation: game-status-pop .38s cubic-bezier(.2, .8, .25, 1.3);
+    }
+
+    .game-status[data-effect^="catcher"] { border-color: #d7a4b8; background: #f7e9ef; }
+    .game-status[data-effect^="memory"] { border-color: #b8a8cf; background: #eee9f5; }
+    .game-status[data-effect^="bunny"] { border-color: #a7c7ae; background: #eaf2e9; }
+    .game-status[data-effect^="treat"] { border-color: #d8b89b; background: #f6eee4; }
+
+    .game-reaction-layer {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .game-reaction-particle {
+      position: absolute;
+      font-size: var(--reaction-size);
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(89, 62, 84, .16));
+      animation: game-reaction-float .95s cubic-bezier(.16, .7, .35, 1) var(--reaction-delay) forwards;
+    }
+
+    .memory-card.memory-match-effect { animation: memory-card-match .48s ease-out; }
+    .memory-card.memory-mismatch-effect { animation: memory-card-mismatch .4s ease-in-out; }
+
+    @keyframes game-status-pop {
+      0% { opacity: .55; transform: scale(.92) translateY(3px); }
+      70% { transform: scale(1.035); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes game-reaction-float {
+      0% { opacity: 0; transform: translate(-50%, 8px) scale(.35) rotate(-16deg); }
+      18% { opacity: 1; transform: translate(-50%, -5px) scale(1.2) rotate(8deg); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--reaction-drift)), -92px) scale(.72) rotate(var(--reaction-tilt)); }
+    }
+
+    @keyframes memory-card-match {
+      0%, 100% { transform: scale(1); }
+      35% { transform: scale(1.13) rotate(-5deg); box-shadow: 0 0 0 4px #d9c8ee, 0 7px 18px rgba(116, 87, 143, .25); }
+      70% { transform: scale(1.06) rotate(4deg); }
+    }
+
+    @keyframes memory-card-mismatch {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-3px); }
     }
 
     .game-buttons, .game-controls {
@@ -981,6 +1039,8 @@
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
       .animal-sticker:hover, .animal-sticker:focus-visible, .bingo-cell.picked { animation: none !important; }
       .full-board-celebration, .full-board-message, .paw-confetti { animation: none !important; }
+      .game-status[data-effect], .game-reaction-particle,
+      .memory-card.memory-match-effect, .memory-card.memory-mismatch-effect { animation: none !important; }
     }
   </style>
 </head>
@@ -1024,7 +1084,7 @@
           <button class="game-option" type="button" data-game-id="bunny">
             <span class="game-option-emoji" aria-hidden="true">🐰</span>
             <strong>Bunny Hop</strong>
-            <span>Hop over puddles and grab carrots until your 30-second dash is done.</span>
+            <span>Hop over splishy puddles—they can cost you a carrot! Grab carrots during your 30-second dash.</span>
           </button>
           <button class="game-option" type="button" data-game-id="treats">
             <span class="game-option-emoji" aria-hidden="true">🐶</span>
@@ -1034,6 +1094,7 @@
         </div>
       </section>
       <section class="game-play" id="game-play" aria-labelledby="game-title" hidden>
+        <div class="game-reaction-layer" id="game-reaction-layer" aria-hidden="true"></div>
         <button class="game-button game-back" id="game-back" type="button" aria-label="Stop this game and go back to all mini-games" title="Back to all mini-games">←</button>
         <h2 id="game-title"></h2>
         <p class="game-instructions" id="game-instructions"></p>
@@ -1207,6 +1268,7 @@
     const gameNote = document.getElementById("game-note");
     const memoryGrid = document.getElementById("memory-grid");
     const treatField = document.getElementById("treat-field");
+    const gameReactionLayer = document.getElementById("game-reaction-layer");
     const gameState = {
       id: null,
       running: false,
@@ -1228,6 +1290,170 @@
       selectedCards: [],
       matchedPairs: 0,
       moves: 0
+    };
+    const gameEncouragements = {
+      catcherCatch: [
+        "Lovely catch! Your basket has excellent taste 💖",
+        "Got it! Those quick paws are paying off 🐾",
+        "Nice save! That cute thing is right where it belongs ✨",
+        "You caught it! Look at you go, Subaba 🌟",
+        "Another one safe in the basket—nicely done 💕",
+        "That was a good catch! Keep that rhythm going 🎀"
+      ],
+      catcherMiss: [
+        "No worries, even the cutest things are slippery 💕",
+        "That one got away, but you've still got this 🐾",
+        "A tiny miss is no big deal—eyes on the next one ✨",
+        "It happens! Your basket is ready for another 💖",
+        "No stress, Subaba. There's another cute one coming 🌷",
+        "Shake it off, your next catch is waiting 🐶"
+      ],
+      catcherFinish: [
+        "Round over, but you caught a bunch! Fancy another go? 💖",
+        "Ten got away this time. Your basket can have a rematch 🐾",
+        "That's the round! You still caught some cuteness, Subaba ✨",
+        "Time for a basket break—or one more try? 🌷"
+      ],
+      memoryFlip: [
+        "Good pick! Keep that little face in mind 🐱",
+        "One card peeked—your memory's warming up ✨",
+        "Nice choice! Let's see if its twin is hiding nearby 💕",
+        "Every flip is a clue. You're on it, Subaba 🐾",
+        "A new little face! Keep your eyes peeled 💖"
+      ],
+      memoryMatch: [
+        "A match! Your memory is so good 🐱",
+        "You found their twin! Nicely spotted 💖",
+        "Those two belong together—great eyes ✨",
+        "Pair found! Your kitty instincts are working 🐾",
+        "That's a match, Subaba! Keep it up 🌟"
+      ],
+      memoryMismatch: [
+        "Not twins this time, but now you know both faces 💕",
+        "Almost! Tuck those spots away for the next turn 🐱",
+        "No match, no problem—your memory just got a clue ✨",
+        "Those two are different, but you're getting closer 🐾",
+        "A useful peek! Their matching friends are still out there 💖"
+      ],
+      memoryFinish: [
+        "All six pairs! Kitty-level memory unlocked 🐱💖",
+        "You found every animal twin! That brain is brilliant ✨",
+        "Every pair reunited—beautifully done, Subaba 🐾",
+        "Six pairs down! Your memory deserves a tiny trophy 🏆"
+      ],
+      bunnyJump: [
+        "Hop time! You've got those bunny legs 🐰",
+        "Up you go, little bunny! Nice timing ✨",
+        "That's one stylish hop, Subaba 💕",
+        "Boing! You're ready for that puddle 🐾",
+        "Look at that bunny bounce! 🌟"
+      ],
+      bunnyCarrot: [
+        "Carrot secured! Bunny would like to thank you 🥕",
+        "A crunchy little point for you! Great run 🐰",
+        "Carrot collected—you're hopping right along ✨",
+        "Nice grab, Subaba! Bunny's snack stash grows 💕",
+        "One more carrot for the road! 🥕"
+      ],
+      bunnyPuddle: [
+        "Splash! A soggy moment, but you're still doing great 💦",
+        "Oops, puddle! Bunny can shake it off 🐰",
+        "A little splash won't stop this run—keep hopping 💕",
+        "That puddle got you, but your next jump can be perfect 🐾",
+        "Soggy paws, strong spirit. Keep going, Subaba 💖"
+      ],
+      bunnyDodge: [
+        "Perfect hop! Bunny stayed nice and dry 🐰",
+        "You cleared it! That was some excellent timing ✨",
+        "Puddle dodged—look at those bunny reflexes 🐾",
+        "Dry paws! You nailed that jump, Subaba 💕",
+        "That hop was clean! Keep bouncing 🌟"
+      ],
+      bunnyFinish: [
+        "Dash complete! Bunny had the best time with you 🐰💖",
+        "Thirty seconds of bunny brilliance—beautifully done ✨",
+        "You made it to the finish! Bunny says thank you 🥕",
+        "Dash over! Those were some very happy bunny hops 🐾"
+      ],
+      treatCatch: [
+        "Treat secured! That puppy is very impressed 🐶",
+        "Quick paws! You got the yummy one 🍪",
+        "A treat for the pup and a point for you 💖",
+        "Nice tap, Subaba! Puppy says woof 🐾",
+        "Got it! That was some speedy tapping ✨"
+      ],
+      treatMiss: [
+        "That treat disappeared, but another one is on its way 🦴",
+        "It got away! No points lost—try the next one 🐶",
+        "A slippery treat! You'll get another chance 💕",
+        "No worries, the puppy has plenty more snacks 🐾",
+        "Missed that one? All good—keep those paws ready ✨"
+      ],
+      treatFinish: [
+        "Ten treats! One very happy puppy—and one very good you 🐶💖",
+        "Puppy's treat stash is full! You did it, Subaba 🦴",
+        "All ten treats collected. Excellent puppy-helper work ✨",
+        "Treat goal reached! Puppy is doing a happy dance 🐾"
+      ],
+      catcherStart: [
+        "Basket ready! Let's catch some cuteness 🐾",
+        "Here come the cute things—you've got this 💖",
+        "Ready, Subaba? Let's fill that basket ✨",
+        "Paws at the ready. Time to catch! 🐶"
+      ],
+      memoryStart: [
+        "Take a good look, kitty detective 🐱",
+        "Ready to find those animal twins? You got this 💖",
+        "Let's see that brilliant memory in action ✨",
+        "All the little friends are waiting to be matched 🐾"
+      ],
+      bunnyStart: [
+        "Ready, bunny? Let's hop into it 🐰",
+        "Thirty seconds of carrot-catching cuteness starts now 🥕",
+        "Paws up, Subaba—your bunny dash is on ✨",
+        "Let's have a lovely little hop through the garden 💕"
+      ],
+      treatStart: [
+        "Puppy is ready! Let's find those treats 🐶",
+        "Quick paws, Subaba—the treats are popping up 🍪",
+        "Ready for a little treat-tapping fun? 🦴",
+        "Puppy says you can do it! Let's go 💖"
+      ],
+      gamePause: [
+        "Taking a tiny breather—your game will wait 💕",
+        "Paused! Stretch those paws and take your time 🐾",
+        "A little break is always allowed, Subaba 🌷"
+      ],
+      gameResume: [
+        "Back in the game—you've got this ✨",
+        "Ready when you are! Let's keep going 💖",
+        "Paws back on deck. Have fun! 🐾"
+      ]
+    };
+    const gameEncouragementIndexes = Object.create(null);
+    let gameReactionTimeout = null;
+    const gameReactionEmojis = {
+      catcherCatch: ["💖", "🐾", "✨"],
+      catcherMiss: ["💭", "🐾", "💕"],
+      catcherFinish: ["🎉", "💖", "🐾"],
+      catcherStart: ["🐾", "✨", "💖"],
+      memoryFlip: ["✨", "🐱", "💭"],
+      memoryMatch: ["💖", "🐾", "✨"],
+      memoryMismatch: ["💭", "🐱", "✨"],
+      memoryFinish: ["🎉", "🐱", "💖", "✨"],
+      memoryStart: ["🐱", "🔎", "✨"],
+      bunnyJump: ["🐰", "✨", "💨"],
+      bunnyCarrot: ["🥕", "🌟", "🐰"],
+      bunnyPuddle: ["💦", "💧", "🐰"],
+      bunnyDodge: ["✨", "🐰", "🌟"],
+      bunnyFinish: ["🎉", "🥕", "🐰", "💖"],
+      bunnyStart: ["🐰", "🥕", "✨"],
+      treatCatch: ["🍪", "🐶", "💖"],
+      treatMiss: ["🦴", "💭", "🐾"],
+      treatFinish: ["🎉", "🐶", "🦴", "💖"],
+      treatStart: ["🐶", "🍪", "💖"],
+      gamePause: ["☁️", "🐾", "💕"],
+      gameResume: ["✨", "🐾", "💖"]
     };
 
     const config = window.BINGO_CONFIG || {};
@@ -1281,6 +1507,51 @@
       }
     }
 
+    function gameEncouragement(key) {
+      const messages = gameEncouragements[key];
+      if (!messages || messages.length === 0) throw new Error(`Missing game encouragement messages for "${key}".`);
+      const index = gameEncouragementIndexes[key] || 0;
+      gameEncouragementIndexes[key] = (index + 1) % messages.length;
+      return messages[index];
+    }
+
+    function showGameReaction(key, anchor = null) {
+      const emojis = gameReactionEmojis[key];
+      if (!emojis) throw new Error(`Missing game reaction effects for "${key}".`);
+      gameStatus.removeAttribute("data-effect");
+      void gameStatus.offsetWidth;
+      gameStatus.dataset.effect = key;
+
+      const stage = gamePlay.getBoundingClientRect();
+      const bounds = anchor?.getBoundingClientRect();
+      const originX = bounds
+        ? bounds.left + bounds.width / 2 - stage.left
+        : stage.width * (.3 + Math.random() * .4);
+      const originY = bounds
+        ? bounds.top + bounds.height / 2 - stage.top
+        : stage.height * .48;
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      for (let index = 0; index < 7; index += 1) {
+        const particle = document.createElement("span");
+        particle.className = "game-reaction-particle";
+        particle.textContent = emojis[index % emojis.length];
+        particle.style.left = `${originX + Math.random() * 58 - 29}px`;
+        particle.style.top = `${originY + Math.random() * 26 - 13}px`;
+        particle.style.setProperty("--reaction-size", `${18 + Math.random() * 13}px`);
+        particle.style.setProperty("--reaction-drift", `${Math.random() * 68 - 34}px`);
+        particle.style.setProperty("--reaction-tilt", `${Math.random() * 70 - 35}deg`);
+        particle.style.setProperty("--reaction-delay", reducedMotion ? "0s" : `${Math.random() * .13}s`);
+        gameReactionLayer.append(particle);
+        window.setTimeout(() => particle.remove(), reducedMotion ? 100 : 1100);
+      }
+
+      if (gameReactionTimeout !== null) window.clearTimeout(gameReactionTimeout);
+      gameReactionTimeout = window.setTimeout(() => {
+        gameStatus.removeAttribute("data-effect");
+        gameReactionTimeout = null;
+      }, 500);
+    }
+
     function showReaction(text, type, duration = 4800) {
       setMessage(text, type);
       reactionTimeout = window.setTimeout(() => {
@@ -1295,7 +1566,7 @@
     function shootTapHeart(x, y, animalHeart = false) {
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
-      heart.textContent = animalHeart ? "💖" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
+      heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
       heart.setAttribute("aria-hidden", "true");
       heart.style.left = `${x}px`;
       heart.style.top = `${y}px`;
@@ -1391,8 +1662,23 @@
       gameContext.font = '40px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
       gameContext.fillText("🐰", 76, groundY - 28 - gameState.bunnyY);
       for (const item of gameState.obstacles) {
-        gameContext.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-        gameContext.fillText(item.emoji, item.x, groundY - 19);
+        if (item.kind === "puddle") {
+          gameContext.beginPath();
+          gameContext.ellipse(item.x, groundY - 5, 24, 8, 0, 0, Math.PI * 2);
+          gameContext.fillStyle = "#9dc8d2";
+          gameContext.fill();
+          gameContext.font = '26px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+          gameContext.fillText(item.emoji, item.x, groundY - 23);
+        } else {
+          gameContext.font = '32px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+          gameContext.fillText(item.emoji, item.x, groundY - 19);
+        }
+      }
+      if (gameState.splashFlash > 0) {
+        gameContext.fillStyle = `rgba(171, 209, 218, ${Math.min(gameState.splashFlash / 240, .34)})`;
+        gameContext.fillRect(0, 0, width, height);
+        gameContext.font = '34px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+        gameContext.fillText("💦", 76, groundY - 72);
       }
       gameContext.font = '15px "Comic Sans MS", cursive';
       gameContext.fillStyle = "#6b7880";
@@ -1430,9 +1716,25 @@
         button.setAttribute("aria-label", card.revealed || card.matched ? card.emoji : "Hidden kitty card");
         button.setAttribute("aria-pressed", String(card.revealed || card.matched));
         button.disabled = card.matched || !gameState.running;
+        if (card.effect) button.classList.add(`memory-${card.effect}-effect`);
         button.addEventListener("click", () => flipMemoryCard(index));
         memoryGrid.append(button);
       });
+    }
+
+    function animateMemoryCards(indices, effect) {
+      for (const index of indices) {
+        const card = gameState.cards[index];
+        if (card) card.effect = effect;
+      }
+      renderMemoryCards();
+      window.setTimeout(() => {
+        for (const index of indices) {
+          const card = gameState.cards[index];
+          if (card?.effect === effect) card.effect = null;
+        }
+        if (gameState.id === "memory") renderMemoryCards();
+      }, 520);
     }
 
     function flipMemoryCard(index) {
@@ -1442,7 +1744,11 @@
       card.revealed = true;
       gameState.selectedCards.push(index);
       renderMemoryCards();
-      if (gameState.selectedCards.length < 2) return;
+      if (gameState.selectedCards.length < 2) {
+        gameStatus.textContent = gameEncouragement("memoryFlip");
+        showGameReaction("memoryFlip", memoryGrid.querySelector(`[data-card-index="${index}"]`));
+        return;
+      }
 
       gameState.moves += 1;
       gameScoreValue.textContent = String(gameState.moves);
@@ -1455,15 +1761,20 @@
         gameState.matchedPairs += 1;
         gameSecondaryValue.textContent = `${gameState.matchedPairs} / 6`;
         gameState.selectedCards = [];
-        gameStatus.textContent = `A match! ${gameState.matchedPairs} of 6 pairs found.`;
+        gameStatus.textContent = `${gameEncouragement("memoryMatch")} ${gameState.matchedPairs} of 6 pairs found.`;
         renderMemoryCards();
+        showGameReaction("memoryMatch", memoryGrid);
+        animateMemoryCards([firstIndex, secondIndex], "match");
         if (gameState.matchedPairs === 6) {
-          finishGame(`You found all 6 pairs in ${gameState.moves} moves! Kitty-brain genius! 🐱`);
+          finishGame(`${gameEncouragement("memoryFinish")} You found them in ${gameState.moves} moves!`);
+          showGameReaction("memoryFinish", memoryGrid);
         }
         return;
       }
 
-      gameStatus.textContent = "No match this time—try to remember where they are!";
+      gameStatus.textContent = gameEncouragement("memoryMismatch");
+      showGameReaction("memoryMismatch", memoryGrid);
+      animateMemoryCards([firstIndex, secondIndex], "mismatch");
       if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
       gameState.memoryTimeout = window.setTimeout(() => {
         gameState.memoryTimeout = null;
@@ -1521,17 +1832,18 @@
           gameState.collectibles.splice(index, 1);
           gameState.score += 1;
           gameScoreValue.textContent = String(gameState.score);
-          gameStatus.textContent = `Caught a ${item.emoji}! ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} so far.`;
+          gameStatus.textContent = `${gameEncouragement("catcherCatch")} ${gameState.score} cute ${gameState.score === 1 ? "thing" : "things"} caught.`;
+          showGameReaction("catcherCatch", gameCanvas);
         } else if (item.y - item.radius > gameCanvas.height) {
           gameState.collectibles.splice(index, 1);
           gameState.misses += 1;
           gameSecondaryValue.textContent = `${gameState.misses} / 10`;
-          gameStatus.textContent = gameState.misses === 10
-            ? "That's 10 misses! Your basket did its best—fancy another round?"
-            : `${gameState.misses} of 10 misses. No rush, keep catching!`;
+          gameStatus.textContent = `${gameEncouragement("catcherMiss")} ${gameState.misses} of 10 misses.`;
+          showGameReaction("catcherMiss", gameCanvas);
           if (gameState.misses === 10) {
             drawPawCatcher();
-            finishGame(`Round over! You caught ${gameState.score} cute things before 10 missed. Want another go?`);
+            finishGame(`${gameEncouragement("catcherFinish")} You caught ${gameState.score} cute things.`);
+            showGameReaction("catcherFinish", gameCanvas);
             return;
           }
         }
@@ -1542,6 +1854,7 @@
     function runBunnyHopFrame(elapsed) {
       gameState.elapsed += elapsed;
       gameState.spawnElapsed += elapsed;
+      gameState.splashFlash = Math.max(0, gameState.splashFlash - elapsed);
       gameState.bunnyY = Math.max(0, gameState.bunnyY + gameState.bunnyVelocity * elapsed / 1000);
       gameState.bunnyVelocity -= 950 * elapsed / 1000;
       if (gameState.bunnyY === 0) gameState.bunnyVelocity = 0;
@@ -1550,7 +1863,7 @@
         gameState.spawnElapsed -= 1150;
         const carrot = Math.random() < .55;
         gameState.obstacles.push({
-          emoji: carrot ? "🥕" : "💧",
+          emoji: carrot ? "🥕" : "💦",
           kind: carrot ? "carrot" : "puddle",
           x: gameCanvas.width + 20
         });
@@ -1560,15 +1873,26 @@
       for (let index = gameState.obstacles.length - 1; index >= 0; index -= 1) {
         const item = gameState.obstacles[index];
         item.x -= 175 * elapsed / 1000;
-        if (item.x < 76 && item.x > 40) {
+        if (!item.resolved && item.x <= 76 && item.x >= 40) {
+          item.resolved = true;
           if (item.kind === "carrot") {
             gameState.score += 1;
             gameScoreValue.textContent = String(gameState.score);
-            gameStatus.textContent = `Carrot collected! ${gameState.score} so far. Keep hopping!`;
+            gameStatus.textContent = `${gameEncouragement("bunnyCarrot")} ${gameState.score} so far.`;
+            showGameReaction("bunnyCarrot", gameCanvas);
             gameState.obstacles.splice(index, 1);
             continue;
           }
-          if (gameState.bunnyY < 28) gameStatus.textContent = "Splash! Hop over the puddles next time 🐰";
+          if (gameState.bunnyY < 28) {
+            gameState.score = Math.max(0, gameState.score - 1);
+            gameScoreValue.textContent = String(gameState.score);
+            gameState.splashFlash = 420;
+            gameStatus.textContent = `${gameEncouragement("bunnyPuddle")} ${gameState.score} carrots left.`;
+            showGameReaction("bunnyPuddle", gameCanvas);
+          } else {
+            gameStatus.textContent = gameEncouragement("bunnyDodge");
+            showGameReaction("bunnyDodge", gameCanvas);
+          }
           gameState.obstacles.splice(index, 1);
           continue;
         }
@@ -1579,7 +1903,8 @@
       gameSecondaryValue.textContent = `${remaining}s`;
       drawBunnyHop();
       if (gameState.elapsed >= 30000) {
-        finishGame(`Dash complete! You gathered ${gameState.score} carrots. Bunny is ready for a rest 🐰`);
+        finishGame(`${gameEncouragement("bunnyFinish")} You gathered ${gameState.score} carrots.`);
+        showGameReaction("bunnyFinish", gameCanvas);
       }
     }
 
@@ -1606,11 +1931,18 @@
       target.style.top = `${16 + Math.random() * 68}%`;
       target.addEventListener("click", () => {
         if (!gameState.running || gameState.paused || !target.isConnected) return;
+        const treatBounds = target.getBoundingClientRect();
         target.remove();
         gameState.score += 1;
         gameScoreValue.textContent = `${gameState.score} / 10`;
-        gameStatus.textContent = `Treat caught! ${gameState.score} of 10—good puppy! 🐶`;
-        if (gameState.score === 10) finishGame("All 10 treats collected! That puppy is one happy little floof 🐶💖");
+        gameStatus.textContent = `${gameEncouragement("treatCatch")} ${gameState.score} of 10.`;
+        showGameReaction("treatCatch", {
+          getBoundingClientRect: () => treatBounds
+        });
+        if (gameState.score === 10) {
+          finishGame(gameEncouragement("treatFinish"));
+          showGameReaction("treatFinish", treatField);
+        }
       });
       treatField.append(target);
       scheduleTreatExpiry(target);
@@ -1625,6 +1957,10 @@
           return;
         }
         target.remove();
+        if (gameState.running && gameState.id === "treats") {
+          gameStatus.textContent = gameEncouragement("treatMiss");
+          showGameReaction("treatMiss", treatField);
+        }
       }, 1900);
       gameState.treatTimers.push(timer);
     }
@@ -1649,7 +1985,7 @@
         },
         bunny: {
           title: "Bunny Hop",
-          instructions: "Hop over puddles and collect carrots during a 30-second dash.",
+          instructions: "Hop over splashy puddles or they'll make you lose a carrot. Collect carrots during your 30-second dash.",
           scoreLabel: "Carrots",
           secondaryLabel: "Time",
           note: "Press ↑ / space or tap Hop. Bumps are okay; the dash always lasts 30 seconds."
@@ -1724,12 +2060,12 @@
         gameState.collectibles = [];
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "0 / 10";
-        gameStatus.textContent = "Catch the cute things! You can miss 10 before the round ends.";
+        gameStatus.textContent = `${gameEncouragement("catcherStart")} You can miss 10 before the round ends.`;
         drawPawCatcher();
       } else if (gameState.id === "memory") {
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "0 / 6";
-        gameStatus.textContent = "Find two matching animal friends!";
+        gameStatus.textContent = `${gameEncouragement("memoryStart")} Find all 6 matching pairs.`;
         makeMemoryCards();
       } else if (gameState.id === "bunny") {
         if (!gameContext) {
@@ -1741,15 +2077,16 @@
         gameState.score = 0;
         gameState.bunnyY = 0;
         gameState.bunnyVelocity = 0;
+        gameState.splashFlash = 0;
         gameState.obstacles = [];
         gameScoreValue.textContent = "0";
         gameSecondaryValue.textContent = "30s";
-        gameStatus.textContent = "Ready, bunny? Let's go!";
+        gameStatus.textContent = `${gameEncouragement("bunnyStart")} Collect carrots for 30 seconds.`;
         drawBunnyHop();
       } else {
         gameScoreValue.textContent = "0 / 10";
         gameSecondaryValue.textContent = "10";
-        gameStatus.textContent = "Tap the treats before they disappear!";
+        gameStatus.textContent = `${gameEncouragement("treatStart")} Tap 10 treats before they disappear.`;
         treatField.replaceChildren();
         spawnPuppyTreat();
       }
@@ -1758,6 +2095,7 @@
       } else if (gameState.id === "treats") {
         gameState.intervalId = window.setInterval(spawnPuppyTreat, 850);
       }
+      showGameReaction(`${gameState.id}Start`);
     }
 
     function stopCurrentGame() {
@@ -1772,12 +2110,18 @@
       gameState.intervalId = null;
       gameState.memoryTimeout = null;
       if (gameState.id === "treats") treatField.replaceChildren();
+      if (gameReactionTimeout !== null) window.clearTimeout(gameReactionTimeout);
+      gameReactionTimeout = null;
+      gameReactionLayer.replaceChildren();
+      gameStatus.removeAttribute("data-effect");
       setGameControls(false);
     }
 
     function jumpBunny() {
       if (!gameState.running || gameState.paused || gameState.id !== "bunny" || gameState.bunnyY > 0) return;
       gameState.bunnyVelocity = 390;
+      gameStatus.textContent = gameEncouragement("bunnyJump");
+      showGameReaction("bunnyJump", gameCanvas);
     }
 
     async function loadRemoteBoard() {
@@ -2009,6 +2353,8 @@
         if (event.detail === 0) {
           const bounds = button.getBoundingClientRect();
           shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
+        } else {
+          shootTapHeart(event.clientX, event.clientY, true);
         }
         const animalName = button.dataset.animal;
         const photoPath = button.dataset.photo;
@@ -2037,25 +2383,18 @@
     document.addEventListener("pointerdown", (event) => {
       if (!event.isPrimary || event.button !== 0 || !(event.target instanceof Element)) return;
       const animalTarget = event.target.closest(".animal-sticker, .animal-photo-frame");
-      if (animalTarget) {
-        shootTapHeart(event.clientX, event.clientY, true);
-        return;
-      }
+      if (animalTarget) return;
       if (event.target.closest("dialog") || isTapHeartExcluded(event.target)) return;
       shootTapHeart(event.clientX, event.clientY);
     });
 
     document.querySelector(".animal-photo-frame").addEventListener("click", (event) => {
-      if (event.detail !== 0) return;
-      const bounds = event.currentTarget.getBoundingClientRect();
-      shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
-    });
-
-    document.querySelector(".animal-photo-frame").addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      const bounds = event.currentTarget.getBoundingClientRect();
-      shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
+      if (event.detail === 0) {
+        const bounds = event.currentTarget.getBoundingClientRect();
+        shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
+      } else {
+        shootTapHeart(event.clientX, event.clientY, true);
+      }
     });
 
     animalDialogClose.addEventListener("click", () => animalDialog.close());
@@ -2105,10 +2444,12 @@
         if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
         gameState.frameId = null;
         gameState.intervalId = null;
-        gameStatus.textContent = "Paused. Take your time.";
+        gameStatus.textContent = gameEncouragement("gamePause");
+        showGameReaction("gamePause");
       } else {
         gameState.lastFrame = 0;
-        gameStatus.textContent = "Back at it! You got this 💕";
+        gameStatus.textContent = gameEncouragement("gameResume");
+        showGameReaction("gameResume");
         if (gameState.id === "catcher" || gameState.id === "bunny") {
           gameState.frameId = window.requestAnimationFrame(runGameFrame);
         } else if (gameState.id === "treats") {
