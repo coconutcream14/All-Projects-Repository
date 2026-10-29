@@ -1128,7 +1128,7 @@
           <button class="game-option" type="button" data-game-id="catcher">
             <span class="game-option-emoji" aria-hidden="true">🐾</span>
             <strong>Paw Catcher</strong>
-            <span>Slide your basket to catch falling animals. Game over at 10 misses.</span>
+            <span>Slide your basket to catch falling animals. Game over at 5 misses.</span>
           </button>
           <button class="game-option" type="button" data-game-id="memory">
             <span class="game-option-emoji" aria-hidden="true">🐱</span>
@@ -1978,10 +1978,10 @@
         } else if (item.y - item.radius > gameCanvas.height) {
           gameState.collectibles.splice(index, 1);
           gameState.misses += 1;
-          gameSecondaryValue.textContent = `${gameState.misses} / 10`;
-          gameStatus.textContent = `${gameEncouragement("catcherMiss")} ${gameState.misses} of 10 misses.`;
+          gameSecondaryValue.textContent = `${gameState.misses} / 5`;
+          gameStatus.textContent = `${gameEncouragement("catcherMiss")} ${gameState.misses} of 5 misses.`;
           showGameReaction("catcherMiss", gameCanvas);
-          if (gameState.misses === 10) {
+          if (gameState.misses === 5) {
             drawPawCatcher();
             finishGame(`${gameEncouragement("catcherFinish")} You caught ${gameState.score} ${gameState.score === 1 ? "animal" : "animals"}.`);
             showGameReaction("catcherFinish", gameCanvas);
@@ -2112,7 +2112,7 @@
       const games = {
         catcher: {
           title: "Paw Catcher",
-          instructions: "Slide your basket to catch the falling animals. It ends after 10 misses.",
+          instructions: "Slide your basket to catch the falling animals. It ends after 5 misses.",
           scoreLabel: "Animals",
           secondaryLabel: "Misses",
           note: "Use ← → or the buttons. The slower falling things give you time to catch them."
@@ -2165,8 +2165,8 @@
       gamePauseButton.textContent = "Pause";
       if (gameId === "catcher") {
         gameScoreValue.textContent = "0";
-        gameSecondaryValue.textContent = "0 / 10";
-        gameCanvas.setAttribute("aria-label", "Paw Catcher. Catch the falling animals; the game ends after ten misses.");
+        gameSecondaryValue.textContent = "0 / 5";
+        gameCanvas.setAttribute("aria-label", "Paw Catcher. Catch the falling animals; the game ends after five misses.");
         drawPawCatcher();
       } else if (gameId === "memory") {
         gameScoreValue.textContent = "0";
@@ -2210,8 +2210,8 @@
         gameState.basketX = (gameCanvas.width - 76) / 2;
         gameState.collectibles = [];
         gameScoreValue.textContent = "0";
-        gameSecondaryValue.textContent = "0 / 10";
-        gameStatus.textContent = `${gameEncouragement("catcherStart")} You can miss 10 before the round ends.`;
+        gameSecondaryValue.textContent = "0 / 5";
+        gameStatus.textContent = `${gameEncouragement("catcherStart")} You can miss 5 before the round ends.`;
         drawPawCatcher();
       } else if (gameState.id === "memory") {
         gameScoreValue.textContent = "0";
