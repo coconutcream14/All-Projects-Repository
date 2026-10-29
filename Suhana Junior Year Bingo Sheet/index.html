@@ -476,7 +476,14 @@
       display: inline-block;
       color: var(--pink-dark);
       font-style: normal;
-      transform: rotate(-3deg);
+      transform-origin: center;
+      animation: title-spin-in 1.1s cubic-bezier(.2, .75, .25, 1) both;
+    }
+
+    @keyframes title-spin-in {
+      0% { opacity: 0; transform: perspective(600px) rotateY(-360deg) translateY(-12px) scale(.82); }
+      72% { opacity: 1; transform: perspective(600px) rotateY(12deg) translateY(0) scale(1.04); }
+      100% { opacity: 1; transform: perspective(600px) rotateY(0) rotate(-3deg) scale(1); }
     }
 
     .subtitle {
@@ -1083,6 +1090,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      h1 span { animation: none; }
       .animal-sticker:hover, .animal-sticker:focus-visible, .bingo-cell.picked { animation: none !important; }
       .full-board-celebration, .full-board-message, .paw-confetti { animation: none !important; }
       .game-status[data-effect], .game-reaction-particle,
@@ -2289,7 +2297,7 @@
     function showConnectionError(error) {
       console.error("Could not sync the shared bingo board.", error);
       connected = false;
-      setMessage("The board isn't loading right now. Check your connection and try a refresh.");
+      setMessage("Welcome back, Subaba! 💖 The board isn't loading right now. Check your connection and try a refresh.");
       renderBoard();
     }
 
@@ -2653,8 +2661,9 @@
 
     async function start() {
       renderBoard();
+      setMessage("Welcome back, Subaba! Your little corner of the world missed you 🐾💖");
       if (!backendConfigured) {
-        setMessage("The board isn't connected yet. Check the setup steps in the README.");
+        setMessage("Welcome back, Subaba! 💖 The board isn't connected yet. Check the setup steps in the README.");
         gameLeaderboardStatus.textContent = "Connect the shared database to load scores.";
         surpriseButton.disabled = true;
         return;
@@ -2676,7 +2685,7 @@
           await loadRemoteBoard();
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
-          setMessage("Board sync paused for a sec. Check your connection; we'll try again.");
+          setMessage("Welcome back, Subaba! 💖 Board sync paused for a sec. Check your connection; we'll try again.");
         } finally {
           polling = false;
         }
