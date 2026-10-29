@@ -1,6 +1,6 @@
 # Junior Year Bingo
 
-A pink, interactive bingo board for Suhana's junior year. GitHub Pages hosts the site and Supabase stores one shared board, so check-offs appear for everyone with the link. The board text can only be changed by the owner email configured in Supabase's row-level security policy.
+A pastel, interactive bingo board for Suhana's junior year. GitHub Pages hosts the site and Supabase stores one shared board, so check-offs appear for everyone with the link. The public website is designed for playing: visitors can mark squares and pick a square, but it does not include owner sign-in, prompt-editing, or reset controls.
 
 ## One-time setup
 
@@ -11,16 +11,9 @@ A pink, interactive bingo board for Suhana's junior year. GitHub Pages hosts the
 3. In **Project Settings → API**, copy the Project URL and the public/anon API key. Use the Project URL exactly as shown (it should end in `.supabase.co`); do not add `/rest/v1/`. Never use or publish a `service_role` or secret key in this website.
 4. Open [`config.js`](./config.js) and replace `YOUR_PROJECT_ID`, `YOUR_SUPABASE_PUBLIC_KEY`, and `YOUR_EMAIL@example.com` with the Project URL, public/anon key, and the same owner email.
 
-### 2. Allow the website to sign in its owner
+### 2. Change prompts when needed
 
-After the site has its GitHub Pages URL:
-
-1. In Supabase, open **Authentication → URL Configuration**.
-2. Set **Site URL** to the Pages URL below and add that same URL to **Redirect URLs**:
-   `https://coconutcream14.github.io/All-Projects-Repository/`
-3. Make sure email sign-in is enabled under **Authentication → Providers → Email**.
-
-The owner selects **Owner sign in**, enters the configured email, and follows the one-time link sent by email. Supabase checks the owner email in the database policy; the UI alone does not grant edit permission.
+To change prompt text on the existing shared board, open the Supabase project's **Table Editor**, select `public.bingo_squares`, and edit the `text` values. The website intentionally has no prompt-edit or sign-in buttons. The values in `setup.sql` initialize a new board; they do not overwrite existing board entries.
 
 ### 3. Publish with GitHub Pages
 
@@ -35,6 +28,6 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 ## Using the board
 
 - Anyone with the link can check or uncheck squares; changes are saved in Supabase and sync to other visitors.
-- Only the configured owner email can edit square text. Changes save to the shared board for everyone.
-- **Pick a square** chooses an unchecked prompt. **Start fresh** clears check-offs but keeps custom prompts.
+- **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
+- The board has no website controls for editing prompts or clearing everyone's check-offs. Change prompts through the Supabase dashboard if needed.
 - The database uses row-level security and column-level grants: the public role can update only `checked`, while prompt edits require the configured owner account.

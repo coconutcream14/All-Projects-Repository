@@ -205,7 +205,7 @@
       box-shadow: 0 7px 13px rgba(112, 149, 179, .17);
     }
 
-    .bingo-cell:focus-visible, .action:focus-visible, .cell-input:focus-visible {
+    .bingo-cell:focus-visible, .action:focus-visible {
       outline: 3px solid #6aaed1;
       outline-offset: 3px;
     }
@@ -259,6 +259,33 @@
       font-size: .75rem;
     }
 
+    .bingo-cell.picked {
+      z-index: 1;
+      border: 3px solid #9874bd !important;
+      outline: 3px dashed rgba(255, 255, 255, .95);
+      outline-offset: -8px;
+      box-shadow: 0 0 0 4px #fff, 0 0 0 8px #d2b9ec, 0 10px 24px rgba(115, 82, 153, .24) !important;
+      transform: scale(1.055);
+      animation: picked-bounce .7s ease-in-out infinite alternate;
+    }
+
+    .bingo-cell.picked::before {
+      position: absolute;
+      top: -10px;
+      right: -9px;
+      display: grid;
+      width: 27px;
+      height: 27px;
+      place-items: center;
+      border: 2px solid white;
+      border-radius: 50%;
+      background: #9874bd;
+      box-shadow: 0 2px 6px rgba(79, 58, 103, .2);
+      color: white;
+      content: "🐾";
+      font-size: .8rem;
+    }
+
     .bingo-cell.free {
       border-color: #f2b1cb;
       background: #fff0f5;
@@ -269,24 +296,6 @@
     .bingo-cell.free.checked {
       background: linear-gradient(145deg, #ffcfe0, #f692b5);
     }
-
-    .cell-input {
-      width: 100%;
-      height: 100%;
-      min-width: 0;
-      padding: 3px;
-      border: 0;
-      border-radius: 10px;
-      background: transparent;
-      color: var(--ink);
-      font-size: inherit;
-      font-weight: 700;
-      line-height: inherit;
-      text-align: center;
-      resize: none;
-    }
-
-    .cell-input::placeholder { color: #bd8da1; opacity: 1; }
 
     .side-panel {
       display: flex;
@@ -349,56 +358,6 @@
       line-height: 1.6;
     }
 
-    .account-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      color: var(--muted);
-      font-size: .72rem;
-      line-height: 1.45;
-    }
-
-    .account-row strong { color: #716083; }
-
-    .account-button {
-      flex: 0 0 auto;
-      padding: 6px 9px;
-      border: 1px solid #d6cce3;
-      border-radius: 12px 10px 13px 10px;
-      background: #fff;
-      color: #765a83;
-      cursor: pointer;
-      font-size: .7rem;
-      font-weight: 800;
-    }
-
-    .login-form {
-      display: grid;
-      gap: 8px;
-      padding: 12px;
-      border: 1px solid #ddd3e8;
-      border-radius: 16px 13px 17px 14px;
-      background: rgba(255, 255, 255, .82);
-    }
-
-    .login-form[hidden] { display: none; }
-
-    .login-form label {
-      color: #716083;
-      font-size: .74rem;
-      font-weight: 800;
-    }
-
-    .login-form input {
-      width: 100%;
-      min-height: 39px;
-      padding: 8px 10px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      color: var(--ink);
-    }
-
     .actions { display: grid; gap: 9px; }
 
     .action {
@@ -409,20 +368,39 @@
       gap: 8px;
       padding: 10px 12px;
       border: 1px solid transparent;
-      border-radius: 13px;
+      border-radius: 999px;
       background: transparent;
       cursor: pointer;
       font-size: .8rem;
       font-weight: 800;
-      transition: transform .16s ease, background .16s ease;
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
     }
 
-    .action:hover { transform: translateY(-1px); }
-    .action.primary { background: linear-gradient(110deg, #e86f9c, #cf79a8); box-shadow: 0 4px 0 #b95e89; color: white; }
-    .action.primary:hover { background: linear-gradient(110deg, #dc638f, #bd6b9b); }
-    .action.soft { border-color: #cbddea; background: #fff; color: #557f9d; }
-    .action.soft:hover { background: #eef8ff; }
-    .action.quiet { color: #82738f; font-size: .74rem; }
+    .action:hover:not(:disabled) { transform: translateY(-2px) rotate(-1deg); }
+    .action:active:not(:disabled) { transform: translateY(1px) scale(.98); }
+    .action:disabled { cursor: not-allowed; opacity: .58; }
+    .action.pick-button {
+      min-height: 50px;
+      padding: 12px 18px;
+      border: 2px solid rgba(255, 255, 255, .9);
+      background: linear-gradient(105deg, #e783aa, #b995db 54%, #78b9d6);
+      box-shadow: 0 5px 0 #8e78b0, 0 9px 17px rgba(107, 105, 161, .16);
+      color: white;
+      font-size: .9rem;
+      letter-spacing: .015em;
+    }
+
+    .action.pick-button:hover:not(:disabled) {
+      background: linear-gradient(105deg, #dc719d, #a984d0 54%, #67aecd);
+      box-shadow: 0 7px 0 #8e78b0, 0 12px 20px rgba(107, 105, 161, .2);
+    }
+
+    .pick-paw { font-size: 1.1rem; }
+
+    @keyframes picked-bounce {
+      from { transform: scale(1.035) rotate(-1deg); }
+      to { transform: scale(1.075) rotate(1deg); }
+    }
 
     .note-card {
       padding: 13px 14px;
@@ -474,8 +452,7 @@
       .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 17px; }
       .side-panel > .divider { display: none; }
       .side-panel > .note-card { grid-column: 1 / -1; }
-      .side-panel > .actions { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
-      .side-panel > .actions .quiet { grid-column: 1 / -1; }
+      .side-panel > .actions { grid-column: 1 / -1; }
       .card-top { padding: 16px 19px; }
     }
 
@@ -542,21 +519,12 @@
 
           <p class="side-copy" id="side-copy">Tap a square when it happens. Get five in a row to call BINGO!</p>
 
-          <div class="account-row">
-            <span id="account-status">Shared progress · anyone with the link can play</span>
-            <button class="account-button" id="account-button" type="button">Owner sign in</button>
-          </div>
-
-          <form class="login-form" id="login-form" hidden>
-            <label for="owner-email">Your editor email</label>
-            <input id="owner-email" type="email" autocomplete="email" placeholder="you@example.com" required>
-            <button class="action soft" type="submit">Email me a sign-in link</button>
-          </form>
-
           <div class="actions">
-            <button class="action primary" id="edit-button" type="button">✎ &nbsp; Edit my squares</button>
-            <button class="action soft" id="surprise-button" type="button">✦ &nbsp; Pick a square</button>
-            <button class="action quiet" id="reset-button" type="button">Start fresh ↺</button>
+            <button class="action pick-button" id="surprise-button" type="button">
+              <span class="pick-paw" aria-hidden="true">🐾</span>
+              Pick a square
+              <span aria-hidden="true">✦</span>
+            </button>
           </div>
 
           <div class="note-card">“Your junior year is going to be so you.”<span>♡</span></div>
@@ -578,40 +546,28 @@
     ];
 
     const board = document.getElementById("board");
-    const editButton = document.getElementById("edit-button");
     const surpriseButton = document.getElementById("surprise-button");
-    const resetButton = document.getElementById("reset-button");
     const message = document.getElementById("message");
     const progressCount = document.getElementById("progress-count");
     const progressTrack = document.getElementById("progress-track");
     const progressFill = document.getElementById("progress-fill");
     const bingoCount = document.getElementById("bingo-count");
-    const sideCopy = document.getElementById("side-copy");
-    const accountButton = document.getElementById("account-button");
-    const accountStatus = document.getElementById("account-status");
-    const loginForm = document.getElementById("login-form");
-    const ownerEmailInput = document.getElementById("owner-email");
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
-    let editing = false;
     let connected = false;
     let saving = false;
-    let session = null;
-    let isOwner = false;
-    let originalTexts = [];
     let previousBingos = 0;
     let polling = false;
+    let pickedSquareIndex = null;
+    let pickedSquareTimeout = null;
 
     const config = window.BINGO_CONFIG || {};
     const supabaseUrl = (config.supabaseUrl || "").replace(/\/+$/, "");
     const supabaseAnonKey = config.supabaseAnonKey || "";
-    const configuredOwnerEmail = (config.ownerEmail || "").trim().toLowerCase();
     const backendConfigured =
       /^https:\/\/[a-zA-Z0-9-]+\.supabase\.co$/.test(supabaseUrl) &&
       supabaseAnonKey.length > 20 &&
-      !supabaseAnonKey.includes("YOUR_") &&
-      configuredOwnerEmail.includes("@") &&
-      !configuredOwnerEmail.includes("example.com");
+      !supabaseAnonKey.includes("YOUR_");
 
     function apiHeaders(token = supabaseAnonKey) {
       return {
@@ -642,79 +598,6 @@
       return text ? JSON.parse(text) : null;
     }
 
-    function saveSession(nextSession) {
-      session = {
-        ...nextSession,
-        expiresAt: Date.now() + (Number(nextSession.expires_in) || 3600) * 1000
-      };
-      try {
-        localStorage.setItem("suhana-bingo-session", JSON.stringify(session));
-      } catch (error) {
-        console.error("Could not save the sign-in session.", error);
-        message.textContent = "Signed in, but this browser cannot remember the session. Check its storage settings.";
-      }
-    }
-
-    async function getAccessToken() {
-      if (!session) return supabaseAnonKey;
-      if (session.expiresAt > Date.now() + 60_000) return session.access_token;
-      const refreshed = await request("/auth/v1/token?grant_type=refresh_token", {
-        method: "POST",
-        body: JSON.stringify({ refresh_token: session.refresh_token })
-      });
-      saveSession(refreshed);
-      return session.access_token;
-    }
-
-    async function authenticatedRequest(path, options = {}) {
-      return request(path, options, await getAccessToken());
-    }
-
-    function updateAccountStatus() {
-      if (isOwner) {
-        accountStatus.textContent = `Editor signed in · ${session.user.email}`;
-        accountButton.textContent = "Sign out";
-        accountButton.setAttribute("aria-label", "Sign out of editor account");
-      } else {
-        accountStatus.textContent = "Shared progress · anyone with the link can play";
-        accountButton.textContent = "Owner sign in";
-        accountButton.setAttribute("aria-label", "Sign in as the board owner");
-      }
-    }
-
-    async function restoreSession() {
-      const hash = new URLSearchParams(window.location.hash.slice(1));
-      if (hash.has("access_token") && hash.has("refresh_token")) {
-        saveSession({
-          access_token: hash.get("access_token"),
-          refresh_token: hash.get("refresh_token"),
-          expires_in: hash.get("expires_in")
-        });
-        history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
-      } else {
-        try {
-          session = JSON.parse(localStorage.getItem("suhana-bingo-session") || "null");
-        } catch (error) {
-          console.error("Could not restore the sign-in session.", error);
-          message.textContent = "Could not restore your sign-in. Please request a new owner link.";
-        }
-      }
-
-      if (!session) return;
-      try {
-        const user = await authenticatedRequest("/auth/v1/user");
-        session.user = user;
-        isOwner = (user.email || "").toLowerCase() === configuredOwnerEmail;
-      } catch (error) {
-        console.error("Could not verify the editor sign-in.", error);
-        session = null;
-        isOwner = false;
-        localStorage.removeItem("suhana-bingo-session");
-        message.textContent = "Your sign-in expired or could not be verified. Request a new owner link.";
-      }
-      updateAccountStatus();
-    }
-
     async function loadRemoteBoard() {
       const rows = await request("/rest/v1/bingo_squares?select=id,text,checked&order=id.asc");
       if (!Array.isArray(rows) || rows.length !== 25 ||
@@ -727,7 +610,7 @@
     }
 
     async function updateSquare(index, changes) {
-      await authenticatedRequest(`/rest/v1/bingo_squares?id=eq.${index}`, {
+      await request(`/rest/v1/bingo_squares?id=eq.${index}`, {
         method: "PATCH",
         headers: { Prefer: "return=minimal" },
         body: JSON.stringify(changes)
@@ -774,30 +657,14 @@
     function renderBoard() {
       board.replaceChildren();
       squares.forEach((square, index) => {
-        if (editing) {
-          const label = document.createElement("label");
-          label.className = `bingo-cell${index === 12 ? " free" : ""}`;
-          const input = document.createElement("input");
-          input.className = "cell-input";
-          input.type = "text";
-          input.maxLength = 46;
-          input.value = square.text;
-          input.disabled = !isOwner || saving;
-          input.setAttribute("aria-label", `Edit bingo square ${index + 1}`);
-          input.placeholder = "Write a fun moment";
-          input.addEventListener("input", () => { squares[index].text = input.value; });
-          label.append(input);
-          board.append(label);
-          return;
-        }
-
         const cell = document.createElement("button");
-        cell.className = `bingo-cell${square.checked ? " checked" : ""}${index === 12 ? " free" : ""}`;
+        cell.className = `bingo-cell${square.checked ? " checked" : ""}${index === 12 ? " free" : ""}${pickedSquareIndex === index ? " picked" : ""}`;
         cell.type = "button";
+        cell.dataset.index = String(index);
         cell.disabled = !connected || saving || index === 12;
         cell.setAttribute("aria-pressed", String(square.checked));
-        cell.setAttribute("aria-label", `${square.text || "Empty square"}${square.checked ? ", completed" : ""}`);
-        cell.textContent = square.text || "Tap Edit to add a square";
+        cell.setAttribute("aria-label", `${square.text || "Empty square"}${square.checked ? ", completed" : ""}${pickedSquareIndex === index ? ", picked for you" : ""}`);
+        cell.textContent = square.text || "Empty square";
         cell.addEventListener("click", async () => {
           if (!connected || saving) return;
           const checked = !squares[index].checked;
@@ -821,14 +688,8 @@
         });
         board.append(cell);
       });
-      board.setAttribute("aria-label", editing ? "Edit the text in each bingo square" : "Junior year bingo board");
-      editButton.textContent = editing ? "♡  Save my squares" : "✎  Edit my squares";
-      editButton.disabled = !connected || saving;
-      resetButton.disabled = !connected || saving;
-      surpriseButton.disabled = !connected || saving || editing;
-      sideCopy.textContent = editing
-        ? "Make the squares your own. Changes save as you type!"
-        : "Tap a square when it happens. Get five in a row to call BINGO!";
+      board.setAttribute("aria-label", "Junior year bingo board");
+      surpriseButton.disabled = !connected || saving;
       updateProgress();
     }
 
@@ -849,146 +710,50 @@
       }
     }
 
-    async function savePrompts() {
-      saving = true;
-      renderBoard();
-      try {
-        const changed = squares
-          .map((square, index) => ({ square, index }))
-          .filter(({ square, index }) => square.text !== originalTexts[index]);
-        await Promise.all(changed.map(({ square, index }) => updateSquare(index, { text: square.text })));
-        originalTexts = squares.map((square) => square.text);
-        editing = false;
-        message.textContent = "Your custom squares are saved for everyone. ♡";
-        await loadRemoteBoard();
-      } catch (error) {
-        console.error("Could not save the bingo prompts.", error);
-        message.textContent = "Some prompts couldn't be saved. Check your connection and try Save again.";
-      } finally {
-        saving = false;
-        renderBoard();
-      }
-    }
-
-    editButton.addEventListener("click", async () => {
-      if (!connected || saving) return;
-      if (!isOwner) {
-        loginForm.hidden = false;
-        ownerEmailInput.focus();
-        message.textContent = "Only the board owner can edit prompts. Sign in with the configured owner email.";
-        return;
-      }
-      if (editing) {
-        await savePrompts();
-        return;
-      }
-      originalTexts = squares.map((square) => square.text);
-      editing = true;
-      message.textContent = "Go ahead — make the squares totally yours!";
-      renderBoard();
-      board.querySelector("input")?.focus();
-    });
-
     surpriseButton.addEventListener("click", () => {
-      if (editing || !connected) return;
+      if (!connected || saving) return;
       const available = Array.from(board.querySelectorAll(".bingo-cell:not(.checked)"));
       if (available.length === 0) {
         message.textContent = "Every square is checked — you did it! You're a junior-year legend! 🎉";
         return;
       }
       const chosen = available[Math.floor(Math.random() * available.length)];
-      chosen.focus();
-      chosen.scrollIntoView({ behavior: "smooth", block: "center" });
-      chosen.classList.add("highlight");
-      chosen.animate(
-        [{ transform: "scale(1)" }, { transform: "scale(1.12) rotate(2deg)" }, { transform: "scale(1)" }],
-        { duration: 650, easing: "ease-out" }
-      );
-      message.textContent = `Your next little adventure: ${chosen.textContent}`;
-    });
-
-    resetButton.addEventListener("click", async () => {
-      if (!connected || saving) return;
-      if (!window.confirm("Uncheck all your squares and start fresh? Your custom square text will stay.")) return;
-      saving = true;
+      const selectedIndex = Number(chosen.dataset.index);
+      pickedSquareIndex = selectedIndex;
+      if (pickedSquareTimeout !== null) window.clearTimeout(pickedSquareTimeout);
       renderBoard();
-      try {
-        await request("/rest/v1/bingo_squares?id=neq.12", {
-          method: "PATCH",
-          headers: { Prefer: "return=minimal" },
-          body: JSON.stringify({ checked: false })
-        });
-        message.textContent = "All fresh! Your custom squares are still here. ♡";
-        await loadRemoteBoard();
-      } catch (error) {
-        console.error("Could not reset the shared board.", error);
-        message.textContent = "The board couldn't be reset. Check your connection and try again.";
-      } finally {
-        saving = false;
+      const pickedCell = board.querySelector(`[data-index="${selectedIndex}"]`);
+      pickedCell.focus();
+      pickedCell.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        pickedCell.animate(
+          [{ transform: "scale(1.055)" }, { transform: "scale(1.12) rotate(2deg)" }, { transform: "scale(1.055)" }],
+          { duration: 700, easing: "ease-out" }
+        );
+      }
+      message.textContent = `🐾 This one's picked for you: ${pickedCell.textContent}`;
+      pickedSquareTimeout = window.setTimeout(() => {
+        if (pickedSquareIndex !== selectedIndex) return;
+        pickedSquareIndex = null;
+        pickedSquareTimeout = null;
         renderBoard();
-      }
-    });
-
-    accountButton.addEventListener("click", async () => {
-      if (session) {
-        try {
-          await request("/auth/v1/logout", { method: "POST" }, await getAccessToken());
-        } catch (error) {
-          console.error("Could not sign out from the auth service.", error);
-        }
-        localStorage.removeItem("suhana-bingo-session");
-        session = null;
-        isOwner = false;
-        editing = false;
-        updateAccountStatus();
-        renderBoard();
-        message.textContent = "Signed out. The shared board is still here for everyone to play.";
-        return;
-      }
-      loginForm.hidden = !loginForm.hidden;
-      if (!loginForm.hidden) ownerEmailInput.focus();
-    });
-
-    loginForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!backendConfigured) return;
-      const email = ownerEmailInput.value.trim();
-      const redirectTo = `${window.location.origin}${window.location.pathname}${window.location.search}`;
-      const button = loginForm.querySelector("button");
-      button.disabled = true;
-      try {
-        await request(`/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo)}`, {
-          method: "POST",
-          body: JSON.stringify({ email })
-        });
-        loginForm.hidden = true;
-        message.textContent = "Check your email for the secure owner sign-in link. ✉";
-      } catch (error) {
-        console.error("Could not send an owner sign-in link.", error);
-        message.textContent = "Couldn't send a sign-in link. Check the email and Supabase Auth settings.";
-      } finally {
-        button.disabled = false;
-      }
+      }, 4000);
     });
 
     async function start() {
       renderBoard();
       if (!backendConfigured) {
         message.textContent = "Online setup needed: follow the project's README to connect Supabase.";
-        accountButton.disabled = true;
-        editButton.disabled = true;
-        resetButton.disabled = true;
         surpriseButton.disabled = true;
         return;
       }
       try {
-        await restoreSession();
         await loadRemoteBoard();
       } catch (error) {
         showConnectionError(error);
       }
       window.setInterval(async () => {
-        if (editing || saving || polling) return;
+        if (saving || polling) return;
         polling = true;
         try {
           await loadRemoteBoard();
