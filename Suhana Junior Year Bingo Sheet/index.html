@@ -829,6 +829,58 @@
 
     .bingo-count { margin: 9px 0 0; color: var(--muted); font-size: .77rem; }
 
+    .heart-counter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 12px;
+      border: 1px solid #e6cdd6;
+      border-radius: 17px;
+      background: linear-gradient(115deg, #fff4f5, #f8edf4 58%, #f0edf5);
+      box-shadow: 0 4px 11px rgba(145, 93, 120, .08);
+    }
+
+    .heart-counter-icon {
+      display: grid;
+      width: 40px;
+      height: 40px;
+      flex: 0 0 40px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .7);
+      font-size: 1.45rem;
+    }
+
+    .heart-counter-copy { min-width: 0; flex: 1; }
+    .heart-counter-kicker { margin: 0 0 2px; color: #a56f85; font-size: .61rem; font-weight: 900; letter-spacing: .08em; }
+    .heart-counter-title { margin: 0; color: #685360; font-size: .78rem; font-weight: 800; }
+
+    .heart-counter-number {
+      min-width: 42px;
+      padding: 4px 9px;
+      border: 1px solid #ead2dc;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .82);
+      color: #a45e7d;
+      font-size: 1.05rem;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .heart-counter.bump .heart-counter-icon { animation: heart-counter-pop .36s ease-out; }
+    .heart-counter.bump .heart-counter-number { animation: heart-number-pop .36s ease-out; }
+
+    @keyframes heart-counter-pop {
+      45% { transform: scale(1.2) rotate(-8deg); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes heart-number-pop {
+      45% { color: #d34f82; transform: scale(1.18); }
+      100% { transform: scale(1); }
+    }
+
     .divider { height: 1px; background: linear-gradient(90deg, #dfd4d7, #d2dcdf, #dcd5e0); }
 
     .side-copy {
@@ -1165,6 +1217,7 @@
       .full-board-celebration, .full-board-message, .paw-confetti { animation: none !important; }
       .game-status[data-effect], .game-reaction-particle,
       .memory-card.memory-match-effect, .memory-card.memory-mismatch-effect { animation: none !important; }
+      .heart-counter.bump .heart-counter-icon, .heart-counter.bump .heart-counter-number { animation: none !important; }
     }
   </style>
 </head>
@@ -1280,6 +1333,15 @@
             <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
           </div>
 
+          <section class="heart-counter" id="heart-counter" aria-label="Heart count">
+            <span class="heart-counter-icon" aria-hidden="true">💝</span>
+            <div class="heart-counter-copy">
+              <p class="heart-counter-kicker">A LITTLE LOVE</p>
+              <p class="heart-counter-title">Hearts sent</p>
+            </div>
+            <strong class="heart-counter-number" id="heart-count" aria-live="polite" aria-atomic="true">0</strong>
+          </section>
+
           <div class="divider" aria-hidden="true"></div>
 
           <p class="side-copy" id="side-copy">Tap one when it happens. Five in a row = bingo!</p>
@@ -1329,6 +1391,8 @@
     const progressTrack = document.getElementById("progress-track");
     const progressFill = document.getElementById("progress-fill");
     const bingoCount = document.getElementById("bingo-count");
+    const heartCounter = document.getElementById("heart-counter");
+    const heartCountDisplay = document.getElementById("heart-count");
     const animalDialog = document.getElementById("animal-dialog");
     const animalDialogClose = document.getElementById("animal-dialog-close");
     const animalDialogTitle = document.getElementById("animal-dialog-title");
@@ -1388,6 +1452,8 @@
     let fullBoardCelebrationTimeout = null;
     let animalPhotoRequest = 0;
     let tapHeartIndex = 0;
+    let heartsSent = 0;
+    let heartCounterAnimationTimeout = null;
     let soundEnabled = true;
     let audioContext = null;
     let soundMasterGain = null;
@@ -1890,6 +1956,16 @@
 
     function shootTapHeart(x, y, animalHeart = false) {
       playSound("heart");
+      heartsSent += 1;
+      heartCountDisplay.textContent = String(heartsSent);
+      heartCounter.classList.remove("bump");
+      void heartCounter.offsetWidth;
+      heartCounter.classList.add("bump");
+      if (heartCounterAnimationTimeout !== null) window.clearTimeout(heartCounterAnimationTimeout);
+      heartCounterAnimationTimeout = window.setTimeout(() => {
+        heartCounter.classList.remove("bump");
+        heartCounterAnimationTimeout = null;
+      }, 380);
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
       heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
