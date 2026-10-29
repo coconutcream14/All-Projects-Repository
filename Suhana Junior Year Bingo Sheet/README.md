@@ -1,6 +1,6 @@
 # Junior Year Bingo
 
-A pastel, interactive bingo board for Suhana's junior year. GitHub Pages hosts the site and Supabase stores one shared board, so check-offs appear for everyone with the link. The public website is designed for playing: visitors can mark squares and pick a square, but it does not include owner sign-in, prompt-editing, or reset controls.
+A pastel, interactive bingo board for Subaba's junior year. GitHub Pages hosts the site and Supabase stores one shared board, so check-offs appear for everyone with the link. The public website is designed for playing: visitors can mark squares and pick a square, but it does not include owner sign-in, prompt-editing, or reset controls.
 
 ## One-time setup
 

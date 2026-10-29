@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#eee9ef">
-  <title>Junior Year Bingo · Suhana's year, her way</title>
+  <title>Junior Year Bingo · Subaba's year, her way</title>
   <style>
     :root {
       color-scheme: light;
@@ -37,7 +37,7 @@
         radial-gradient(ellipse at 88% 88%, rgba(224, 202, 210, .38), transparent 28rem),
         radial-gradient(ellipse at 14% 82%, rgba(202, 219, 207, .35), transparent 25rem),
         #eee9ef;
-      font-family: "Trebuchet MS", "Avenir Next", sans-serif;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Comic Neue", "Trebuchet MS", cursive, sans-serif;
     }
 
     button, input { font: inherit; }
@@ -54,7 +54,7 @@
       color: #96677d;
       font-size: .73rem;
       font-weight: 800;
-      letter-spacing: .18em;
+      letter-spacing: .1em;
       text-align: center;
       text-transform: uppercase;
     }
@@ -134,8 +134,9 @@
 
     .animal-dialog h2 {
       margin: 0 0 14px;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: inherit;
       font-size: 1.6rem;
+      font-weight: 900;
       text-align: center;
     }
 
@@ -176,14 +177,19 @@
 
     h1 {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: "Comic Sans MS", "Chalkboard SE", "Comic Neue", cursive;
       font-size: clamp(2.5rem, 7vw, 5rem);
-      font-weight: 700;
-      letter-spacing: -.055em;
-      line-height: .98;
+      font-weight: 900;
+      letter-spacing: -.035em;
+      line-height: 1.08;
     }
 
-    h1 span { color: var(--pink-dark); font-style: italic; }
+    h1 span {
+      display: inline-block;
+      color: var(--pink-dark);
+      font-style: normal;
+      transform: rotate(-3deg);
+    }
 
     .subtitle {
       max-width: 520px;
@@ -220,8 +226,7 @@
       gap: 11px;
       font-size: .83rem;
       font-weight: 800;
-      letter-spacing: .07em;
-      text-transform: uppercase;
+      letter-spacing: .015em;
     }
 
     .year-icon {
@@ -229,7 +234,7 @@
       width: 37px;
       height: 37px;
       place-items: center;
-      border-radius: 13px;
+      border-radius: 42% 58% 47% 53%;
       background: #e8dde1;
       font-size: 1.1rem;
     }
@@ -272,13 +277,14 @@
       place-items: center;
       padding: 9px;
       border: 1.5px solid rgba(169, 162, 174, .42);
-      border-radius: 18px 15px 19px 16px;
+      border-radius: 17px 20px 16px 19px;
       background: #f0edeb;
       box-shadow: 0 3px 0 rgba(96, 91, 101, .09);
       color: #59455d;
       cursor: pointer;
       font-size: clamp(.65rem, 1.2vw, .81rem);
       font-weight: 700;
+      letter-spacing: -.015em;
       line-height: 1.3;
       text-align: center;
       transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
@@ -423,8 +429,7 @@
       color: #916d7d;
       font-size: .69rem;
       font-weight: 800;
-      letter-spacing: .14em;
-      text-transform: uppercase;
+      letter-spacing: .04em;
     }
 
     .progress-heading {
@@ -436,8 +441,9 @@
 
     .progress-heading h2 {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: inherit;
       font-size: 1.35rem;
+      font-weight: 900;
     }
 
     .progress-count { color: #637e8a; font-size: .83rem; font-weight: 800; }
@@ -519,9 +525,10 @@
       border-radius: 17px 14px 18px 15px;
       background: rgba(241, 238, 236, .78);
       color: #6f6876;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: inherit;
       font-size: .83rem;
-      font-style: italic;
+      font-style: normal;
+      font-weight: 700;
       line-height: 1.55;
       text-align: center;
     }
@@ -652,9 +659,9 @@
 <body>
   <main class="page">
     <header class="hero">
-      <div class="top-note"><span>✿</span> a little luck, a lot of memories <span>✿</span></div>
+      <div class="top-note"><span>✿</span> our junior-year bingo <span>✿</span></div>
       <h1>Junior year <span>bingo</span></h1>
-      <p class="subtitle">A whole year of new memories, tiny victories, and <strong>main-character moments</strong> — made just for Suhana.</p>
+      <p class="subtitle">For all the weird, funny, good stuff we're gonna remember.</p>
     </header>
 
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
@@ -670,10 +677,10 @@
       <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
     </dialog>
 
-    <section class="card" aria-label="Suhana's junior year bingo game">
+    <section class="card" aria-label="Subaba's junior year bingo game">
       <div class="card-top">
-        <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> Suhana's 11th grade era</div>
-        <div class="save-note">Your board saves automatically ✨</div>
+        <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> Subaba's junior year</div>
+        <div class="save-note">It saves as you go ♡</div>
       </div>
 
       <div class="game-layout">
@@ -682,40 +689,40 @@
             <button class="animal-sticker" type="button" data-animal="Baby chick" data-photo="animals/baby-chick.jpg" aria-label="Meet the baby chick">🐣</button>
             <button class="animal-sticker" type="button" data-animal="Baby bunny" data-photo="animals/baby-bunny.jpg" aria-label="Meet the baby bunny">🐰</button>
             <button class="animal-sticker" type="button" data-animal="Baby bear" data-photo="animals/baby-bear.jpg" aria-label="Meet the baby bear">🐻</button>
-            <button class="animal-sticker" type="button" data-animal="Baby cat" data-photo="animals/baby-cat.jpg" aria-label="Meet the baby cat">🐱</button>
-            <button class="animal-sticker" type="button" data-animal="Baby puppy" data-photo="animals/baby-puppy.jpg" aria-label="Meet the baby puppy">🐶</button>
+            <button class="animal-sticker" type="button" data-animal="Momo, my other bestie westie" data-photo="animals/baby-cat.jpg" aria-label="Meet Momo, my other bestie westie">🐱</button>
+            <button class="animal-sticker" type="button" data-animal="Cosmo, my other bestie westie" data-photo="animals/baby-puppy.jpg" aria-label="Meet Cosmo, my other bestie westie">🐶</button>
           </div>
           <p class="message message-top" id="message-top" aria-live="polite"></p>
-          <div class="board" id="board" role="group" aria-label="Junior year bingo board"></div>
+          <div class="board" id="board" role="group" aria-label="Subaba's junior year bingo board"></div>
           <p class="message message-bottom" id="message-bottom" aria-hidden="true"></p>
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
           <div class="progress-block">
-            <p class="side-kicker">Your year so far</p>
+            <p class="side-kicker">So far</p>
             <div class="progress-heading">
-              <h2>Memory meter</h2>
+              <h2>The year so far</h2>
               <span class="progress-count" id="progress-count">0 / 24</span>
             </div>
             <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0">
               <div class="progress-fill" id="progress-fill"></div>
             </div>
-            <p class="bingo-count" id="bingo-count">No bingo lines yet — your story is just starting!</p>
+            <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
           </div>
 
           <div class="divider" aria-hidden="true"></div>
 
-          <p class="side-copy" id="side-copy">Tap a square when it happens. Get five in a row to call BINGO!</p>
+          <p class="side-copy" id="side-copy">Tap one when it happens. Five in a row = bingo!</p>
 
           <div class="actions">
             <button class="action pick-button" id="surprise-button" type="button">
               <span class="pick-paw" aria-hidden="true">🐾</span>
-              Pick a square
+              Pick one for me
               <span aria-hidden="true">✦</span>
             </button>
           </div>
 
-          <div class="note-card">“Your junior year is going to be so you.”<span>♡</span></div>
+          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
         </aside>
       </div>
     </section>
@@ -847,7 +854,7 @@
     function showConnectionError(error) {
       console.error("Could not sync the shared bingo board.", error);
       connected = false;
-      setMessage("Can't reach the shared board. Check setup and internet, then reload.");
+      setMessage("The board isn't loading right now. Check your connection and try a refresh.");
       renderBoard();
     }
 
@@ -882,8 +889,8 @@
       progressTrack.setAttribute("aria-valuenow", String(completed));
       progressFill.style.width = `${(completed / 24) * 100}%`;
       bingoCount.textContent = completedLines.length === 0
-        ? "No bingo lines yet — your story is just starting!"
-        : `${completedLines.length} bingo ${completedLines.length === 1 ? "line" : "lines"} — you're on a roll!`;
+        ? "No bingo yet. We're just getting started."
+        : `${completedLines.length} ${completedLines.length === 1 ? "bingo" : "bingos"} — okay, look at you!`;
 
       if (!progressInitialized && connected) {
         previousBingoLines = currentLineKeys;
@@ -896,12 +903,15 @@
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
         const reactions = {
-          row: (number) => `🐰 ROW ${number} COMPLETE! Bunny's doing a happy hop!`,
-          column: (number) => `🐬 COLUMN ${number} COMPLETE! Dolphin says, "high fin!"`,
-          diagonal: (number) => `🦊 DIAGONAL ${number} COMPLETE! Fox says, "that was clever!"`
+          row: (number) => `🐰 ROW ${number}!! Subaba, you did that.`,
+          column: (number) => `🐬 COLUMN ${number}!! Look at you go.`,
+          diagonal: (number) => `🦊 DIAGONAL ${number}!! You got it!`
         };
         const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
-        showReaction(newLines.map((line) => reactions[line.type](line.number)).join(" "), reactionType, 6500);
+        const reactionText = newLines.length > 1
+          ? `Wait—you got ${newLines.length} lines at once?! Okay, show-off ♡`
+          : reactions[newLines[0].type](newLines[0].number);
+        showReaction(reactionText, reactionType, 6500);
         winningSquareTypes = new Map();
         for (const line of newLines) {
           for (const index of line.squares) winningSquareTypes.set(index, line.type);
@@ -932,30 +942,30 @@
         cell.dataset.index = String(index);
         cell.disabled = !connected || saving || index === 12;
         cell.setAttribute("aria-pressed", String(square.checked));
-        cell.setAttribute("aria-label", `${square.text || "Empty square"}${square.checked ? ", completed" : ""}${pickedSquareIndex === index ? ", picked for you" : ""}`);
-        cell.textContent = square.text || "Empty square";
+        cell.setAttribute("aria-label", `${square.text || "Empty square"}${square.checked ? ", happened" : ""}${pickedSquareIndex === index ? ", picked for you" : ""}`);
+        cell.textContent = square.text || "Add a memory";
         cell.addEventListener("click", async () => {
           if (!connected || saving) return;
           const checked = !squares[index].checked;
           squares[index].checked = checked;
           saving = true;
           renderBoard(false);
-          setMessage("Saving your square…");
+          setMessage("Adding that to the lore…");
           try {
             await updateSquare(index, { checked });
             const newLines = renderBoard(true);
             if (newLines.length === 0 && checked) {
               const reactions = [
-                "🐣 Chirp chirp! One little memory saved!",
-                "🐱 Purr-fect! Another square checked!",
-                "🐶 Tail wags for this one!",
-                "🐻 Bear-y proud of you!",
-                "🐰 Hop, hop—one more memory!"
+                "🐣 Yep, that happened.",
+                "🐱 Adding this to the lore.",
+                "🐶 Memory unlocked.",
+                "🐻 Officially a junior-year moment.",
+                "🐰 Okay, one for the memory bank."
               ];
               showReaction(reactions[Math.floor(Math.random() * reactions.length)], "check");
               celebrate(["check"]);
             } else if (newLines.length === 0) {
-              showReaction("All good—this memory can wait for another day ♡", "uncheck");
+              showReaction("No worries, that one can wait.", "uncheck");
             }
             if (checked && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
               board.querySelector(`[data-index="${index}"]`)?.animate(
@@ -966,7 +976,7 @@
           } catch (error) {
             console.error("Could not save a bingo check-off.", error);
             squares[index].checked = !checked;
-            setMessage("That check-off couldn't be saved. Check your connection and try again.");
+            setMessage("Hmm, that didn't save. Try that square again in a sec.");
             renderBoard();
           } finally {
             saving = false;
@@ -1012,7 +1022,7 @@
         const requestId = ++animalPhotoRequest;
         animalDialogTitle.textContent = animalName;
         animalPlaceholderEmoji.textContent = button.textContent;
-        animalPlaceholderCopy.textContent = `Add a picture named "${photoPath.split("/").pop()}" to the animals folder to see it here.`;
+        animalPlaceholderCopy.textContent = `Add ${photoPath.split("/").pop()} to animals/ and your new friend will be right here.`;
         animalPhoto.hidden = true;
         animalPhotoPlaceholder.hidden = false;
         animalPhoto.alt = animalName;
@@ -1040,7 +1050,7 @@
       if (!connected || saving) return;
       const available = Array.from(board.querySelectorAll(".bingo-cell:not(.checked)"));
       if (available.length === 0) {
-        showReaction("Every square is checked — you did it! You're a junior-year legend! 🎉", "multiple");
+        showReaction("You did the whole board!! Knew you would, Subaba 🎉", "multiple");
         return;
       }
       const chosen = available[Math.floor(Math.random() * available.length)];
@@ -1057,7 +1067,7 @@
           { duration: 700, easing: "ease-out" }
         );
       }
-      showReaction(`🐾 This one's picked for you: ${pickedCell.textContent}`, "picked");
+      showReaction(`🐾 Your next square: ${pickedCell.textContent}`, "picked");
       pickedSquareTimeout = window.setTimeout(() => {
         if (pickedSquareIndex !== selectedIndex) return;
         pickedSquareIndex = null;
@@ -1069,7 +1079,7 @@
     async function start() {
       renderBoard();
       if (!backendConfigured) {
-        setMessage("Online setup needed: follow the project's README to connect Supabase.");
+        setMessage("The board isn't connected yet. Check the setup steps in the README.");
         surpriseButton.disabled = true;
         return;
       }
@@ -1085,7 +1095,7 @@
           await loadRemoteBoard();
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
-          setMessage("Board sync paused. Check your connection; we'll try again.");
+          setMessage("Board sync paused for a sec. Check your connection; we'll try again.");
         } finally {
           polling = false;
         }
