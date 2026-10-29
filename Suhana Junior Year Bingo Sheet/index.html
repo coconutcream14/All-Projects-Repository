@@ -218,7 +218,26 @@
     .memory-grid[hidden], .treat-field[hidden], .game-controls[hidden],
     .game-pause[hidden] { display: none !important; }
 
-    .game-back { display: block; margin: 0 0 12px; }
+    .game-back {
+      display: grid;
+      width: 46px;
+      min-width: 46px;
+      height: 46px;
+      place-items: center;
+      margin: 0 0 12px;
+      padding: 0;
+      border: 2px solid #55445d;
+      border-radius: 15px;
+      background: #74607e;
+      box-shadow: 0 3px 0 #493951;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.65rem;
+      line-height: 1;
+    }
+
+    .game-back:hover:not(:disabled) { background: #5f4b69; }
+    .game-back:focus-visible { outline: 3px solid #4d7180; outline-offset: 3px; }
     .game-play h2 { margin-bottom: 7px; }
 
     .game-instructions {
@@ -842,6 +861,27 @@
       100% { opacity: 0; transform: translate(var(--drift), -75px) scale(1.15) rotate(25deg); }
     }
 
+    .tap-heart {
+      position: fixed;
+      z-index: 30;
+      pointer-events: none;
+      user-select: none;
+      font-size: 2rem;
+      line-height: 1;
+      filter: drop-shadow(0 3px 4px rgba(89, 62, 84, .2));
+      transform: translate(-50%, -50%);
+      animation: tap-heart-float 1.15s cubic-bezier(.18, .72, .35, 1) forwards;
+    }
+
+    .tap-heart.animal-heart { font-size: 2.5rem; }
+
+    @keyframes tap-heart-float {
+      0% { opacity: 0; transform: translate(-50%, -35%) scale(.25) rotate(-12deg); }
+      16% { opacity: 1; transform: translate(-50%, -60%) scale(1.25) rotate(8deg); }
+      32% { transform: translate(calc(-50% + var(--heart-drift)), -85%) scale(1) rotate(var(--heart-tilt)); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--heart-drift)), -210px) scale(.72) rotate(var(--heart-tilt)); }
+    }
+
     .full-board-celebration {
       display: grid;
       position: fixed;
@@ -955,7 +995,7 @@
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
       <button class="dialog-close" id="animal-dialog-close" type="button" aria-label="Close animal picture">Close ×</button>
       <h2 id="animal-dialog-title"></h2>
-      <div class="animal-photo-frame">
+      <div class="animal-photo-frame" role="button" tabindex="0" aria-label="Tap to send this animal a heart">
         <img class="animal-photo" id="animal-photo" alt="" hidden>
         <div class="animal-photo-placeholder" id="animal-photo-placeholder">
           <span class="placeholder-emoji" id="animal-placeholder-emoji" aria-hidden="true"></span>
@@ -994,7 +1034,7 @@
         </div>
       </section>
       <section class="game-play" id="game-play" aria-labelledby="game-title" hidden>
-        <button class="game-button game-back" id="game-back" type="button">← Pick another game</button>
+        <button class="game-button game-back" id="game-back" type="button" aria-label="Stop this game and go back to all mini-games" title="Back to all mini-games">←</button>
         <h2 id="game-title"></h2>
         <p class="game-instructions" id="game-instructions"></p>
         <div class="game-scoreboard" aria-label="Game stats">
@@ -1123,6 +1163,8 @@
     let previousCompletedSquares = null;
     let fullBoardCelebrationTimeout = null;
     let animalPhotoRequest = 0;
+    let tapHeartIndex = 0;
+    const tapHeartEmojis = ["❤️", "🧡", "💛", "💚", "💙", "💜", "🩷", "🤍", "💖", "💕"];
     const bingoCelebrationMessages = [
       "Subaba, look at you go! Keep being your brilliant self ✨",
       "You did that, Subaba! Take a second to be proud of yourself 💖",
@@ -1248,6 +1290,26 @@
         }
         reactionTimeout = null;
       }, duration);
+    }
+
+    function shootTapHeart(x, y, animalHeart = false) {
+      const heart = document.createElement("span");
+      heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
+      heart.textContent = animalHeart ? "💖" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
+      heart.setAttribute("aria-hidden", "true");
+      heart.style.left = `${x}px`;
+      heart.style.top = `${y}px`;
+      heart.style.setProperty("--heart-drift", `${Math.random() * 54 - 27}px`);
+      heart.style.setProperty("--heart-tilt", `${Math.random() * 36 - 18}deg`);
+      tapHeartIndex += 1;
+      document.body.append(heart);
+      window.setTimeout(() => heart.remove(), 1250);
+    }
+
+    function isTapHeartExcluded(target) {
+      return target.closest(
+        "button, a, input, select, textarea, summary, [role='button'], [contenteditable='true'], canvas, .game-dialog"
+      );
     }
 
     function setGameControls(enabled) {
@@ -1943,7 +2005,11 @@
     }
 
     animalButtons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        if (event.detail === 0) {
+          const bounds = button.getBoundingClientRect();
+          shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
+        }
         const animalName = button.dataset.animal;
         const photoPath = button.dataset.photo;
         const requestId = ++animalPhotoRequest;
@@ -1966,6 +2032,30 @@
         animalPhoto.src = photoPath;
         if (!animalDialog.open) animalDialog.showModal();
       });
+    });
+
+    document.addEventListener("pointerdown", (event) => {
+      if (!event.isPrimary || event.button !== 0 || !(event.target instanceof Element)) return;
+      const animalTarget = event.target.closest(".animal-sticker, .animal-photo-frame");
+      if (animalTarget) {
+        shootTapHeart(event.clientX, event.clientY, true);
+        return;
+      }
+      if (event.target.closest("dialog") || isTapHeartExcluded(event.target)) return;
+      shootTapHeart(event.clientX, event.clientY);
+    });
+
+    document.querySelector(".animal-photo-frame").addEventListener("click", (event) => {
+      if (event.detail !== 0) return;
+      const bounds = event.currentTarget.getBoundingClientRect();
+      shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
+    });
+
+    document.querySelector(".animal-photo-frame").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      const bounds = event.currentTarget.getBoundingClientRect();
+      shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, true);
     });
 
     animalDialogClose.addEventListener("click", () => animalDialog.close());
