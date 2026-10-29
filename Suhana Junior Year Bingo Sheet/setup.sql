@@ -31,7 +31,7 @@ insert into public.bingo_squares (id, text, checked) values
   (11, 'Forget to charge your phone overnight 😕', false),
   (12, 'FREE SPACE', true),
   (13, 'Book date! Find a book you end up LOVING 📖', false),
-  (14, 'Try a new recipe (baking, cooking, whatever your 💗 desires) 🍲', false),
+  (14, 'Try a new recipe (baking, cooking, etc.) 🍲', false),
   (15, 'Make a core memory 🧠', false),
   (16, 'Go to a fun event 🪩', false),
   (17, 'Have a really good lunch 😋', false),

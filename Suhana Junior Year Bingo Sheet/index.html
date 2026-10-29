@@ -704,6 +704,73 @@
       100% { opacity: 0; transform: translate(var(--drift), -75px) scale(1.15) rotate(25deg); }
     }
 
+    .full-board-celebration {
+      display: grid;
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      place-items: center;
+      padding: 24px;
+      background: rgba(68, 53, 78, .35);
+      pointer-events: none;
+      animation: full-board-backdrop 4.8s ease-out forwards;
+    }
+
+    .full-board-message {
+      width: min(760px, 100%);
+      padding: clamp(24px, 6vw, 54px);
+      border: 4px solid #fff9f3;
+      border-radius: 34px;
+      background: linear-gradient(135deg, #f3dfe7, #e1e9ed 52%, #e8e0ef);
+      box-shadow: 0 18px 0 #b9a2b3, 0 30px 75px rgba(48, 37, 58, .34);
+      color: #594452;
+      text-align: center;
+      transform: rotate(-2deg);
+      animation: full-board-pop .65s cubic-bezier(.2, .8, .25, 1.2) both;
+    }
+
+    .full-board-message strong {
+      display: block;
+      font-size: clamp(2.2rem, 8vw, 5rem);
+      font-weight: 1000;
+      line-height: 1.03;
+      text-shadow: 0 3px 0 #fff8f4;
+    }
+
+    .full-board-message span {
+      display: block;
+      margin-top: 16px;
+      font-size: clamp(1.05rem, 3vw, 1.6rem);
+      font-weight: 900;
+      line-height: 1.4;
+    }
+
+    .paw-confetti {
+      position: fixed;
+      z-index: 21;
+      top: -12vh;
+      pointer-events: none;
+      text-shadow: 0 2px 6px rgba(68, 53, 78, .2);
+      animation: paw-confetti-fall var(--fall-duration) cubic-bezier(.25, .65, .45, 1) var(--fall-delay) forwards;
+    }
+
+    @keyframes full-board-backdrop {
+      0%, 100% { opacity: 0; }
+      8%, 84% { opacity: 1; }
+    }
+
+    @keyframes full-board-pop {
+      0% { opacity: 0; transform: scale(.45) rotate(-8deg); }
+      70% { opacity: 1; transform: scale(1.06) rotate(2deg); }
+      100% { opacity: 1; transform: scale(1) rotate(-2deg); }
+    }
+
+    @keyframes paw-confetti-fall {
+      0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg); }
+      10%, 82% { opacity: .95; }
+      100% { opacity: 0; transform: translate3d(var(--paw-drift), 115vh, 0) rotate(var(--paw-spin)); }
+    }
+
     @media (max-width: 760px) {
       body { padding: 27px 14px 35px; }
       .game-layout { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
@@ -735,6 +802,7 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
       .animal-sticker:hover, .animal-sticker:focus-visible, .bingo-cell.picked { animation: none !important; }
+      .full-board-celebration, .full-board-message, .paw-confetti { animation: none !important; }
     }
   </style>
 </head>
@@ -884,7 +952,36 @@
     let winningSquareTimeout = null;
     let reactionTimeout = null;
     let progressInitialized = false;
+    let previousCompletedSquares = null;
+    let fullBoardCelebrationTimeout = null;
     let animalPhotoRequest = 0;
+    const bingoCelebrationMessages = [
+      "Subaba, look at you go! Keep being your brilliant self ✨",
+      "You did that, Subaba! Take a second to be proud of yourself 💖",
+      "Subaba, you make this look easy. What a win! 🎉",
+      "Okayyy Subaba! Your hard work is paying off 🌟",
+      "Another little win for you, Subaba. You're on fire 🔥",
+      "Subaba, I knew you had it in you! Keep going 💫",
+      "You should be so proud, Subaba. That was all you! 🥳",
+      "Subaba's having a very good year, and this proves it 💕",
+      "Look at that, Subaba! One more lovely memory in the making 🐾",
+      "Subaba, consider this your reminder that you're amazing 🌷",
+      "You keep surprising yourself, Subaba—in the best way 💌",
+      "Subaba, that's another reason to celebrate you! 🪩",
+      "So proud of you, Subaba. Keep collecting those little wins 🌈",
+      "Subaba, you're making your own kind of magic ✨",
+      "Well done, Subaba! Go enjoy that tiny victory dance 💃",
+      "Subaba, you really are making this year yours 🎀",
+      "A little more proof that you've got this, Subaba 💪",
+      "You did it again, Subaba! Save some brilliance for the rest of us 😌",
+      "Subaba, every little win looks good on you 🌼",
+      "That calls for a happy dance, Subaba. I don't make the rules 💃",
+      "Subaba, you are so capable—and now there's another proof 💖",
+      "Look at you building a year full of good memories, Subaba 📸",
+      "Subaba, you're absolutely allowed to brag about this one 🏆",
+      "Another win with your name on it, Subaba. Keep shining ⭐"
+    ];
+    let bingoCelebrationIndex = 0;
     const gameState = {
       running: false,
       paused: false,
@@ -1192,22 +1289,19 @@
       if (!progressInitialized && connected) {
         previousBingoLines = currentLineKeys;
         progressInitialized = true;
+        previousCompletedSquares = completed;
       }
 
       if (!progressInitialized || !announceNewLines) return [];
 
+      const completedBoardJustFinished = completed === 24 && previousCompletedSquares !== 24;
+      previousCompletedSquares = completed;
       const newLines = completedLines.filter((line) => !previousBingoLines.has(`${line.type}-${line.number}`));
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
-        const reactions = {
-          row: () => "Yay, Subaba! You did it! What fun thing are we celebrating next? 🤔",
-          column: () => "Look at you, Subaba! You're on a roll—what's next? ✨",
-          diagonal: () => "Subaba, you did it again! Keep that good luck going! 💫"
-        };
         const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
-        const reactionText = newLines.length > 1
-          ? `Wait, Subaba—you did that ${newLines.length} times at once?! What should we celebrate next? 🎉`
-          : reactions[newLines[0].type]();
+        const reactionText = bingoCelebrationMessages[bingoCelebrationIndex];
+        bingoCelebrationIndex = (bingoCelebrationIndex + 1) % bingoCelebrationMessages.length;
         showReaction(reactionText, reactionType, 6500);
         winningSquareTypes = new Map();
         for (const line of newLines) {
@@ -1224,6 +1318,7 @@
         }, 3600);
         celebrate(newLines.map((line) => line.type));
       }
+      if (completedBoardJustFinished) celebrateFullBoard();
       return newLines;
     }
 
@@ -1310,6 +1405,49 @@
         document.body.append(sparkle);
         window.setTimeout(() => sparkle.remove(), 900);
       }
+    }
+
+    function celebrateFullBoard() {
+      if (fullBoardCelebrationTimeout !== null) {
+        window.clearTimeout(fullBoardCelebrationTimeout);
+      }
+      document.querySelector(".full-board-celebration")?.remove();
+
+      const celebration = document.createElement("div");
+      celebration.className = "full-board-celebration";
+      celebration.setAttribute("role", "status");
+      celebration.setAttribute("aria-live", "assertive");
+      celebration.setAttribute("aria-atomic", "true");
+
+      const message = document.createElement("div");
+      const headline = document.createElement("strong");
+      const note = document.createElement("span");
+      message.className = "full-board-message";
+      headline.textContent = "SUBABA, YOU DID THE WHOLE THING!!";
+      note.textContent = "All 24 squares, all yours. Actual bestie legend behavior! 🐾💖🎉";
+      message.append(headline, note);
+      celebration.append(message);
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      for (let index = 0; index < 72; index += 1) {
+        const paw = document.createElement("span");
+        paw.className = "paw-confetti";
+        paw.textContent = "🐾";
+        paw.setAttribute("aria-hidden", "true");
+        paw.style.left = `${Math.random() * 100}vw`;
+        paw.style.fontSize = `${20 + Math.random() * 26}px`;
+        paw.style.setProperty("--fall-duration", `${3.5 + Math.random() * 1.8}s`);
+        paw.style.setProperty("--fall-delay", `${Math.random() * .7}s`);
+        paw.style.setProperty("--paw-drift", `${Math.random() * 220 - 110}px`);
+        paw.style.setProperty("--paw-spin", `${Math.random() * 900 - 450}deg`);
+        if (reducedMotion) paw.style.top = `${Math.random() * 100}vh`;
+        celebration.append(paw);
+      }
+      document.body.append(celebration);
+      fullBoardCelebrationTimeout = window.setTimeout(() => {
+        celebration.remove();
+        fullBoardCelebrationTimeout = null;
+      }, 6500);
     }
 
     animalButtons.forEach((button) => {
