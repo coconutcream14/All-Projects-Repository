@@ -76,14 +76,38 @@ create table if not exists public.minigame_records (
   completion_count integer not null default 0,
   updated_at timestamptz not null default now(),
   check (
-    (game_id = 'memory' and best_score between 6 and 10000) or
-    (game_id = 'treats' and best_score = 10) or
+    (game_id = 'memory' and best_score between 8 and 10000) or
+    (game_id = 'treats' and best_score = 15) or
     (game_id in ('catcher', 'bunny') and best_score between 0 and 10000)
   )
 );
 
 alter table public.minigame_records
   add column if not exists completion_count integer not null default 0;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.minigame_records'::regclass
+      and conname = 'minigame_records_check'
+  ) then
+    delete from public.minigame_records where game_id in ('memory', 'treats');
+    alter table public.minigame_records drop constraint minigame_records_check;
+  end if;
+end;
+$$;
+
+alter table public.minigame_records
+  drop constraint if exists minigame_records_difficulty_check;
+
+alter table public.minigame_records
+  add constraint minigame_records_difficulty_check check (
+    (game_id = 'memory' and best_score between 8 and 10000) or
+    (game_id = 'treats' and best_score = 15) or
+    (game_id in ('catcher', 'bunny') and best_score between 0 and 10000)
+  );
 
 alter table public.minigame_records enable row level security;
 
@@ -112,8 +136,8 @@ begin
   end if;
 
   if p_score < 0 or p_score > 10000
-    or (p_game_id = 'memory' and p_score < 6)
-    or (p_game_id = 'treats' and p_score <> 10) then
+    or (p_game_id = 'memory' and p_score < 8)
+    or (p_game_id = 'treats' and p_score <> 15) then
     raise exception 'Mini-game score is outside the allowed range.';
   end if;
 

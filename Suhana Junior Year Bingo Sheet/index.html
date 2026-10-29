@@ -215,7 +215,7 @@
     .game-option span:last-child { color: var(--muted); font-size: .75rem; line-height: 1.4; }
 
     .game-play[hidden], .game-picker[hidden], .game-canvas[hidden],
-    .memory-grid[hidden], .treat-field[hidden], .game-controls[hidden],
+    .memory-grid[hidden], .treat-field[hidden], .game-controls[hidden], .game-powerups[hidden],
     .game-pause[hidden] { display: none !important; }
 
     .game-back {
@@ -448,6 +448,51 @@
     .game-button.primary:hover:not(:disabled) { background: #96738a; }
     .game-controls { margin-top: 9px; }
     .game-controls .game-button { min-width: 92px; }
+    .game-powerups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      width: min(100%, 420px);
+      margin: 12px auto 0;
+    }
+
+    .game-power {
+      display: grid;
+      gap: 6px;
+      padding: 9px 10px;
+      border: 1px solid #d5cbd8;
+      border-radius: 15px;
+      background: rgba(255, 250, 248, .78);
+    }
+
+    .game-power-label {
+      color: #715568;
+      font-size: .73rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .game-power-meter {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: #e0d9e3;
+    }
+
+    .game-power-meter-fill {
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #c995a7, #a89bb8 52%, #86aeb8);
+      transition: width .12s linear;
+    }
+
+    .game-power .game-button {
+      min-height: 38px;
+      padding: 6px 10px;
+      font-size: .76rem;
+    }
+
     .game-note { margin: 12px 0 0; color: var(--muted); font-size: .76rem; text-align: center; }
 
     @media (max-width: 430px) {
@@ -1139,7 +1184,7 @@
           <button class="game-option" type="button" data-game-id="memory">
             <span class="game-option-emoji" aria-hidden="true">🐱</span>
             <strong>Kitty Memory</strong>
-            <span>Find all 6 matching emoji pairs. How few flips can you do?</span>
+            <span>Find all 8 matching emoji pairs. How few flips can you do?</span>
           </button>
           <button class="game-option" type="button" data-game-id="bunny">
             <span class="game-option-emoji" aria-hidden="true">🐰</span>
@@ -1149,7 +1194,7 @@
           <button class="game-option" type="button" data-game-id="treats">
             <span class="game-option-emoji" aria-hidden="true">🐶</span>
             <strong>Puppy Treat Tap</strong>
-            <span>Tap 10 treats as they pop up around the garden. Quick paws!</span>
+            <span>Tap 15 treats as they pop up around the garden. Quick paws!</span>
           </button>
         </div>
       </section>
@@ -1175,6 +1220,7 @@
           <button class="game-button" id="game-right" type="button" aria-label="Move basket right" disabled>Right →</button>
           <button class="game-button" id="game-jump" type="button" aria-label="Make the bunny jump" hidden>Hop! 🐰</button>
         </div>
+        <div class="game-powerups" id="game-powerups" aria-label="Rechargeable superpowers" hidden></div>
         <p class="game-note" id="game-note">Just for fun—your bingo stays right where it is.</p>
       </section>
     </dialog>
@@ -1282,6 +1328,21 @@
       { id: "treats", label: "🐶 Puppy Treat Tap", unit: "treats" }
     ];
     const gameLeaderboardScores = new Map(gameLeaderboardDefinitions.map(({ id }) => [id, null]));
+    const gamePowerDefinitions = {
+      catcher: [
+        { id: "catcherMagnet", label: "Paw magnet", button: "Magnet 🧲", key: "M", cooldownMs: 15000, durationMs: 3000 }
+      ],
+      memory: [
+        { id: "memoryPeek", label: "Kitty peek", button: "Peek 🐱", key: "P", cooldownMs: 18000, durationMs: 1300 }
+      ],
+      bunny: [
+        { id: "bunnyDash", label: "Carrot dash", button: "Dash", key: "ArrowRight", keyLabel: "→ / Shift", cooldownMs: 12000, durationMs: 1500 },
+        { id: "bunnyShield", label: "Invincibility", button: "Shield ✨", key: "X", cooldownMs: 20000, durationMs: 2500 }
+      ],
+      treats: [
+        { id: "treatsFreeze", label: "Puppy time-freeze", button: "Freeze ⏸", key: "F", cooldownMs: 16000, durationMs: 3000 }
+      ]
+    };
     const gameCloseButton = document.getElementById("game-close");
     const gameStartButton = document.getElementById("game-start");
     const gamePauseButton = document.getElementById("game-pause");
@@ -1343,6 +1404,7 @@
     const gameSecondaryLabelText = document.getElementById("game-secondary-label");
     const gameSecondaryValue = document.getElementById("game-secondary");
     const gameControls = document.getElementById("game-controls");
+    const gamePowerups = document.getElementById("game-powerups");
     const gameJumpButton = document.getElementById("game-jump");
     const gameNote = document.getElementById("game-note");
     const memoryGrid = document.getElementById("memory-grid");
@@ -1354,6 +1416,7 @@
       paused: false,
       frameId: null,
       intervalId: null,
+      powerIntervalId: null,
       memoryTimeout: null,
       treatTimers: [],
       lastFrame: 0,
@@ -1368,7 +1431,8 @@
       cards: [],
       selectedCards: [],
       matchedPairs: 0,
-      moves: 0
+      moves: 0,
+      powerStates: new Map()
     };
     const gameEncouragements = {
       catcherCatch: [
@@ -1389,7 +1453,7 @@
       ],
       catcherFinish: [
         "Round over, but you caught a bunch! Fancy another go? 💖",
-        "Ten got away this time. Your basket can have a rematch 🐾",
+        "Five got away this time. Your basket can have a rematch 🐾",
         "That's the round! You still caught some cuteness, Subaba ✨",
         "Time for a basket break—or one more try? 🌷"
       ],
@@ -1415,10 +1479,10 @@
         "A useful peek! Their matching friends are still out there 💖"
       ],
       memoryFinish: [
-        "All six pairs! Kitty-level memory unlocked 🐱💖",
+        "All eight pairs! Kitty-level memory unlocked 🐱💖",
         "You found every animal twin! That brain is brilliant ✨",
         "Every pair reunited—beautifully done, Subaba 🐾",
-        "Six pairs down! Your memory deserves a tiny trophy 🏆"
+        "Eight pairs down! Your memory deserves a tiny trophy 🏆"
       ],
       bunnyJump: [
         "Hop time! You've got those bunny legs 🐰",
@@ -1469,9 +1533,9 @@
         "Missed that one? All good—keep those paws ready ✨"
       ],
       treatFinish: [
-        "Ten treats! One very happy puppy—and one very good you 🐶💖",
+        "Fifteen treats! One very happy puppy—and one very good you 🐶💖",
         "Puppy's treat stash is full! You did it, Subaba 🦴",
-        "All ten treats collected. Excellent puppy-helper work ✨",
+        "All fifteen treats collected. Excellent puppy-helper work ✨",
         "Treat goal reached! Puppy is doing a happy dance 🐾"
       ],
       catcherStart: [
@@ -1516,21 +1580,26 @@
       catcherMiss: ["💭", "🐾", "💕"],
       catcherFinish: ["🎉", "💖", "🐾"],
       catcherStart: ["🐾", "✨", "💖"],
+      catcherMagnetPower: ["🧲", "🐾", "✨"],
       memoryFlip: ["✨", "🐱", "💭"],
       memoryMatch: ["💖", "🐾", "✨"],
       memoryMismatch: ["💭", "🐱", "✨"],
       memoryFinish: ["🎉", "🐱", "💖", "✨"],
       memoryStart: ["🐱", "🔎", "✨"],
+      memoryPeekPower: ["🔎", "🐱", "✨"],
       bunnyJump: ["🐰", "✨", "💨"],
       bunnyCarrot: ["🥕", "🌟", "🐰"],
       bunnyPuddle: ["💦", "💧", "🐰"],
       bunnyDodge: ["✨", "🐰", "🌟"],
       bunnyFinish: ["🎉", "🥕", "🐰", "💖"],
       bunnyStart: ["🐰", "🥕", "✨"],
+      bunnyDashPower: ["💨", "🐰", "🥕"],
+      bunnyShieldPower: ["🛡️", "✨", "🐰"],
       treatCatch: ["🍪", "🐶", "💖"],
       treatMiss: ["🦴", "💭", "🐾"],
       treatFinish: ["🎉", "🐶", "🦴", "💖"],
       treatStart: ["🐶", "🍪", "💖"],
+      treatsFreezePower: ["⏸️", "🐶", "✨"],
       gamePause: ["☁️", "🐾", "💕"],
       gameResume: ["✨", "🐾", "💖"]
     };
@@ -1583,7 +1652,7 @@
         score.textContent = record === null
           ? "Not yet played"
           : game.id === "treats"
-            ? `${record.bestScore}/10 · ${record.completionCount} ${record.completionCount === 1 ? "finish" : "finishes"}`
+            ? `${record.bestScore}/15 · ${record.completionCount} ${record.completionCount === 1 ? "finish" : "finishes"}`
             : `${record.bestScore} ${game.unit}`;
         row.append(label, score);
         gameLeaderboardList.append(row);
@@ -1736,6 +1805,111 @@
       gamePauseButton.hidden = gameState.id === "memory";
       gamePauseButton.disabled = !enabled;
       gamePauseButton.textContent = gameState.paused ? "Resume" : "Pause";
+      updateGamePowerUI();
+    }
+
+    function configureGamePowers() {
+      const definitions = gamePowerDefinitions[gameState.id] || [];
+      gamePowerups.replaceChildren();
+      gamePowerups.hidden = definitions.length === 0;
+      gameState.powerStates = new Map();
+      for (const power of definitions) {
+        gameState.powerStates.set(power.id, { chargeMs: power.cooldownMs, activeMs: 0 });
+        const panel = document.createElement("div");
+        panel.className = "game-power";
+        const label = document.createElement("span");
+        label.className = "game-power-label";
+        label.id = `${power.id}-label`;
+        const meter = document.createElement("div");
+        meter.className = "game-power-meter";
+        meter.setAttribute("role", "progressbar");
+        meter.setAttribute("aria-label", `${power.label} energy`);
+        meter.setAttribute("aria-valuemin", "0");
+        meter.setAttribute("aria-valuemax", "100");
+        const meterFill = document.createElement("div");
+        meterFill.className = "game-power-meter-fill";
+        meter.append(meterFill);
+        const button = document.createElement("button");
+        button.className = "game-button";
+        button.type = "button";
+        button.textContent = `${power.button} (${power.keyLabel || power.key})`;
+        button.setAttribute("aria-describedby", label.id);
+        button.setAttribute("aria-keyshortcuts", power.key === "ArrowRight" ? "ArrowRight Shift" : power.key);
+        button.addEventListener("click", () => activateGamePower(power.id));
+        panel.append(label, meter, button);
+        gamePowerups.append(panel);
+        power.labelElement = label;
+        power.meterElement = meter;
+        power.fillElement = meterFill;
+        power.buttonElement = button;
+      }
+      updateGamePowerUI();
+    }
+
+    function updateGamePowerUI() {
+      const definitions = gamePowerDefinitions[gameState.id] || [];
+      const canUsePowers = gameState.running && !gameState.paused;
+      for (const power of definitions) {
+        const state = gameState.powerStates.get(power.id);
+        if (!state) continue;
+        const isActive = state.activeMs > 0;
+        const charge = isActive ? state.activeMs / power.durationMs : state.chargeMs / power.cooldownMs;
+        const percent = Math.max(0, Math.min(100, Math.round(charge * 100)));
+        power.fillElement.style.width = `${percent}%`;
+        power.meterElement.setAttribute("aria-valuenow", String(percent));
+        power.labelElement.textContent = isActive
+          ? `${power.label} active · ${(state.activeMs / 1000).toFixed(1)}s`
+          : state.chargeMs >= power.cooldownMs
+            ? `${power.label} ready!`
+            : `${power.label} recharging`;
+        const needsNoSelectedCards = power.id !== "memoryPeek" || gameState.selectedCards.length === 0;
+        power.buttonElement.disabled = !canUsePowers || isActive || state.chargeMs < power.cooldownMs || !needsNoSelectedCards;
+      }
+    }
+
+    function isGamePowerActive(powerId) {
+      return (gameState.powerStates.get(powerId)?.activeMs || 0) > 0;
+    }
+
+    function startGamePowerClock() {
+      if (gameState.powerIntervalId !== null) window.clearInterval(gameState.powerIntervalId);
+      gameState.powerIntervalId = window.setInterval(() => {
+        if (!gameState.running || gameState.paused) return;
+        let memoryPeekEnded = false;
+        for (const power of gamePowerDefinitions[gameState.id] || []) {
+          const state = gameState.powerStates.get(power.id);
+          if (!state) continue;
+          if (state.activeMs > 0) {
+            state.activeMs = Math.max(0, state.activeMs - 100);
+            if (power.id === "memoryPeek" && state.activeMs === 0) memoryPeekEnded = true;
+          } else {
+            state.chargeMs = Math.min(power.cooldownMs, state.chargeMs + 100);
+          }
+        }
+        if (memoryPeekEnded) renderMemoryCards();
+        updateGamePowerUI();
+      }, 100);
+    }
+
+    function activateGamePower(powerId) {
+      if (!gameState.running || gameState.paused) return;
+      const power = (gamePowerDefinitions[gameState.id] || []).find((item) => item.id === powerId);
+      const state = gameState.powerStates.get(powerId);
+      if (!power || !state || state.activeMs > 0 || state.chargeMs < power.cooldownMs) return;
+      if (powerId === "memoryPeek" && gameState.selectedCards.length > 0) return;
+      state.chargeMs = 0;
+      state.activeMs = power.durationMs;
+      const messages = {
+        catcherMagnet: "Paw magnet on! The animals are getting pulled toward your basket 🧲",
+        memoryPeek: "Kitty peek! Memorize those little faces while they sparkle 🐱",
+        bunnyDash: "Carrot dash! Zoom fast and grab double carrots—but watch those puddles! 💨",
+        bunnyShield: "Invincibility on! Puddles can't take your carrots for a little while 🛡️",
+        treatsFreeze: "Puppy time-freeze! Those treats can wait while you tap 🐶"
+      };
+      gameStatus.textContent = messages[powerId];
+      if (powerId === "memoryPeek") renderMemoryCards();
+      showGameReaction(`${powerId}Power`);
+      updateGamePowerUI();
     }
 
     function drawGameBackground() {
@@ -1802,6 +1976,23 @@
       gameContext.textBaseline = "middle";
       gameContext.font = '40px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
       gameContext.fillText("🐰", 76, groundY - 28 - gameState.bunnyY);
+      if (isGamePowerActive("bunnyDash")) {
+        gameContext.strokeStyle = "rgba(255, 255, 255, .8)";
+        gameContext.lineWidth = 3;
+        for (let index = 0; index < 3; index += 1) {
+          gameContext.beginPath();
+          gameContext.moveTo(28, groundY - 56 + index * 13);
+          gameContext.lineTo(58, groundY - 56 + index * 13);
+          gameContext.stroke();
+        }
+      }
+      if (isGamePowerActive("bunnyShield")) {
+        gameContext.beginPath();
+        gameContext.arc(76, groundY - 28 - gameState.bunnyY, 29, 0, Math.PI * 2);
+        gameContext.strokeStyle = "rgba(132, 174, 193, .9)";
+        gameContext.lineWidth = 4;
+        gameContext.stroke();
+      }
       for (const item of gameState.obstacles) {
         if (item.kind === "puddle") {
           gameContext.beginPath();
@@ -1833,7 +2024,7 @@
     }
 
     function makeMemoryCards() {
-      const emojis = ["🐱", "🐶", "🐰", "🐻", "🐣", "🐼"];
+      const emojis = ["🐱", "🐶", "🐰", "🐻", "🐣", "🐼", "🦊", "🐨"];
       const cards = [...emojis, ...emojis].map((emoji, index) => ({ id: index, emoji, matched: false, revealed: false }));
       for (let index = cards.length - 1; index > 0; index -= 1) {
         const other = Math.floor(Math.random() * (index + 1));
@@ -1848,15 +2039,17 @@
 
     function renderMemoryCards() {
       memoryGrid.replaceChildren();
+      const peekActive = isGamePowerActive("memoryPeek");
       gameState.cards.forEach((card, index) => {
         const button = document.createElement("button");
         button.className = "memory-card";
         button.type = "button";
         button.dataset.cardIndex = String(index);
-        button.textContent = card.revealed || card.matched ? card.emoji : "♡";
-        button.setAttribute("aria-label", card.revealed || card.matched ? card.emoji : "Hidden kitty card");
-        button.setAttribute("aria-pressed", String(card.revealed || card.matched));
-        button.disabled = card.matched || !gameState.running;
+        const faceUp = card.revealed || card.matched || peekActive;
+        button.textContent = faceUp ? card.emoji : "♡";
+        button.setAttribute("aria-label", faceUp ? card.emoji : "Hidden kitty card");
+        button.setAttribute("aria-pressed", String(faceUp));
+        button.disabled = card.matched || !gameState.running || peekActive;
         if (card.effect) button.classList.add(`memory-${card.effect}-effect`);
         button.addEventListener("click", () => flipMemoryCard(index));
         memoryGrid.append(button);
@@ -1885,6 +2078,7 @@
       card.revealed = true;
       gameState.selectedCards.push(index);
       renderMemoryCards();
+      updateGamePowerUI();
       if (gameState.selectedCards.length < 2) {
         gameStatus.textContent = gameEncouragement("memoryFlip");
         showGameReaction("memoryFlip", memoryGrid.querySelector(`[data-card-index="${index}"]`));
@@ -1900,13 +2094,13 @@
         first.matched = true;
         second.matched = true;
         gameState.matchedPairs += 1;
-        gameSecondaryValue.textContent = `${gameState.matchedPairs} / 6`;
+        gameSecondaryValue.textContent = `${gameState.matchedPairs} / 8`;
         gameState.selectedCards = [];
-        gameStatus.textContent = `${gameEncouragement("memoryMatch")} ${gameState.matchedPairs} of 6 pairs found.`;
+        gameStatus.textContent = `${gameEncouragement("memoryMatch")} ${gameState.matchedPairs} of 8 pairs found.`;
         renderMemoryCards();
         showGameReaction("memoryMatch", memoryGrid);
         animateMemoryCards([firstIndex, secondIndex], "match");
-        if (gameState.matchedPairs === 6) {
+        if (gameState.matchedPairs === 8) {
           finishGame(`${gameEncouragement("memoryFinish")} You found them in ${gameState.moves} moves!`);
           showGameReaction("memoryFinish", memoryGrid);
         }
@@ -1924,19 +2118,23 @@
         second.revealed = false;
         gameState.selectedCards = [];
         renderMemoryCards();
+        updateGamePowerUI();
       }, 750);
     }
 
     function finishGame(message) {
       gameState.running = false;
       gameState.paused = false;
+      for (const powerState of gameState.powerStates.values()) powerState.activeMs = 0;
       if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
       if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
+      if (gameState.powerIntervalId !== null) window.clearInterval(gameState.powerIntervalId);
       if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
       for (const timer of gameState.treatTimers) window.clearTimeout(timer);
       gameState.treatTimers = [];
       gameState.frameId = null;
       gameState.intervalId = null;
+      gameState.powerIntervalId = null;
       gameState.memoryTimeout = null;
       if (gameState.id === "treats") treatField.replaceChildren();
       gameStartButton.textContent = "Play again";
@@ -1954,22 +2152,28 @@
     }
 
     function runCatcherFrame(elapsed) {
+      gameState.elapsed += elapsed;
       gameState.spawnElapsed += elapsed;
-      if (gameState.spawnElapsed >= 1100) {
-        gameState.spawnElapsed -= 1100;
+      const spawnInterval = Math.max(650, 980 - gameState.elapsed * .006);
+      if (gameState.spawnElapsed >= spawnInterval) {
+        gameState.spawnElapsed -= spawnInterval;
         const animals = ["🐶", "🐱", "🐰", "🐻", "🐣", "🐼", "🦊", "🐸", "🐨", "🐷", "🐹", "🐥"];
         gameState.collectibles.push({
           emoji: animals[Math.floor(Math.random() * animals.length)],
           x: 24 + Math.random() * (gameCanvas.width - 48),
           y: -22,
           radius: 18,
-          speed: 58 + Math.random() * 18 + Math.min(gameState.score, 20)
+          speed: 75 + Math.random() * 24 + Math.min(gameState.elapsed / 1000, 40) * .8 + Math.min(gameState.score, 20)
         });
       }
 
       const basketY = gameCanvas.height - 54;
       for (let index = gameState.collectibles.length - 1; index >= 0; index -= 1) {
         const item = gameState.collectibles[index];
+        if (isGamePowerActive("catcherMagnet")) {
+          const targetX = gameState.basketX + 38;
+          item.x += Math.sign(targetX - item.x) * Math.min(Math.abs(targetX - item.x), 230 * elapsed / 1000);
+        }
         item.y += item.speed * elapsed / 1000;
         const caught = item.y + item.radius >= basketY &&
           item.y - item.radius <= basketY + 27 &&
@@ -2006,8 +2210,8 @@
       gameState.bunnyVelocity -= 950 * elapsed / 1000;
       if (gameState.bunnyY === 0) gameState.bunnyVelocity = 0;
 
-      if (gameState.spawnElapsed >= 1150) {
-        gameState.spawnElapsed -= 1150;
+      if (gameState.spawnElapsed >= 1000) {
+        gameState.spawnElapsed -= 1000;
         const carrot = Math.random() < .55;
         gameState.obstacles.push({
           emoji: carrot ? "🥕" : "💦",
@@ -2019,26 +2223,30 @@
       const groundY = gameCanvas.height - 62;
       for (let index = gameState.obstacles.length - 1; index >= 0; index -= 1) {
         const item = gameState.obstacles[index];
-        item.x -= 175 * elapsed / 1000;
+        item.x -= 190 * (isGamePowerActive("bunnyDash") ? 1.65 : 1) * elapsed / 1000;
         if (!item.resolved && item.x <= 76 && item.x >= 40) {
           item.resolved = true;
           if (item.kind === "carrot") {
-            gameState.score += 1;
+            const carrotPoints = isGamePowerActive("bunnyDash") ? 2 : 1;
+            gameState.score += carrotPoints;
             gameScoreValue.textContent = String(gameState.score);
-            gameStatus.textContent = `${gameEncouragement("bunnyCarrot")} ${gameState.score} so far.`;
+            gameStatus.textContent = `${gameEncouragement("bunnyCarrot")} ${carrotPoints === 2 ? "Dash bonus! " : ""}${gameState.score} so far.`;
             showGameReaction("bunnyCarrot", gameCanvas);
             gameState.obstacles.splice(index, 1);
             continue;
           }
-          if (gameState.bunnyY < 28) {
+          if (gameState.bunnyY >= 28) {
+            gameStatus.textContent = gameEncouragement("bunnyDodge");
+            showGameReaction("bunnyDodge", gameCanvas);
+          } else if (isGamePowerActive("bunnyShield")) {
+            gameStatus.textContent = "Puddle blocked! Your shield kept every carrot safe 🛡️";
+            showGameReaction("bunnyShieldPower");
+          } else {
             gameState.score = Math.max(0, gameState.score - 1);
             gameScoreValue.textContent = String(gameState.score);
             gameState.splashFlash = 420;
             gameStatus.textContent = `${gameEncouragement("bunnyPuddle")} ${gameState.score} carrots left.`;
             showGameReaction("bunnyPuddle", gameCanvas);
-          } else {
-            gameStatus.textContent = gameEncouragement("bunnyDodge");
-            showGameReaction("bunnyDodge", gameCanvas);
           }
           gameState.obstacles.splice(index, 1);
           continue;
@@ -2067,7 +2275,7 @@
     }
 
     function spawnPuppyTreat() {
-      if (!gameState.running || gameState.paused || treatField.childElementCount >= 3) return;
+      if (!gameState.running || gameState.paused || treatField.childElementCount >= 2) return;
       const target = document.createElement("button");
       target.className = "treat-target";
       target.type = "button";
@@ -2081,12 +2289,12 @@
         const treatBounds = target.getBoundingClientRect();
         target.remove();
         gameState.score += 1;
-        gameScoreValue.textContent = `${gameState.score} / 10`;
-        gameStatus.textContent = `${gameEncouragement("treatCatch")} ${gameState.score} of 10.`;
+        gameScoreValue.textContent = `${gameState.score} / 15`;
+        gameStatus.textContent = `${gameEncouragement("treatCatch")} ${gameState.score} of 15.`;
         showGameReaction("treatCatch", {
           getBoundingClientRect: () => treatBounds
         });
-        if (gameState.score === 10) {
+        if (gameState.score === 15) {
           finishGame(gameEncouragement("treatFinish"));
           showGameReaction("treatFinish", treatField);
         }
@@ -2095,12 +2303,15 @@
       scheduleTreatExpiry(target);
     }
 
-    function scheduleTreatExpiry(target) {
+    function scheduleTreatExpiry(target, delayMs = 1550) {
       const timer = window.setTimeout(() => {
         gameState.treatTimers = gameState.treatTimers.filter((activeTimer) => activeTimer !== timer);
         if (!target.isConnected) return;
-        if (gameState.running && gameState.paused) {
-          scheduleTreatExpiry(target);
+        if (gameState.running && (gameState.paused || isGamePowerActive("treatsFreeze"))) {
+          const freezeRemaining = gameState.paused
+            ? 1500
+            : gameState.powerStates.get("treatsFreeze")?.activeMs || 0;
+          scheduleTreatExpiry(target, 1900 + freezeRemaining);
           return;
         }
         target.remove();
@@ -2108,7 +2319,7 @@
           gameStatus.textContent = gameEncouragement("treatMiss");
           showGameReaction("treatMiss", treatField);
         }
-      }, 1900);
+      }, delayMs);
       gameState.treatTimers.push(timer);
     }
 
@@ -2121,28 +2332,28 @@
           instructions: "Slide your basket to catch the falling animals. It ends after 5 misses.",
           scoreLabel: "Animals",
           secondaryLabel: "Misses",
-          note: "Use ← → or the buttons. The slower falling things give you time to catch them."
+          note: "Use ← → to move. Tap Paw magnet (M) to pull animals toward your basket; they fall faster as you play."
         },
         memory: {
           title: "Kitty Memory",
-          instructions: "Flip two cards at a time and find all 6 matching pairs.",
+          instructions: "Flip two cards at a time and find all 8 matching pairs.",
           scoreLabel: "Moves",
           secondaryLabel: "Pairs",
-          note: "Take your time—the game only ends when you find all 6 pairs."
+          note: "Use Kitty peek (P) to reveal unmatched cards briefly. Find all 8 pairs in as few moves as you can."
         },
         bunny: {
           title: "Bunny Hop",
           instructions: "Hop over splashy puddles or they'll make you lose a carrot. Collect carrots during your 30-second dash.",
           scoreLabel: "Carrots",
           secondaryLabel: "Time",
-          note: "Press ↑ / space or tap Hop. Bumps are okay; the dash always lasts 30 seconds."
+          note: "Hop: ↑ / space · Carrot dash: → / Shift (double carrots, faster hazards) · Puddle shield: X."
         },
         treats: {
           title: "Puppy Treat Tap",
-          instructions: "Tap the treats as they pop up around the garden. Collect 10 to finish!",
+          instructions: "Tap the treats as they pop up around the garden. Collect 15 to finish!",
           scoreLabel: "Treats",
           secondaryLabel: "Goal",
-          note: "Tap with your mouse or finger. A missed treat just pops back up later."
+          note: "Tap quickly before treats disappear. Puppy time-freeze (F) pauses treat timers briefly."
         }
       };
       const game = games[gameId];
@@ -2167,6 +2378,11 @@
       gameState.bunnyVelocity = 0;
       gameState.obstacles = [];
       gameState.splashFlash = 0;
+      gameState.cards = [];
+      gameState.selectedCards = [];
+      gameState.matchedPairs = 0;
+      gameState.moves = 0;
+      configureGamePowers();
       gameStartButton.textContent = "Start game";
       gamePauseButton.textContent = "Pause";
       if (gameId === "catcher") {
@@ -2176,7 +2392,7 @@
         drawPawCatcher();
       } else if (gameId === "memory") {
         gameScoreValue.textContent = "0";
-        gameSecondaryValue.textContent = "0 / 6";
+        gameSecondaryValue.textContent = "0 / 8";
         memoryGrid.replaceChildren();
       } else if (gameId === "bunny") {
         gameScoreValue.textContent = "0";
@@ -2184,8 +2400,8 @@
         gameCanvas.setAttribute("aria-label", "Bunny Hop. Jump over puddles and collect carrots for thirty seconds.");
         drawBunnyHop();
       } else {
-        gameScoreValue.textContent = "0 / 10";
-        gameSecondaryValue.textContent = "10";
+        gameScoreValue.textContent = "0 / 15";
+        gameSecondaryValue.textContent = "15";
         treatField.replaceChildren();
       }
       gameStatus.textContent = "Ready when you are!";
@@ -2202,6 +2418,8 @@
       gameState.spawnElapsed = 0;
       gameState.elapsed = 0;
       gameState.score = 0;
+      gameState.selectedCards = [];
+      configureGamePowers();
       gameStartButton.textContent = "Start over";
       setGameControls(true);
 
@@ -2221,8 +2439,8 @@
         drawPawCatcher();
       } else if (gameState.id === "memory") {
         gameScoreValue.textContent = "0";
-        gameSecondaryValue.textContent = "0 / 6";
-        gameStatus.textContent = `${gameEncouragement("memoryStart")} Find all 6 matching pairs.`;
+        gameSecondaryValue.textContent = "0 / 8";
+        gameStatus.textContent = `${gameEncouragement("memoryStart")} Find all 8 matching pairs.`;
         makeMemoryCards();
       } else if (gameState.id === "bunny") {
         if (!gameContext) {
@@ -2241,16 +2459,17 @@
         gameStatus.textContent = `${gameEncouragement("bunnyStart")} Collect carrots for 30 seconds.`;
         drawBunnyHop();
       } else {
-        gameScoreValue.textContent = "0 / 10";
-        gameSecondaryValue.textContent = "10";
-        gameStatus.textContent = `${gameEncouragement("treatStart")} Tap 10 treats before they disappear.`;
+        gameScoreValue.textContent = "0 / 15";
+        gameSecondaryValue.textContent = "15";
+        gameStatus.textContent = `${gameEncouragement("treatStart")} Tap 15 treats before they disappear.`;
         treatField.replaceChildren();
         spawnPuppyTreat();
       }
+      startGamePowerClock();
       if (gameState.id === "catcher" || gameState.id === "bunny") {
         gameState.frameId = window.requestAnimationFrame(runGameFrame);
       } else if (gameState.id === "treats") {
-        gameState.intervalId = window.setInterval(spawnPuppyTreat, 850);
+        gameState.intervalId = window.setInterval(spawnPuppyTreat, 700);
       }
       showGameReaction(`${gameState.id}Start`);
     }
@@ -2260,11 +2479,13 @@
       gameState.paused = false;
       if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
       if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
+      if (gameState.powerIntervalId !== null) window.clearInterval(gameState.powerIntervalId);
       if (gameState.memoryTimeout !== null) window.clearTimeout(gameState.memoryTimeout);
       for (const timer of gameState.treatTimers) window.clearTimeout(timer);
       gameState.treatTimers = [];
       gameState.frameId = null;
       gameState.intervalId = null;
+      gameState.powerIntervalId = null;
       gameState.memoryTimeout = null;
       if (gameState.id === "treats") treatField.replaceChildren();
       if (gameReactionTimeout !== null) window.clearTimeout(gameReactionTimeout);
@@ -2479,7 +2700,7 @@
       const note = document.createElement("span");
       message.className = "full-board-message";
       headline.textContent = "SUBABA, YOU DID THE WHOLE THING!!";
-      note.textContent = "All 24 squares, all yours. Actual bestie legend behavior! 🐾💖🎉";
+      note.textContent = "All 25 squares, all yours. Actual bestie legend behavior! 🐾💖🎉";
       message.append(headline, note);
       celebration.append(message);
 
@@ -2605,24 +2826,37 @@
       if (gameState.paused) {
         if (gameState.frameId !== null) window.cancelAnimationFrame(gameState.frameId);
         if (gameState.intervalId !== null) window.clearInterval(gameState.intervalId);
+        if (gameState.powerIntervalId !== null) window.clearInterval(gameState.powerIntervalId);
         gameState.frameId = null;
         gameState.intervalId = null;
+        gameState.powerIntervalId = null;
         gameStatus.textContent = gameEncouragement("gamePause");
         showGameReaction("gamePause");
       } else {
         gameState.lastFrame = 0;
         gameStatus.textContent = gameEncouragement("gameResume");
         showGameReaction("gameResume");
+        startGamePowerClock();
         if (gameState.id === "catcher" || gameState.id === "bunny") {
           gameState.frameId = window.requestAnimationFrame(runGameFrame);
         } else if (gameState.id === "treats") {
-          gameState.intervalId = window.setInterval(spawnPuppyTreat, 850);
+          gameState.intervalId = window.setInterval(spawnPuppyTreat, 700);
         }
       }
     });
 
     document.addEventListener("keydown", (event) => {
       if (!gameDialog.open || !gameState.running || gameState.paused) return;
+      if (event.repeat) return;
+      const shortcut = event.key === "ArrowRight" || event.key === "Shift"
+        ? "ArrowRight"
+        : event.key.toUpperCase();
+      const power = (gamePowerDefinitions[gameState.id] || []).find((item) => item.key === shortcut);
+      if (power) {
+        event.preventDefault();
+        activateGamePower(power.id);
+        return;
+      }
       if (gameState.id === "catcher" && (event.key === "ArrowLeft" || event.key.toLowerCase() === "a")) {
         event.preventDefault();
         movePawCatcher(-1);
