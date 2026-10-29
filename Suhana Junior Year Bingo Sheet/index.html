@@ -544,6 +544,8 @@
       transition: background .2s ease, border-color .2s ease, transform .2s ease;
     }
 
+    .message-top { margin: 0 4px 18px; }
+
     .message[data-reaction="row"], .message[data-reaction="column"],
     .message[data-reaction="diagonal"], .message[data-reaction="multiple"] {
       min-height: 68px;
@@ -683,8 +685,9 @@
             <button class="animal-sticker" type="button" data-animal="Baby cat" data-photo="animals/baby-cat.jpg" aria-label="Meet the baby cat">🐱</button>
             <button class="animal-sticker" type="button" data-animal="Baby puppy" data-photo="animals/baby-puppy.jpg" aria-label="Meet the baby puppy">🐶</button>
           </div>
+          <p class="message message-top" id="message-top" aria-live="polite"></p>
           <div class="board" id="board" role="group" aria-label="Junior year bingo board"></div>
-          <p class="message" id="message" aria-live="polite"></p>
+          <p class="message message-bottom" id="message-bottom" aria-hidden="true"></p>
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
@@ -732,7 +735,8 @@
 
     const board = document.getElementById("board");
     const surpriseButton = document.getElementById("surprise-button");
-    const message = document.getElementById("message");
+    const messageTop = document.getElementById("message-top");
+    const messageBottom = document.getElementById("message-bottom");
     const progressCount = document.getElementById("progress-count");
     const progressTrack = document.getElementById("progress-track");
     const progressFill = document.getElementById("progress-fill");
@@ -799,18 +803,24 @@
     function setMessage(text, reaction = "") {
       if (reactionTimeout !== null) window.clearTimeout(reactionTimeout);
       reactionTimeout = null;
-      message.textContent = text;
+      messageTop.textContent = text;
+      messageBottom.textContent = text;
       if (reaction) {
-        message.dataset.reaction = reaction;
+        messageTop.dataset.reaction = reaction;
+        messageBottom.dataset.reaction = reaction;
       } else {
-        delete message.dataset.reaction;
+        delete messageTop.dataset.reaction;
+        delete messageBottom.dataset.reaction;
       }
     }
 
     function showReaction(text, type, duration = 4800) {
       setMessage(text, type);
       reactionTimeout = window.setTimeout(() => {
-        if (message.textContent === text) delete message.dataset.reaction;
+        if (messageTop.textContent === text) {
+          delete messageTop.dataset.reaction;
+          delete messageBottom.dataset.reaction;
+        }
         reactionTimeout = null;
       }, duration);
     }
