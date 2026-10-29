@@ -1200,13 +1200,13 @@
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
         const reactions = {
-          row: () => "Yay! You got a whole row! What can you do next? 🤔",
-          column: () => "A full column too?! Okay, you're on a roll. What's next? ✨",
-          diagonal: () => "Diagonal bingo! Look at you go—what's next? 💫"
+          row: () => "Yay, Subaba! You did it! What fun thing are we celebrating next? 🤔",
+          column: () => "Look at you, Subaba! You're on a roll—what's next? ✨",
+          diagonal: () => "Subaba, you did it again! Keep that good luck going! 💫"
         };
         const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
         const reactionText = newLines.length > 1
-          ? `Wait, ${newLines.length} bingo lines at once?! What should we celebrate next? 🎉`
+          ? `Wait, Subaba—you did that ${newLines.length} times at once?! What should we celebrate next? 🎉`
           : reactions[newLines[0].type]();
         showReaction(reactionText, reactionType, 6500);
         winningSquareTypes = new Map();
