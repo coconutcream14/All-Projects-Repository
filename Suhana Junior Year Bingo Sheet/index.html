@@ -597,14 +597,13 @@
 
     .sound-toggle:hover { background: #f7f0f3; }
     .sound-toggle:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
-
     .game-layout {
       display: grid;
       position: relative;
       grid-template-columns: minmax(0, 1fr) 248px;
       gap: 29px;
       align-items: center;
-      padding: 28px;
+      padding: 18px 28px 28px;
       background: linear-gradient(145deg, rgba(238, 230, 231, .7), rgba(228, 235, 237, .65) 55%, rgba(234, 229, 237, .7));
     }
 
@@ -613,7 +612,7 @@
       max-width: 650px;
       margin: 0 auto;
       position: relative;
-      padding: 30px 32px;
+      padding: 20px 32px 30px;
       border: 1px solid rgba(246, 243, 241, .92);
       border-radius: 25px;
       background: linear-gradient(135deg, #ede1e5, #e2eaec 48%, #e4e9e2);
@@ -1043,7 +1042,7 @@
       transition: background .2s ease, border-color .2s ease, transform .2s ease;
     }
 
-    .message-top { margin: 0 4px 18px; }
+    .message-top { min-height: 36px; margin: 0 4px 10px; }
 
     .message[data-reaction="row"], .message[data-reaction="column"],
     .message[data-reaction="diagonal"], .message[data-reaction="multiple"] {
@@ -1217,7 +1216,7 @@
       body { padding-right: 10px; padding-left: 10px; }
       .board { gap: 6px; }
       .bingo-cell { padding: 4px; border-radius: 11px; font-size: clamp(.58rem, 2.45vw, .7rem); }
-      .board-wrap { padding: 25px 24px; border-radius: 19px; }
+      .board-wrap { padding: 18px 24px 25px; border-radius: 19px; }
       .game-layout { padding: 13px; }
       .side-panel { gap: 11px; padding: 14px; }
       .animal-sticker { width: 41px; height: 41px; font-size: 1.25rem; }
@@ -1328,6 +1327,7 @@
           <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Mute sound effects" aria-pressed="true">Sound on 🔊</button>
         </div>
       </div>
+      <audio id="heart-sound-audio" src="./deep_thought.mp3" preload="auto"></audio>
 
       <div class="game-layout">
         <div class="board-wrap">
@@ -1447,6 +1447,7 @@
     const gameCanvas = document.getElementById("game-canvas");
     const gameContext = gameCanvas.getContext("2d");
     const soundToggleButton = document.getElementById("sound-toggle");
+    const heartSoundAudio = document.getElementById("heart-sound-audio");
     const gameOpenButton = document.getElementById("game-open");
     const gameLeaderboardList = document.getElementById("mini-leaderboard-list");
     const gameLeaderboardStatus = document.getElementById("mini-leaderboard-status");
@@ -1582,6 +1583,15 @@
       } catch (error) {
         disableSound(error);
       }
+    }
+
+    function playHeartSound() {
+      if (!soundEnabled) return;
+      heartSoundAudio.currentTime = 0;
+      void heartSoundAudio.play().catch((error) => {
+        console.warn("Could not play the built-in heart sound; using the synthesized fallback.", error);
+        playSound("heart");
+      });
     }
 
     if (typeof window.AudioContext !== "function") {
@@ -2035,13 +2045,15 @@
     function selectHeartCounter(button) {
       const counterId = button.dataset.heartCounter;
       if (!heartCountersReady || !heartCounts.has(counterId) || button.disabled) return;
-      selectedHeartCounterId = counterId;
+      selectedHeartCounterId = selectedHeartCounterId === counterId ? null : counterId;
       for (const counterButton of heartCounterButtons) {
         const selected = counterButton.dataset.heartCounter === selectedHeartCounterId;
         counterButton.setAttribute("aria-pressed", String(selected));
       }
       playSound("tap");
-      heartCounterStatus.textContent = `${button.querySelector(".heart-counter-title").textContent} selected. Page taps will add hearts here.`;
+      heartCounterStatus.textContent = selectedHeartCounterId
+        ? `${button.querySelector(".heart-counter-title").textContent} selected. Page taps will add hearts here.`
+        : "No counter selected. Page taps still send floating hearts, but won't change either total.";
     }
 
     async function incrementSelectedHeartCounter() {
@@ -2077,7 +2089,7 @@
     }
 
     function shootTapHeart(x, y, animalHeart = false) {
-      playSound("heart");
+      playHeartSound();
       void incrementSelectedHeartCounter();
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
@@ -3115,6 +3127,7 @@
       if (audioContext && soundMasterGain) {
         soundMasterGain.gain.setTargetAtTime(soundEnabled ? 0.12 : 0, audioContext.currentTime, 0.015);
       }
+      heartSoundAudio.muted = !soundEnabled;
       updateSoundToggle();
       if (soundEnabled) playSound("tap");
     });
