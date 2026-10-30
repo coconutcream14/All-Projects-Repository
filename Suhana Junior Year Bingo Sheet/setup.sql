@@ -431,13 +431,29 @@ create policy "Anyone can send shared compliments"
 
 create table if not exists public.bingo_badges (
   player_name text not null default 'Subaba' check (player_name in ('Subaba', 'Tabya')),
-  badge_id text not null check (badge_id in ('first_bingo', 'half_board', 'full_board')),
+  badge_id text not null,
   primary key (player_name, badge_id),
   earned_at timestamptz not null default now()
 );
 
 alter table public.bingo_badges
   add column if not exists player_name text not null default 'Subaba';
+
+alter table public.bingo_badges
+  drop constraint if exists bingo_badges_badge_id_check;
+
+alter table public.bingo_badges
+  add constraint bingo_badges_badge_id_check
+  check (badge_id in (
+    'first_bingo',
+    'half_board',
+    'full_board',
+    'all_games_played',
+    'catcher_10',
+    'memory_20',
+    'bunny_25',
+    'treats_5'
+  ));
 
 alter table public.bingo_badges
   drop constraint if exists bingo_badges_player_name_check;

@@ -15,7 +15,7 @@ A pastel best-friend website for Subaba's junior year. GitHub Pages hosts it, an
 
 Run the **entire latest** [`setup.sql`](./setup.sql) file in your Supabase project's **SQL Editor**. It creates or updates both bingo boards, separate Subaba and Tabya mini-game leaderboards, heart counters, memory wall, personal and shared badge records, daily questions and answers, and compliment jar. Re-running it preserves existing check-offs, prompts, scores, hearts, memories, answers, compliments, and earned badges. Existing bingo and mini-game progress is assigned to Subaba; Tabya's new board starts with the same prompts and its free space checked.
 
-Use **Subaba's board** and **Tabya's board** to switch between separate progress on the same prompts. Edit bingo prompts in **Edit bingo prompts** below the board; updates are shared by both boards. The Memory Wall lets either visitor add, edit, or delete entries and photos, with the author chosen from Subaba and Tabya. The question page lets visitors edit the question jar and their daily answers. The Compliments page lets visitors edit the shared compliment jar and send saved messages. Mini-game records and personal bingo badges save separately; shared badges unlock when both boards reach the same milestone.
+Use **Subaba's board** and **Tabya's board** to switch between separate progress on the same prompts. Edit bingo prompts in **Edit bingo prompts** below the board; updates are shared by both boards. The Memory Wall lets either visitor add, edit, or delete entries and photos, with the author chosen from Subaba and Tabya. The question page lets visitors edit the question jar and their daily answers. The Compliments page lets visitors edit the shared compliment jar and send saved messages. Mini-game records and each person's bingo and mini-game achievements save separately; shared badges unlock when both boards reach the same milestone.
 
 The website's new shared tables allow public read/write access so both friends can edit without signing in. The website and its content are public: do not add private information or photos unless everyone pictured agrees to share them. Photos are resized and stored in the Supabase database; each uploaded image is limited to about 640 KB.
 
@@ -69,6 +69,60 @@ commit;
 
 The public website cannot clear sent history; its anonymous access intentionally does not allow deleting history rows.
 
+### Reset the memory wall
+
+To permanently remove every shared memory and uploaded photo, run this as the project owner in Supabase **SQL Editor**:
+
+```sql
+delete from public.memory_wall_entries;
+```
+
+This cannot be undone, and the website intentionally has no public clear-all control.
+
+### Reset badges and achievements
+
+Achievements are automatically re-earned when their requirements are still met. To clear all personal and shared badges and start earning them again, reset the bingo progress and mini-game records in the same transaction:
+
+```sql
+begin;
+
+update public.bingo_squares
+set checked = (id = 12);
+
+delete from public.minigame_records;
+delete from public.bingo_badges;
+delete from public.shared_bingo_achievements;
+
+commit;
+```
+
+This keeps both boards' prompts but unchecks their squares (the free space remains checked), clears mini-game scores and finish counts, and deletes personal and shared badges. It is not reversible. The website intentionally has no public clear-all control.
+
+### Reset the question-of-the-day jar and answers
+
+To clear all questions and saved answers and restore the original starter questions, run this one time as the project owner in Supabase **SQL Editor**. This reset is separate from `setup.sql`, so future setup runs will not erase QOTD content.
+
+```sql
+begin;
+
+delete from public.daily_answers;
+delete from public.daily_questions;
+
+insert into public.daily_questions (question) values
+  ('What is one tiny thing that made you smile today?'),
+  ('What song feels like our friendship right now?'),
+  ('What is a memory of us that always makes you laugh?'),
+  ('What is something you are excited to do together?'),
+  ('What is one thing you admire about your best friend?'),
+  ('If today had a theme song, what would it be?'),
+  ('What is a little win you want to celebrate this week?'),
+  ('What would our perfect best-friend day look like?');
+
+commit;
+```
+
+This permanently removes both people's saved answers as well as edited questions.
+
 ### 3. Add your own animal pictures (optional)
 
 Click any baby animal around the board to open its picture popup. To add a photo:
@@ -96,6 +150,8 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 ## Using the board
 
 - The navigation tabs open full pages for the bingo board, mini-games, memory wall, badges, question of the day, and compliments.
+- Use **Twilight mode** in the navigation to switch between the original palette and a starry dark theme. The choice is saved in this browser.
+- The board sidebar groups the active player's timeline and both heart counters side-by-side; the mini-games are opened from the **Mini-games** navigation tab.
 - Anyone with the link can check or uncheck squares and edit the prompts; changes are saved in Supabase and sync to other visitors.
 - **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
 - The two **Our hearts** buttons keep shared totals. At the start of each visit, select either **Subaba's hearts** (🩷) or **Tabya's hearts** (🩵); that choice is highlighted. Page taps that make floating hearts—including taps on an opened animal picture—then increment the selected shared counter. Select the other counter to switch where future taps are counted, or tap the selected counter again to deselect it. With no counter selected, floating hearts still appear but do not change either total. The choice lasts for the current page visit; the totals are saved to Supabase and remain between visits.
@@ -103,7 +159,7 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 - Clicking a baby animal opens its photo popup. Tap an animal (including its opened photo) to send up a pink ribbon heart (💝); tapping empty page space sends up a different colored heart each time. Buttons and bingo squares keep their normal actions. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
 - **Mini-games** is a full page with two shared leaderboards and four games, all separate from the bingo board. Choose **Subaba** or **Tabya** before picking a game; only that player's scores and completion counts are updated. Each game has a rechargeable power with an on-screen energy bar: Paw Catcher's paw magnet (M) pulls animals toward the basket; Kitty Memory's peek (P) briefly reveals unmatched cards; Puppy Treat Tap's time-freeze (F) pauses treat timers; and Bunny Hop has a carrot dash (→ or Shift) that speeds up hazards but doubles carrots, plus a separate invincibility shield (X) that blocks puddle penalties. Bunny Hop powers each have their own bar. Paw Catcher gets faster as the round goes on, Kitty Memory has 8 pairs, Bunny Hop has a quicker obstacle pace in its 30-second run, and Puppy Treat Tap has a 15-treat goal with a quicker spawn pace and only two treats visible at once. Each player's leaderboard saves their own best for every game: most caught animals or carrots, fewest Kitty Memory moves, and Puppy Treat Tap's completion count.
 - **Memory wall** saves and displays shared photos, notes, titles, and author names. Entries can be added, edited, and deleted from the website.
-- **Badges** unlock and save the first bingo, half-board, and full-board milestones separately for Subaba and Tabya, plus shared badges when both reach a milestone. New badges get a full-page celebration with a shortcut to this page. Earned badges stay saved even if squares are later unchecked.
+- **Badges** unlock and save bingo milestones and mini-game achievements separately for Subaba and Tabya, plus shared badges when both reach a bingo milestone. Mini-game badges include playing all four games, catching 10 animals, solving Kitty Memory in 20 moves or fewer, collecting 25 Bunny Hop carrots, and finishing Puppy Treat Tap five times. New badges get a full-page celebration with a shortcut to this page. Earned badges stay saved even if squares are later unchecked.
 - **Question of the day** picks a shared question each day from an editable question jar. Both friends can save and update their own answer for that question and date.
 - **Compliments** lets either person send a random message from the editable shared jar. Sent messages are saved in a shared history.
 - Shared feature content, board prompts, heart totals, mini-game scores, and badge unlocks are stored in Supabase. Row-level security is enabled, but the public site has no sign-in: anyone who can reach the site can edit its shared content and submit gameplay data. Heart totals can only be incremented through the site, but they are for fun—not a tamper-proof record.

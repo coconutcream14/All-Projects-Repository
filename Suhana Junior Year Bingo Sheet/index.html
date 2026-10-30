@@ -750,6 +750,8 @@
 
     .sound-toggle:hover { background: #f7f0f3; }
     .sound-toggle:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
+    .theme-toggle { border-color: #aaa1bf; background: #eee9f6; color: #5e5473; }
+    .theme-toggle:hover { background: #e2dcef; }
     .game-layout {
       display: grid;
       position: relative;
@@ -933,6 +935,13 @@
       background: linear-gradient(155deg, #eee5e6, #e5ebed 52%, #eae6ed 100%);
     }
 
+    .side-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
+      gap: 12px;
+    }
+
     .side-kicker {
       margin: 0 0 7px;
       color: #916d7d;
@@ -981,7 +990,7 @@
 
     .bingo-count { margin: 9px 0 0; color: var(--muted); font-size: .77rem; }
 
-    .heart-counters { display: grid; gap: 8px; }
+    .heart-counters { display: grid; min-width: 0; gap: 8px; }
 
     .heart-counters-heading { margin: 0; color: #685360; font-size: .9rem; }
 
@@ -1014,6 +1023,18 @@
     }
 
     .heart-counter-status { min-height: 1.2em; margin: 0; color: var(--muted); font-size: .68rem; }
+
+    .side-summary .heart-counter {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 6px;
+      padding: 8px;
+    }
+
+    .side-summary .heart-counter-icon { width: 25px; height: 25px; font-size: .9rem; }
+    .side-summary .heart-counter-copy { grid-column: 1 / -1; }
+    .side-summary .heart-counter-title { font-size: .62rem; line-height: 1.35; }
+    .side-summary .heart-counter-number { justify-self: end; font-size: .85rem; }
 
     .heart-counter-icon {
       display: grid;
@@ -1365,12 +1386,175 @@
       100% { opacity: 0; transform: translate3d(var(--paw-drift), 115vh, 0) rotate(var(--paw-spin)); }
     }
 
+    body[data-theme="twilight"] {
+      color-scheme: dark;
+      --ink: #e8e4f2;
+      --muted: #b6b1c8;
+      --shadow: 0 22px 58px rgba(4, 6, 18, .38);
+      background:
+        radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, .8) 50%, transparent 100%),
+        radial-gradient(1px 1px at 79% 12%, rgba(213, 221, 255, .82) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 91% 67%, rgba(255, 235, 190, .8) 50%, transparent 100%),
+        radial-gradient(1px 1px at 30% 82%, rgba(235, 225, 255, .75) 50%, transparent 100%),
+        radial-gradient(1px 1px at 57% 42%, rgba(255, 255, 255, .7) 50%, transparent 100%),
+        radial-gradient(ellipse at 10% 12%, rgba(94, 91, 144, .32), transparent 28rem),
+        radial-gradient(ellipse at 92% 18%, rgba(77, 117, 146, .25), transparent 30rem),
+        radial-gradient(ellipse at 82% 90%, rgba(106, 75, 120, .25), transparent 30rem),
+        #17192b;
+      background-attachment: fixed;
+    }
+
+    body[data-theme="twilight"] .card {
+      border-color: rgba(136, 132, 168, .35);
+      background: rgba(34, 36, 57, .96);
+    }
+
+    body[data-theme="twilight"] .card-top,
+    body[data-theme="twilight"] .feature-heading {
+      border-color: #48465f;
+      background: linear-gradient(100deg, #343044, #293746 55%, #353044);
+    }
+
+    body[data-theme="twilight"] .game-layout,
+    body[data-theme="twilight"] .side-panel,
+    body[data-theme="twilight"] .board-wrap {
+      border-color: rgba(143, 139, 173, .35);
+      background: linear-gradient(145deg, rgba(42, 39, 59, .92), rgba(34, 48, 61, .92) 55%, rgba(46, 40, 59, .94));
+    }
+
+    body[data-theme="twilight"] .feature-form,
+    body[data-theme="twilight"] .editor-panel,
+    body[data-theme="twilight"] .memory-card,
+    body[data-theme="twilight"] .feature-item,
+    body[data-theme="twilight"] .badge-card,
+    body[data-theme="twilight"] .daily-question,
+    body[data-theme="twilight"] .mini-leaderboard,
+    body[data-theme="twilight"] .leaderboard-player,
+    body[data-theme="twilight"] .player-picker {
+      border-color: #514d69;
+      background: rgba(44, 43, 66, .9);
+    }
+
+    body[data-theme="twilight"] .game-option,
+    body[data-theme="twilight"] .game-stat,
+    body[data-theme="twilight"] .game-status[data-effect],
+    body[data-theme="twilight"] .game-power {
+      border-color: #514d69;
+      background: rgba(44, 43, 66, .9);
+      color: #e6dff5;
+    }
+
+    body[data-theme="twilight"] .game-option:hover,
+    body[data-theme="twilight"] .game-button:not(.primary):not(.game-back) {
+      border-color: #625d78;
+      background: #37354c;
+      color: #e7e1f3;
+    }
+
+    body[data-theme="twilight"] .game-stat span:first-child,
+    body[data-theme="twilight"] .game-stat span:last-child,
+    body[data-theme="twilight"] .game-power-label,
+    body[data-theme="twilight"] .game-status,
+    body[data-theme="twilight"] .game-instructions,
+    body[data-theme="twilight"] .mini-leaderboard-list li,
+    body[data-theme="twilight"] .mini-leaderboard-list strong,
+    body[data-theme="twilight"] .mini-leaderboard-status {
+      color: #d3c8e5;
+    }
+
+    body[data-theme="twilight"] .game-status[data-effect^="catcher"],
+    body[data-theme="twilight"] .game-status[data-effect^="memory"],
+    body[data-theme="twilight"] .game-status[data-effect^="bunny"],
+    body[data-theme="twilight"] .game-status[data-effect^="treat"] {
+      border-color: #655b7e;
+      background: #343148;
+    }
+
+    body[data-theme="twilight"] .game-canvas,
+    body[data-theme="twilight"] .treat-field {
+      border-color: #514d69;
+      background-color: #282b42;
+    }
+
+    body[data-theme="twilight"] .memory-card[aria-pressed="true"],
+    body[data-theme="twilight"] .memory-card:disabled {
+      background: #48435f;
+      color: #f0e9fa;
+    }
+
+    body[data-theme="twilight"] .feature-form label,
+    body[data-theme="twilight"] .editor-panel label,
+    body[data-theme="twilight"] .memory-card h3,
+    body[data-theme="twilight"] .feature-item h3,
+    body[data-theme="twilight"] .badge-card h3,
+    body[data-theme="twilight"] .daily-question h3,
+    body[data-theme="twilight"] .mini-leaderboard h2,
+    body[data-theme="twilight"] .leaderboard-player h3,
+    body[data-theme="twilight"] .player-picker h3,
+    body[data-theme="twilight"] .heart-counters-heading,
+    body[data-theme="twilight"] .progress-heading h2 {
+      color: #e6dff5;
+    }
+
+    body[data-theme="twilight"] .feature-form input,
+    body[data-theme="twilight"] .feature-form textarea,
+    body[data-theme="twilight"] .feature-form select,
+    body[data-theme="twilight"] .editor-panel input,
+    body[data-theme="twilight"] .editor-panel textarea,
+    body[data-theme="twilight"] .bingo-cell {
+      border-color: #625e79;
+      background: #37364f;
+      color: #eeeaf6;
+    }
+
+    body[data-theme="twilight"] .bingo-cell:nth-child(5n + 2):not(.checked) { background: #303e50; }
+    body[data-theme="twilight"] .bingo-cell:nth-child(5n + 3):not(.checked) { background: #3a354e; }
+    body[data-theme="twilight"] .bingo-cell:nth-child(5n + 4):not(.checked) { background: #33463f; }
+    body[data-theme="twilight"] .bingo-cell:nth-child(5n):not(.checked) { background: #4a3e3a; }
+    body[data-theme="twilight"] .bingo-cell.checked,
+    body[data-theme="twilight"] .bingo-cell:nth-child(n).checked { color: #332735; }
+
+    body[data-theme="twilight"] .feature-tab,
+    body[data-theme="twilight"] .sound-toggle,
+    body[data-theme="twilight"] .theme-toggle,
+    body[data-theme="twilight"] .action.game-button {
+      border-color: #625d78;
+      background: #37354c;
+      color: #e7e1f3;
+    }
+
+    body[data-theme="twilight"] .feature-tab:hover,
+    body[data-theme="twilight"] .feature-tab[aria-current="page"],
+    body[data-theme="twilight"] .feature-action,
+    body[data-theme="twilight"] .board-owner-choice[aria-pressed="true"] {
+      border-color: #a77a9d;
+      background: #51405b;
+      color: #f4e8f4;
+    }
+
+    body[data-theme="twilight"] .feature-action.secondary { background: #3d3a52; color: #e4dff0; }
+    body[data-theme="twilight"] .heart-counter { border-color: #70566f; background: linear-gradient(115deg, #443344, #3e354c 58%, #34374d); }
+    body[data-theme="twilight"] .heart-counter[aria-pressed="true"] { border-color: #d38eaa; background: linear-gradient(115deg, #56384c, #4b3b56 58%, #3b3e5a); }
+    body[data-theme="twilight"] .note-card { border-color: #5d5870; background: rgba(47, 45, 66, .82); color: #d0c9df; }
+    body[data-theme="twilight"] .divider { background: linear-gradient(90deg, #594b60, #455d69, #594b60); }
+    body[data-theme="twilight"] .progress-track { background: #41455a; }
+    body[data-theme="twilight"] .feature-status,
+    body[data-theme="twilight"] .feature-heading p,
+    body[data-theme="twilight"] .memory-card p,
+    body[data-theme="twilight"] .feature-item p,
+    body[data-theme="twilight"] .badge-card p,
+    body[data-theme="twilight"] .side-copy { color: #b6b1c8; }
+    body[data-theme="twilight"] .badge-card[data-earned="true"] { border-color: #8d744c; background: linear-gradient(145deg, #494136, #3e3a47); }
+    body[data-theme="twilight"] .shared-achievements { border-color: #514d69; }
+
     @media (max-width: 760px) {
       body { padding: 27px 14px 35px; }
       .game-layout { grid-template-columns: 1fr; gap: 20px; padding: 8px 18px 18px; }
       .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 17px; }
+      .side-panel > .side-summary { grid-column: 1 / -1; }
       .side-panel > .divider { display: none; }
       .side-panel > .note-card { grid-column: 1 / -1; }
+      .side-panel > .side-copy { grid-column: 1 / -1; }
       .side-panel > .actions { grid-column: 1 / -1; }
       .card-top { padding: 10px 19px; }
     }
@@ -1397,6 +1581,7 @@
       .card-top { flex-wrap: wrap; padding: 14px; }
       .card-top-tools { width: 100%; justify-content: space-between; }
       .save-note { max-width: none; text-align: left; }
+      .theme-toggle { font-size: .72rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1425,6 +1610,7 @@
       <button class="feature-tab" type="button" data-page-target="questions-page">Question of the day</button>
       <button class="feature-tab" type="button" data-page-target="compliments-page">Compliments</button>
       <button class="feature-tab" type="button" data-page-target="game-dialog">Mini-games</button>
+      <button class="feature-tab theme-toggle" id="theme-toggle" type="button" aria-label="Turn on twilight theme" aria-pressed="false">Twilight mode ✨</button>
     </nav>
 
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
@@ -1566,41 +1752,44 @@
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
-          <div class="progress-block">
-            <p class="side-kicker">So far</p>
-            <div class="progress-heading">
-              <h2 id="board-progress-title">Subaba's timeline</h2>
-              <span class="progress-count" id="progress-count">1 / 25</span>
+          <div class="side-summary">
+            <div class="progress-block">
+              <p class="side-kicker">So far</p>
+              <div class="progress-heading">
+                <h2 id="board-progress-title">Subaba's timeline</h2>
+                <span class="progress-count" id="progress-count">1 / 25</span>
+              </div>
+              <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
+                <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
+              </div>
+              <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
             </div>
-            <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
-              <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
-            </div>
-            <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
-          </div>
 
-          <section class="heart-counters" aria-labelledby="heart-counters-heading">
-            <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts</h2>
-            <div class="heart-counter-list">
-              <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Choose Subaba's hearts as the destination for page taps" aria-pressed="false" disabled>
-                <span class="heart-counter-icon" aria-hidden="true">🩷</span>
-                <span class="heart-counter-copy">
-                  <span class="heart-counter-title">Subaba's hearts (from Tabya)</span>
-                </span>
-                <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
-              </button>
-              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Subaba) as the destination for page taps" aria-pressed="false" disabled>
-                <span class="heart-counter-icon" aria-hidden="true">🩵</span>
-                <span class="heart-counter-copy">
-                  <span class="heart-counter-title">Tabya's hearts (from Subaba)</span>
-                </span>
-                <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
-              </button>
-            </div>
-            <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared counts… Choose a counter to direct your page taps.</p>
-          </section>
+            <section class="heart-counters" aria-labelledby="heart-counters-heading">
+              <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts</h2>
+              <div class="heart-counter-list">
+                <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Choose Subaba's hearts as the destination for page taps" aria-pressed="false" disabled>
+                  <span class="heart-counter-icon" aria-hidden="true">🩷</span>
+                  <span class="heart-counter-copy">
+                    <span class="heart-counter-title">Subaba's hearts (from Tabya)</span>
+                  </span>
+                  <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+                </button>
+                <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Subaba) as the destination for page taps" aria-pressed="false" disabled>
+                  <span class="heart-counter-icon" aria-hidden="true">🩵</span>
+                  <span class="heart-counter-copy">
+                    <span class="heart-counter-title">Tabya's hearts (from Subaba)</span>
+                  </span>
+                  <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+                </button>
+              </div>
+              <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared counts… Choose a counter to direct your page taps.</p>
+            </section>
+          </div>
 
           <div class="divider" aria-hidden="true"></div>
 
+          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
           <p class="side-copy" id="side-copy">Tap one when it happens. Five in a row = bingo!</p>
 
           <div class="actions">
@@ -1609,10 +1798,7 @@
               Pick one for me
               <span aria-hidden="true">✦</span>
             </button>
-            <button class="action game-button" id="game-open" type="button">Open the mini-games page</button>
           </div>
-
-          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
         </aside>
       </div>
       <details class="editor-panel bingo-prompt-editor" id="bingo-prompt-editor">
@@ -1661,15 +1847,15 @@
     <section class="feature-page card" id="badges-page" data-app-page="badges-page" aria-labelledby="badges-title" hidden>
       <header class="feature-heading">
         <h2 id="badges-title">Little wins, big deal 🏅</h2>
-        <p>Personal badges unlock as each board grows, and bestie badges unlock when both boards reach a milestone. Once earned, they stay saved even if a square is later unchecked.</p>
+        <p>Earn personal bingo and mini-game badges, plus bestie badges when both boards reach a milestone. Once earned, they stay saved.</p>
       </header>
       <div class="feature-content">
         <section class="feature-item" aria-labelledby="subaba-badge-title">
-          <h3 id="subaba-badge-title">Subaba's milestones</h3>
+          <h3 id="subaba-badge-title">Subaba's badges</h3>
           <div class="badge-grid" id="subaba-badge-list"></div>
         </section>
         <section class="feature-item" aria-labelledby="tabya-badge-title">
-          <h3 id="tabya-badge-title">Tabya's milestones</h3>
+          <h3 id="tabya-badge-title">Tabya's badges</h3>
           <div class="badge-grid" id="tabya-badge-list"></div>
         </section>
         <section class="shared-achievements" aria-labelledby="shared-badge-title">
@@ -1799,9 +1985,10 @@
     let activePageId = "board-page";
     const gameCanvas = document.getElementById("game-canvas");
     const gameContext = gameCanvas.getContext("2d");
+    const themeToggleButton = document.getElementById("theme-toggle");
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     const soundToggleButton = document.getElementById("sound-toggle");
     const heartSoundAudio = document.getElementById("heart-sound-audio");
-    const gameOpenButton = document.getElementById("game-open");
     const gamePlayers = ["Subaba", "Tabya"];
     const playerChoiceButtons = document.querySelectorAll("[data-player-name]");
     const gamePlayerStatus = document.getElementById("game-player-status");
@@ -1938,6 +2125,31 @@
       soundToggleButton.textContent = soundEnabled ? "Sound on 🔊" : "Sound off 🔇";
       soundToggleButton.setAttribute("aria-pressed", String(soundEnabled));
       soundToggleButton.setAttribute("aria-label", soundEnabled ? "Mute sound effects" : "Turn on sound effects");
+    }
+
+    function updateTheme(theme, savePreference = false) {
+      const twilight = theme === "twilight";
+      document.body.dataset.theme = twilight ? "twilight" : "light";
+      themeToggleButton.textContent = twilight ? "Daylight mode ☀️" : "Twilight mode ✨";
+      themeToggleButton.setAttribute("aria-pressed", String(twilight));
+      themeToggleButton.setAttribute("aria-label", twilight ? "Turn off twilight theme" : "Turn on twilight theme");
+      themeColorMeta?.setAttribute("content", twilight ? "#17192b" : "#eee9ef");
+      if (savePreference) {
+        try {
+          window.localStorage.setItem("junior-year-bingo-theme", twilight ? "twilight" : "light");
+        } catch (error) {
+          console.warn("The theme changed, but this browser could not save the preference.", error);
+        }
+      }
+    }
+
+    function loadThemePreference() {
+      try {
+        updateTheme(window.localStorage.getItem("junior-year-bingo-theme") === "twilight" ? "twilight" : "light");
+      } catch (error) {
+        console.warn("Could not load the saved theme preference; using daylight mode.", error);
+        updateTheme("light");
+      }
     }
 
     function disableSound(error) {
@@ -2528,6 +2740,14 @@
       { id: "half_board", title: "Halfway there", description: "Check off 13 squares, including the free space.", emoji: "🌷" },
       { id: "full_board", title: "Bingo legend", description: "Complete all 25 squares.", emoji: "🏆" }
     ];
+    const miniGameBadgeDefinitions = [
+      { id: "all_games_played", title: "Four-game tour", description: "Play all four mini-games at least once.", emoji: "🎮" },
+      { id: "catcher_10", title: "Paw Catcher pro", description: "Catch 10 animals in one round.", emoji: "🐾" },
+      { id: "memory_20", title: "Kitty Memory whiz", description: "Find every pair in 20 moves or fewer.", emoji: "🐱" },
+      { id: "bunny_25", title: "Carrot champion", description: "Collect 25 carrots in one Bunny Hop run.", emoji: "🥕" },
+      { id: "treats_5", title: "Puppy's regular", description: "Finish Puppy Treat Tap five times.", emoji: "🦴" }
+    ];
+    const allPersonalBadgeDefinitions = [...badgeDefinitions, ...miniGameBadgeDefinitions];
     const sharedBadgeDefinitions = [
       { id: "shared_first_bingo", title: "Bingo besties", description: "Both friends have earned a bingo.", emoji: "💞", personalId: "first_bingo" },
       { id: "shared_half_board", title: "Halfway, together", description: "Both boards have at least 13 checked squares.", emoji: "🌷", personalId: "half_board" },
@@ -2540,7 +2760,7 @@
         const earnedIds = earnedBadgeIds.get(player);
         if (!list || !earnedIds) throw new Error(`Missing bingo badges for ${player}.`);
         list.replaceChildren();
-        for (const badge of badgeDefinitions) {
+        for (const badge of allPersonalBadgeDefinitions) {
           const earned = earnedIds.has(badge.id);
           const card = featureElement("article", "badge-card");
           card.dataset.earned = String(earned);
@@ -2572,7 +2792,7 @@
         const rows = await request("/rest/v1/bingo_badges?select=player_name,badge_id,earned_at");
         if (!Array.isArray(rows) || rows.some((row) =>
           !gamePlayers.includes(row?.player_name) ||
-          !badgeDefinitions.some((badge) => badge.id === row.badge_id)
+          !allPersonalBadgeDefinitions.some((badge) => badge.id === row.badge_id)
         )) {
           throw new Error("The saved bingo badges are invalid.");
         }
@@ -2587,8 +2807,14 @@
         earnedSharedBadgeIds.clear();
         sharedRows.forEach((row) => earnedSharedBadgeIds.add(row.achievement_id));
         renderBadges();
+        await loadGameLeaderboard();
+        let miniGameBadgesSaved = true;
+        for (const player of gamePlayers) {
+          if (!await awardMiniGameBadges(player)) miniGameBadgesSaved = false;
+        }
+        if (!miniGameBadgesSaved) return;
         badgeStatus.textContent = gamePlayers
-          .map((player) => `${player}: ${earnedBadgeIds.get(player).size}/${badgeDefinitions.length}`)
+          .map((player) => `${player}: ${earnedBadgeIds.get(player).size}/${allPersonalBadgeDefinitions.length}`)
           .concat([`Together: ${earnedSharedBadgeIds.size}/${sharedBadgeDefinitions.length}`])
           .join(" · ");
       } catch (error) {
@@ -2621,6 +2847,58 @@
       if (completed >= 13) milestoneIds.push("half_board");
       if (completed === 25) milestoneIds.push("full_board");
       return milestoneIds;
+    }
+
+    function getMiniGameMilestones(playerName) {
+      const scores = gameLeaderboardScores.get(playerName);
+      if (!scores) throw new Error(`Missing mini-game scores for ${playerName}.`);
+      const catcher = scores.get("catcher");
+      const memory = scores.get("memory");
+      const bunny = scores.get("bunny");
+      const treats = scores.get("treats");
+      const milestoneIds = [];
+      if ([catcher, memory, bunny, treats].every((record) => record !== null)) milestoneIds.push("all_games_played");
+      if (catcher && catcher.bestScore >= 10) milestoneIds.push("catcher_10");
+      if (memory && memory.bestScore <= 20) milestoneIds.push("memory_20");
+      if (bunny && bunny.bestScore >= 25) milestoneIds.push("bunny_25");
+      if (treats && treats.completionCount >= 5) milestoneIds.push("treats_5");
+      return milestoneIds;
+    }
+
+    async function awardMiniGameBadges(playerName, announce = false) {
+      if (!gamePlayers.includes(playerName) || !backendConfigured) return false;
+      const earnedIds = earnedBadgeIds.get(playerName);
+      if (!earnedIds) throw new Error(`Missing saved achievements for ${playerName}.`);
+      const newBadgeIds = getMiniGameMilestones(playerName).filter((id) => !earnedIds.has(id));
+      if (newBadgeIds.length === 0) return true;
+      try {
+        const inserted = await request("/rest/v1/bingo_badges?on_conflict=player_name,badge_id", {
+          method: "POST",
+          headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
+          body: JSON.stringify(newBadgeIds.map((badge_id) => ({ player_name: playerName, badge_id })))
+        });
+        if (!Array.isArray(inserted) || inserted.some((row) =>
+          row.player_name !== playerName || !newBadgeIds.includes(row.badge_id)
+        )) {
+          throw new Error("The mini-game achievement save returned invalid data.");
+        }
+        const unlocked = [];
+        for (const row of inserted) {
+          earnedIds.add(row.badge_id);
+          const definition = miniGameBadgeDefinitions.find((badge) => badge.id === row.badge_id);
+          if (definition) unlocked.push({ ...definition, playerName, shared: false });
+        }
+        newBadgeIds.forEach((badgeId) => earnedIds.add(badgeId));
+        renderBadges();
+        if (unlocked.length > 0) {
+          badgeStatus.textContent = `${unlocked.length} new ${unlocked.length === 1 ? "achievement" : "achievements"} unlocked!`;
+          if (announce) queueAchievementCelebrations(unlocked);
+        }
+        return true;
+      } catch (error) {
+        reportFeatureError(badgeStatus, "Mini-game achievements", "save", error);
+        return false;
+      }
     }
 
     async function awardBadgesForBoard(announce = false) {
@@ -3127,6 +3405,7 @@
           throw new Error("The shared score update returned an unexpected response.");
         }
         await loadGameLeaderboard();
+        await awardMiniGameBadges(playerName, true);
         playSound("save");
         if (improved) {
           gameLeaderboardStatus.textContent = `New ${playerName} best saved! 🏆`;
@@ -4400,6 +4679,10 @@
       button.addEventListener("click", () => selectHeartCounter(button));
     });
 
+    themeToggleButton.addEventListener("click", () => {
+      updateTheme(document.body.dataset.theme === "twilight" ? "light" : "twilight", true);
+    });
+
     soundToggleButton.addEventListener("click", () => {
       soundEnabled = !soundEnabled;
       if (audioContext && soundMasterGain) {
@@ -4449,13 +4732,6 @@
     });
     playerChoiceButtons.forEach((button) => {
       button.addEventListener("click", () => chooseGamePlayer(button.dataset.playerName));
-    });
-
-    gameOpenButton.addEventListener("click", () => {
-      gamePicker.hidden = false;
-      gamePlay.hidden = true;
-      switchPage("game-dialog");
-      gamePickerButtons[0]?.focus();
     });
 
     promptSaveButton.addEventListener("click", () => { void savePromptChanges(); });
@@ -4627,6 +4903,7 @@
       }, 8000);
     }
 
+    loadThemePreference();
     start();
   </script>
 </body>
