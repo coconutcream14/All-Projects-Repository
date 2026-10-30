@@ -209,6 +209,10 @@
     .feature-page { margin-bottom: 24px; }
     .bingo-prompt-editor { margin: 0 24px 24px; }
     .prompt-editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+    .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 18px 22px 0; text-align: center; }
+    .board-owner-switch-label { color: #65566d; font-size: .9rem; font-weight: 900; }
+    .board-owner-choice[aria-pressed="true"] { border-color: #a45e7d; background: #f7e1ea; box-shadow: 0 0 0 3px rgba(212, 149, 173, .18); }
+    .board-owner-switch .feature-status { margin: 0; }
 
     .feature-heading {
       padding: 26px 30px 19px;
@@ -280,6 +284,31 @@
     .badge-card[data-earned="true"] { border-color: #d3b778; background: linear-gradient(145deg, #fff8df, #fffaf5); }
     .badge-state { display: inline-block; margin-top: 8px; color: #8a7b8d; font-size: .78rem; font-weight: 800; }
     .badge-card[data-earned="true"] .badge-state { color: #9c7430; }
+    .shared-achievements { padding-top: 18px; border-top: 1px solid #e4dbe4; }
+    .achievement-dialog {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      max-width: none;
+      height: 100vh;
+      max-height: none;
+      margin: 0;
+      padding: clamp(24px, 7vw, 72px);
+      place-items: center;
+      border: 0;
+      background: radial-gradient(ellipse at 50% 20%, #fff8df, transparent 52%), linear-gradient(145deg, #f8e6ed, #e8edf2 58%, #efe8f4);
+      color: var(--ink);
+      text-align: center;
+    }
+
+    .achievement-dialog[open] { display: grid; animation: dialog-pop .3s ease-out; }
+    .achievement-dialog::backdrop { background: rgba(68, 53, 78, .82); backdrop-filter: blur(9px); }
+    .achievement-celebration { display: grid; justify-items: center; gap: 18px; width: min(760px, 100%); }
+    .achievement-emoji { font-size: clamp(5rem, 18vw, 10rem); line-height: 1; filter: drop-shadow(0 10px 18px rgba(100, 75, 96, .18)); }
+    .achievement-dialog h2 { margin: 0; color: #805267; font-size: clamp(2.2rem, 8vw, 4.8rem); line-height: 1.08; }
+    .achievement-dialog p { max-width: 620px; margin: 0; color: #65566d; font-size: clamp(1.1rem, 3vw, 1.65rem); line-height: 1.55; }
+    .achievement-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 10px; }
+    .achievement-actions .feature-action { padding: 13px 20px; font-size: 1rem; }
     .daily-question {
       padding: 20px;
       border: 1px solid #d8c8d8;
@@ -1362,6 +1391,7 @@
       .animal-dialog { padding: 17px; }
       .feature-content, .game-page .game-picker, .game-page .game-play { padding: 16px; }
       .answer-grid { grid-template-columns: 1fr; }
+      .achievement-dialog { padding: 22px; }
       .feature-tab { padding: 9px 12px; font-size: .78rem; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
       .card-top { flex-wrap: wrap; padding: 14px; }
@@ -1408,6 +1438,19 @@
         </div>
       </div>
       <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
+    </dialog>
+
+    <dialog class="achievement-dialog" id="achievement-dialog" aria-labelledby="achievement-title" aria-describedby="achievement-description">
+      <div class="achievement-celebration">
+        <span class="achievement-emoji" id="achievement-emoji" aria-hidden="true">🏆</span>
+        <p id="achievement-kicker">A bestie achievement unlocked!</p>
+        <h2 id="achievement-title"></h2>
+        <p id="achievement-description"></p>
+        <div class="achievement-actions">
+          <button class="feature-action" id="achievement-see-badges" type="button">See all our badges ✨</button>
+          <button class="feature-action secondary" id="achievement-close" type="button">Keep celebrating here</button>
+        </div>
+      </div>
     </dialog>
 
     <section class="feature-page card game-page" id="game-dialog" data-app-page="game-dialog" aria-label="Mini-games" hidden>
@@ -1490,13 +1533,23 @@
 
     <section class="feature-page card" id="board-page" data-app-page="board-page" aria-label="Subaba's junior year bingo game">
       <div class="card-top">
-        <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> Subaba's junior year</div>
+        <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> <span id="board-owner-title">Subaba's junior year</span></div>
         <div class="card-top-tools">
           <div class="save-note">It saves as you go ♡</div>
           <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Mute sound effects" aria-pressed="true">Sound on 🔊</button>
         </div>
       </div>
       <audio id="heart-sound-audio" src="./deep_thought.mp3" preload="auto"></audio>
+
+      <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
+        <span class="board-owner-switch-label">Whose junior year?</span>
+        <div class="player-choice-list">
+          <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
+          <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
+        </div>
+        <p class="feature-status">Your check-offs and progress save separately; the prompts stay the same on both boards.</p>
+        <p class="feature-status" id="board-owner-status" role="status" aria-live="polite"></p>
+      </section>
 
       <div class="game-layout">
         <div class="board-wrap">
@@ -1516,7 +1569,7 @@
           <div class="progress-block">
             <p class="side-kicker">So far</p>
             <div class="progress-heading">
-              <h2>Subaba's timeline</h2>
+              <h2 id="board-progress-title">Subaba's timeline</h2>
               <span class="progress-count" id="progress-count">1 / 25</span>
             </div>
             <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
@@ -1535,7 +1588,7 @@
                 </span>
                 <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
               </button>
-              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Suababa) as the destination for page taps" aria-pressed="false" disabled>
+              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Subaba) as the destination for page taps" aria-pressed="false" disabled>
                 <span class="heart-counter-icon" aria-hidden="true">🩵</span>
                 <span class="heart-counter-copy">
                   <span class="heart-counter-title">Tabya's hearts (from Subaba)</span>
@@ -1586,7 +1639,10 @@
             <textarea name="note" maxlength="2000" placeholder="What should future-you remember about this?"></textarea>
           </label>
           <label>Who is adding this?
-            <input name="author" maxlength="40" value="Subaba" required>
+            <select name="author" required>
+              <option value="Subaba">Subaba</option>
+              <option value="Tabya">Tabya</option>
+            </select>
           </label>
           <label>Photo (optional)
             <input name="photo" type="file" accept="image/jpeg,image/png,image/webp">
@@ -1605,10 +1661,22 @@
     <section class="feature-page card" id="badges-page" data-app-page="badges-page" aria-labelledby="badges-title" hidden>
       <header class="feature-heading">
         <h2 id="badges-title">Little wins, big deal 🏅</h2>
-        <p>These shared badges unlock as the bingo board grows. Once earned, they stay saved even if a square is later unchecked.</p>
+        <p>Personal badges unlock as each board grows, and bestie badges unlock when both boards reach a milestone. Once earned, they stay saved even if a square is later unchecked.</p>
       </header>
       <div class="feature-content">
-        <div class="badge-grid" id="badge-list"></div>
+        <section class="feature-item" aria-labelledby="subaba-badge-title">
+          <h3 id="subaba-badge-title">Subaba's milestones</h3>
+          <div class="badge-grid" id="subaba-badge-list"></div>
+        </section>
+        <section class="feature-item" aria-labelledby="tabya-badge-title">
+          <h3 id="tabya-badge-title">Tabya's milestones</h3>
+          <div class="badge-grid" id="tabya-badge-list"></div>
+        </section>
+        <section class="shared-achievements" aria-labelledby="shared-badge-title">
+          <h3 id="shared-badge-title">Bestie achievements ✨</h3>
+          <p class="feature-status">Unlocked together when both boards reach a milestone.</p>
+          <div class="badge-grid" id="shared-badge-list"></div>
+        </section>
         <p class="feature-status" id="badge-status" role="status" aria-live="polite">Badges load with the shared board.</p>
       </div>
     </section>
@@ -1697,6 +1765,12 @@
     ];
 
     const board = document.getElementById("board");
+    const boardOwnerButtons = document.querySelectorAll("[data-board-owner]");
+    const boardOwnerTitle = document.getElementById("board-owner-title");
+    const boardOwnerStatus = document.getElementById("board-owner-status");
+    const boardProgressTitle = document.getElementById("board-progress-title");
+    let activeBoardOwner = "Subaba";
+    let boardRequestId = 0;
     const surpriseButton = document.getElementById("surprise-button");
     const messageTop = document.getElementById("message-top");
     const messageBottom = document.getElementById("message-bottom");
@@ -1779,8 +1853,19 @@
     const questionForms = document.querySelectorAll(".question-answer-form");
     const questionList = document.getElementById("question-list");
     const questionStatus = document.getElementById("question-status");
-    const badgeList = document.getElementById("badge-list");
+    const badgeLists = new Map(gamePlayers.map((player) => [
+      player,
+      document.getElementById(`${player.toLowerCase()}-badge-list`)
+    ]));
+    const sharedBadgeList = document.getElementById("shared-badge-list");
     const badgeStatus = document.getElementById("badge-status");
+    const achievementDialog = document.getElementById("achievement-dialog");
+    const achievementEmoji = document.getElementById("achievement-emoji");
+    const achievementKicker = document.getElementById("achievement-kicker");
+    const achievementTitle = document.getElementById("achievement-title");
+    const achievementDescription = document.getElementById("achievement-description");
+    const achievementSeeBadgesButton = document.getElementById("achievement-see-badges");
+    const achievementCloseButton = document.getElementById("achievement-close");
     const complimentSendForm = document.getElementById("compliment-send-form");
     const complimentAddForm = document.getElementById("compliment-add-form");
     const complimentDisplay = document.getElementById("compliment-display");
@@ -1792,7 +1877,9 @@
     let dailyQuestions = [];
     let activeQuestion = null;
     let activeQuestionDate = new Date().toISOString().slice(0, 10);
-    let earnedBadgeIds = new Set();
+    const earnedBadgeIds = new Map(gamePlayers.map((player) => [player, new Set()]));
+    const earnedSharedBadgeIds = new Set();
+    const achievementCelebrationQueue = [];
     let complimentMessages = [];
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
@@ -2238,7 +2325,8 @@
       renderBoard(false);
       try {
         for (const change of changes) {
-          await updateSquare(change.index, { text: change.text });
+          await updateSquare(change.index, { text: change.text }, "Subaba");
+          await updateSquare(change.index, { text: change.text }, "Tabya");
           squares[change.index].text = change.text;
         }
         renderBoard(false);
@@ -2315,7 +2403,12 @@
         if (entry.note) card.append(featureElement("p", "", entry.note));
         const date = entry.created_at ? new Date(entry.created_at) : null;
         const dateText = date && !Number.isNaN(date.getTime()) ? ` · ${date.toLocaleDateString()}` : "";
-        card.append(featureElement("span", "memory-meta", `Added by ${entry.author}${dateText}`));
+        const author = gamePlayers.includes(entry.author)
+          ? entry.author
+          : typeof entry.author === "string" && entry.author.trim().toLowerCase() === "suhana"
+            ? "Subaba"
+            : "Bestie";
+        card.append(featureElement("span", "memory-meta", `Added by ${author}${dateText}`));
         const actions = featureElement("div", "item-actions");
         const edit = featureElement("button", "feature-action secondary", "Edit");
         edit.type = "button";
@@ -2370,8 +2463,8 @@
       const author = String(formData.get("author") || "").trim();
       const selectedPhoto = formData.get("photo");
       const existing = memoryEntries.find((entry) => entry.id === editingMemoryId);
-      if (!title || !author) {
-        memoryStatus.textContent = "Add a title and your name before saving.";
+      if (!title || !gamePlayers.includes(author)) {
+        memoryStatus.textContent = "Add a title and choose Subaba or Tabya before saving.";
         return;
       }
       memoryStatus.textContent = "Saving your memory…";
@@ -2435,17 +2528,37 @@
       { id: "half_board", title: "Halfway there", description: "Check off 13 squares, including the free space.", emoji: "🌷" },
       { id: "full_board", title: "Bingo legend", description: "Complete all 25 squares.", emoji: "🏆" }
     ];
+    const sharedBadgeDefinitions = [
+      { id: "shared_first_bingo", title: "Bingo besties", description: "Both friends have earned a bingo.", emoji: "💞", personalId: "first_bingo" },
+      { id: "shared_half_board", title: "Halfway, together", description: "Both boards have at least 13 checked squares.", emoji: "🌷", personalId: "half_board" },
+      { id: "shared_full_board", title: "Junior-year legends", description: "Both friends have completed every square.", emoji: "👑", personalId: "full_board" }
+    ];
 
     function renderBadges() {
-      badgeList.replaceChildren();
-      for (const badge of badgeDefinitions) {
-        const earned = earnedBadgeIds.has(badge.id);
+      for (const player of gamePlayers) {
+        const list = badgeLists.get(player);
+        const earnedIds = earnedBadgeIds.get(player);
+        if (!list || !earnedIds) throw new Error(`Missing bingo badges for ${player}.`);
+        list.replaceChildren();
+        for (const badge of badgeDefinitions) {
+          const earned = earnedIds.has(badge.id);
+          const card = featureElement("article", "badge-card");
+          card.dataset.earned = String(earned);
+          card.append(featureElement("h3", "", `${badge.emoji} ${badge.title}`));
+          card.append(featureElement("p", "", badge.description));
+          card.append(featureElement("span", "badge-state", earned ? "Earned ♡" : "Still to come"));
+          list.append(card);
+        }
+      }
+      sharedBadgeList.replaceChildren();
+      for (const badge of sharedBadgeDefinitions) {
+        const earned = earnedSharedBadgeIds.has(badge.id);
         const card = featureElement("article", "badge-card");
         card.dataset.earned = String(earned);
         card.append(featureElement("h3", "", `${badge.emoji} ${badge.title}`));
         card.append(featureElement("p", "", badge.description));
-        card.append(featureElement("span", "badge-state", earned ? "Earned ♡" : "Still to come"));
-        badgeList.append(card);
+        card.append(featureElement("span", "badge-state", earned ? "Earned together ♡" : "Still to come"));
+        sharedBadgeList.append(card);
       }
     }
 
@@ -2456,38 +2569,137 @@
         return;
       }
       try {
-        const rows = await request("/rest/v1/bingo_badges?select=badge_id,earned_at");
-        if (!Array.isArray(rows) || rows.some((row) => !badgeDefinitions.some((badge) => badge.id === row?.badge_id))) {
+        const rows = await request("/rest/v1/bingo_badges?select=player_name,badge_id,earned_at");
+        if (!Array.isArray(rows) || rows.some((row) =>
+          !gamePlayers.includes(row?.player_name) ||
+          !badgeDefinitions.some((badge) => badge.id === row.badge_id)
+        )) {
           throw new Error("The saved bingo badges are invalid.");
         }
-        earnedBadgeIds = new Set(rows.map((row) => row.badge_id));
+        const sharedRows = await request("/rest/v1/shared_bingo_achievements?select=achievement_id,earned_at");
+        if (!Array.isArray(sharedRows) || sharedRows.some((row) =>
+          !sharedBadgeDefinitions.some((badge) => badge.id === row?.achievement_id)
+        )) {
+          throw new Error("The saved shared achievements are invalid.");
+        }
+        for (const player of gamePlayers) earnedBadgeIds.set(player, new Set());
+        for (const row of rows) earnedBadgeIds.get(row.player_name).add(row.badge_id);
+        earnedSharedBadgeIds.clear();
+        sharedRows.forEach((row) => earnedSharedBadgeIds.add(row.achievement_id));
         renderBadges();
-        badgeStatus.textContent = `${earnedBadgeIds.size} of ${badgeDefinitions.length} milestones earned.`;
+        badgeStatus.textContent = gamePlayers
+          .map((player) => `${player}: ${earnedBadgeIds.get(player).size}/${badgeDefinitions.length}`)
+          .concat([`Together: ${earnedSharedBadgeIds.size}/${sharedBadgeDefinitions.length}`])
+          .join(" · ");
       } catch (error) {
         reportFeatureError(badgeStatus, "Bingo badges", "load", error);
       }
     }
 
-    async function awardBadgesForBoard() {
+    function queueAchievementCelebrations(achievements) {
+      achievementCelebrationQueue.push(...achievements);
+      if (!achievementDialog.open) showNextAchievementCelebration();
+    }
+
+    function showNextAchievementCelebration() {
+      if (achievementDialog.open || achievementCelebrationQueue.length === 0) return;
+      const achievement = achievementCelebrationQueue.shift();
+      achievementEmoji.textContent = achievement.emoji;
+      achievementKicker.textContent = achievement.shared
+        ? "You did something amazing together!"
+        : `${achievement.playerName} did something amazing!`;
+      achievementTitle.textContent = achievement.title;
+      achievementDescription.textContent = achievement.description;
+      achievementDialog.showModal();
+      achievementSeeBadgesButton.focus();
+    }
+
+    function getBoardMilestones(boardSquares) {
+      const completed = boardSquares.filter((square) => square.checked).length;
+      const milestoneIds = [];
+      if (getBingoLines(boardSquares).length > 0) milestoneIds.push("first_bingo");
+      if (completed >= 13) milestoneIds.push("half_board");
+      if (completed === 25) milestoneIds.push("full_board");
+      return milestoneIds;
+    }
+
+    async function awardBadgesForBoard(announce = false) {
       if (!connected || !backendConfigured) return;
-      const completed = squares.filter((square) => square.checked).length;
-      const eligible = [];
-      if (getBingoLines().length > 0) eligible.push("first_bingo");
-      if (completed >= 13) eligible.push("half_board");
-      if (completed === 25) eligible.push("full_board");
-      const newBadges = eligible.filter((id) => !earnedBadgeIds.has(id));
-      if (newBadges.length === 0) return;
+      const owner = activeBoardOwner;
+      const ownerSquares = squares.map((square) => ({ ...square }));
       try {
-        await request("/rest/v1/bingo_badges?on_conflict=badge_id", {
-          method: "POST",
-          headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
-          body: JSON.stringify(newBadges.map((badge_id) => ({ badge_id })))
-        });
-        newBadges.forEach((id) => earnedBadgeIds.add(id));
+        const otherOwner = gamePlayers.find((player) => player !== owner);
+        const otherRows = await request(
+          `/rest/v1/bingo_squares?select=id,text,checked&player_name=eq.${encodeURIComponent(otherOwner)}&order=id.asc`
+        );
+        if (!Array.isArray(otherRows) || otherRows.length !== 25 ||
+            otherRows.some((row, index) => row.id !== index || typeof row.text !== "string" || typeof row.checked !== "boolean")) {
+          throw new Error(`The ${otherOwner} board is missing or incomplete.`);
+        }
+        if (owner !== activeBoardOwner) return;
+        const otherSquares = otherRows.map((row) => ({ text: row.text, checked: row.checked }));
+        const ownerMilestones = getBoardMilestones(ownerSquares);
+        const otherMilestones = getBoardMilestones(otherSquares);
+        const ownerBadges = earnedBadgeIds.get(owner);
+        const newPersonalBadges = ownerMilestones.filter((id) => !ownerBadges.has(id));
+        let unlocked = [];
+
+        if (newPersonalBadges.length > 0) {
+          const inserted = await request("/rest/v1/bingo_badges?on_conflict=player_name,badge_id", {
+            method: "POST",
+            headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
+            body: JSON.stringify(newPersonalBadges.map((badge_id) => ({ player_name: owner, badge_id })))
+          });
+          if (!Array.isArray(inserted) || inserted.some((row) => row.player_name !== owner || !newPersonalBadges.includes(row.badge_id))) {
+            throw new Error("The personal milestone save returned invalid data.");
+          }
+          for (const row of inserted) {
+            ownerBadges.add(row.badge_id);
+            const definition = badgeDefinitions.find((badge) => badge.id === row.badge_id);
+            if (definition) unlocked.push({ ...definition, playerName: owner, shared: false });
+          }
+          newPersonalBadges.forEach((badgeId) => ownerBadges.add(badgeId));
+        }
+
+        const sharedMilestones = sharedBadgeDefinitions.filter((badge) =>
+          ownerMilestones.includes(badge.personalId) && otherMilestones.includes(badge.personalId)
+        );
+        const newSharedBadges = sharedMilestones.filter((badge) => !earnedSharedBadgeIds.has(badge.id));
+        if (newSharedBadges.length > 0) {
+          const inserted = await request("/rest/v1/shared_bingo_achievements?on_conflict=achievement_id", {
+            method: "POST",
+            headers: { Prefer: "resolution=ignore-duplicates,return=representation" },
+            body: JSON.stringify(newSharedBadges.map((badge) => ({ achievement_id: badge.id })))
+          });
+          if (!Array.isArray(inserted) || inserted.some((row) => !newSharedBadges.some((badge) => badge.id === row.achievement_id))) {
+            throw new Error("The shared achievement save returned invalid data.");
+          }
+          for (const row of inserted) {
+            earnedSharedBadgeIds.add(row.achievement_id);
+            const definition = sharedBadgeDefinitions.find((badge) => badge.id === row.achievement_id);
+            if (definition) unlocked.push({ ...definition, playerName: null, shared: true });
+          }
+          newSharedBadges.forEach((badge) => earnedSharedBadgeIds.add(badge.id));
+        }
+
+        if (owner !== activeBoardOwner) return;
         renderBadges();
-        badgeStatus.textContent = "A new bingo milestone is saved! ♡";
+        if (unlocked.length > 0) {
+          badgeStatus.textContent = `${unlocked.length} new ${unlocked.length === 1 ? "achievement" : "achievements"} unlocked!`;
+          if (announce) queueAchievementCelebrations(unlocked);
+        }
       } catch (error) {
-        reportFeatureError(badgeStatus, "Bingo badges", "save", error);
+        reportFeatureError(badgeStatus, "Bingo achievements", "save", error);
+      }
+    }
+
+    function closeAchievementCelebration(openBadges = false) {
+      if (achievementDialog.open) achievementDialog.close();
+      if (openBadges) {
+        achievementCelebrationQueue.length = 0;
+        switchPage("badges-page");
+      } else {
+        window.setTimeout(showNextAchievementCelebration, 0);
       }
     }
 
@@ -2946,7 +3158,7 @@
       if (!messages || messages.length === 0) throw new Error(`Missing game encouragement messages for "${key}".`);
       const index = gameEncouragementIndexes[key] || 0;
       gameEncouragementIndexes[key] = (index + 1) % messages.length;
-      return messages[index];
+      return messages[index].replaceAll("Subaba", gameState.playerName || selectedGamePlayer || "Subaba");
     }
 
     function showGameReaction(key) {
@@ -3848,22 +4060,38 @@
     }
 
     async function loadRemoteBoard() {
-      const rows = await request("/rest/v1/bingo_squares?select=id,text,checked&order=id.asc");
+      const owner = activeBoardOwner;
+      const requestId = ++boardRequestId;
+      let rows;
+      try {
+        rows = await request(`/rest/v1/bingo_squares?select=player_name,id,text,checked&player_name=eq.${encodeURIComponent(owner)}&order=id.asc`);
+      } catch (error) {
+        if (requestId !== boardRequestId || owner !== activeBoardOwner) return;
+        throw error;
+      }
+      if (requestId !== boardRequestId || owner !== activeBoardOwner) return;
       if (!Array.isArray(rows) || rows.length !== 25 ||
-          rows.some((row, index) => row.id !== index || typeof row.text !== "string" || typeof row.checked !== "boolean")) {
-        throw new Error("The shared board is missing or incomplete. Run setup.sql in your Supabase project.");
+          rows.some((row, index) => row.player_name !== owner || row.id !== index || typeof row.text !== "string" || typeof row.checked !== "boolean")) {
+        throw new Error(`The ${owner} bingo board is missing or incomplete. Run the latest setup.sql in your Supabase project.`);
       }
       const wasConnected = connected;
       squares = rows.map((row) => ({ text: row.text, checked: row.checked }));
       connected = true;
+      boardOwnerTitle.textContent = `${owner}'s junior year`;
+      boardProgressTitle.textContent = `${owner}'s timeline`;
+      board.setAttribute("aria-label", `${owner}'s junior year bingo board`);
+      boardOwnerButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.boardOwner === owner));
+      });
+      boardOwnerStatus.textContent = `${owner}'s own progress is saved separately ♡`;
       renderBoard();
       const hasUnsavedPromptChanges = Array.from(promptEditorGrid.querySelectorAll("[data-prompt-index]"))
         .some((input) => input.value !== squares[Number(input.dataset.promptIndex)].text);
       if (!wasConnected || !hasUnsavedPromptChanges) renderPromptEditor();
     }
 
-    async function updateSquare(index, changes) {
-      await request(`/rest/v1/bingo_squares?id=eq.${index}`, {
+    async function updateSquare(index, changes, owner = activeBoardOwner) {
+      await request(`/rest/v1/bingo_squares?player_name=eq.${encodeURIComponent(owner)}&id=eq.${index}`, {
         method: "PATCH",
         headers: { Prefer: "return=minimal" },
         body: JSON.stringify(changes)
@@ -3873,12 +4101,51 @@
     function showConnectionError(error) {
       console.error("Could not sync the shared bingo board.", error);
       connected = false;
-      setMessage("Welcome back, Subaba! 💖 The board isn't loading right now. Check your connection and try a refresh.");
+      boardOwnerStatus.textContent = `${activeBoardOwner}'s board could not be loaded. Check the latest setup.sql and try again.`;
+      setMessage(`Welcome back, ${activeBoardOwner}! 💖 The board isn't loading right now. Check your connection and try a refresh.`);
       renderBoard();
       renderPromptEditor();
     }
 
-    function getBingoLines() {
+    async function selectBoardOwner(owner) {
+      if (!["Subaba", "Tabya"].includes(owner) || owner === activeBoardOwner) return;
+      if (saving) {
+        boardOwnerStatus.textContent = "Wait for the current save to finish before switching boards.";
+        return;
+      }
+      const hasUnsavedPromptChanges = Array.from(promptEditorGrid.querySelectorAll("[data-prompt-index]"))
+        .some((input) => input.value !== squares[Number(input.dataset.promptIndex)].text);
+      if (hasUnsavedPromptChanges) {
+        boardOwnerStatus.textContent = "Save your prompt edits before switching boards.";
+        return;
+      }
+      activeBoardOwner = owner;
+      connected = false;
+      progressInitialized = false;
+      previousBingoLines = new Set();
+      previousCompletedSquares = null;
+      winningSquareTypes.clear();
+      boardOwnerStatus.textContent = `Loading ${owner}'s board…`;
+      boardOwnerTitle.textContent = `${owner}'s junior year`;
+      boardProgressTitle.textContent = `${owner}'s timeline`;
+      squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
+      boardOwnerButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.boardOwner === owner));
+      });
+      renderBoard();
+      renderPromptEditor();
+      try {
+        await loadRemoteBoard();
+        if (activeBoardOwner !== owner) return;
+        await awardBadgesForBoard();
+        boardOwnerStatus.textContent = `${owner}'s own progress is saved separately ♡`;
+      } catch (error) {
+        if (activeBoardOwner !== owner) return;
+        showConnectionError(error);
+      }
+    }
+
+    function getBingoLines(boardSquares = squares) {
       const lines = [];
       for (let row = 0; row < 5; row += 1) {
         lines.push({
@@ -3898,7 +4165,7 @@
         { type: "diagonal", number: 1, squares: [0, 6, 12, 18, 24] },
         { type: "diagonal", number: 2, squares: [4, 8, 12, 16, 20] }
       );
-      return lines.filter((line) => line.squares.every((index) => squares[index].checked));
+      return lines.filter((line) => line.squares.every((index) => boardSquares[index].checked));
     }
 
     function updateProgress(announceNewLines = true) {
@@ -3926,7 +4193,7 @@
       previousBingoLines = currentLineKeys;
       if (newLines.length > 0) {
         const reactionType = newLines.length > 1 ? "multiple" : newLines[0].type;
-        const reactionText = bingoCelebrationMessages[bingoCelebrationIndex];
+        const reactionText = bingoCelebrationMessages[bingoCelebrationIndex].replaceAll("Subaba", activeBoardOwner);
         bingoCelebrationIndex = (bingoCelebrationIndex + 1) % bingoCelebrationMessages.length;
         showReaction(reactionText, reactionType, 6500);
         winningSquareTypes = new Map();
@@ -3978,7 +4245,7 @@
           try {
             await updateSquare(index, { checked });
             const newLines = renderBoard(true);
-            await awardBadgesForBoard();
+            await awardBadgesForBoard(true);
             if (newLines.length === 0 && checked) {
               const reactions = [
                 "🐣 Yep, that happened.",
@@ -4168,8 +4435,17 @@
       }
     });
 
+    achievementCloseButton.addEventListener("click", () => closeAchievementCelebration());
+    achievementSeeBadgesButton.addEventListener("click", () => closeAchievementCelebration(true));
+    achievementDialog.addEventListener("close", () => {
+      window.setTimeout(showNextAchievementCelebration, 0);
+    });
+
     featureNavButtons.forEach((button) => {
       button.addEventListener("click", () => switchPage(button.dataset.pageTarget));
+    });
+    boardOwnerButtons.forEach((button) => {
+      button.addEventListener("click", () => { void selectBoardOwner(button.dataset.boardOwner); });
     });
     playerChoiceButtons.forEach((button) => {
       button.addEventListener("click", () => chooseGamePlayer(button.dataset.playerName));
@@ -4266,7 +4542,7 @@
       const available = Array.from(board.querySelectorAll(".bingo-cell:not(.checked)"));
       if (available.length === 0) {
         playSound("fullBoard");
-        showReaction("You did the whole board!! Knew you would, Subaba 🎉", "multiple");
+        showReaction(`You did the whole board!! Knew you would, ${activeBoardOwner} 🎉`, "multiple");
         return;
       }
       playSound("pick");
@@ -4300,9 +4576,9 @@
       renderGameLeaderboard();
       gamePickerButtons.forEach((button) => { button.disabled = true; });
       gameStartButton.disabled = true;
-      setMessage("Welcome back, Subaba! Your little corner of the world missed you 🐾💖");
+      setMessage(`Welcome back, ${activeBoardOwner}! Your little corner of the world missed you 🐾💖`);
       if (!backendConfigured) {
-        setMessage("Welcome back, Subaba! 💖 The board isn't connected yet. Check the setup steps in the README.");
+        setMessage(`Welcome back, ${activeBoardOwner}! 💖 The board isn't connected yet. Check the setup steps in the README.`);
         gameLeaderboardStatus.textContent = "Connect the shared database to load scores.";
         heartCounterStatus.textContent = "Connect Supabase and run the latest setup.sql to enable shared counts.";
         badgeStatus.textContent = "Connect Supabase and run the latest setup.sql to save badges.";
@@ -4334,7 +4610,7 @@
           await awardBadgesForBoard();
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
-          setMessage("Welcome back, Subaba! 💖 Board sync paused for a sec. Check your connection; we'll try again.");
+          setMessage(`Welcome back, ${activeBoardOwner}! 💖 Board sync paused for a sec. Check your connection; we'll try again.`);
         }
         try {
           await loadHeartCounters();

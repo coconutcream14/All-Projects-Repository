@@ -13,9 +13,9 @@ A pastel best-friend website for Subaba's junior year. GitHub Pages hosts it, an
 
 ### 2. Set up and edit shared features
 
-Run the **entire latest** [`setup.sql`](./setup.sql) file in your Supabase project's **SQL Editor**. It creates or updates the board, separate Subaba and Tabya mini-game leaderboards, heart counters, memory wall, badge records, daily questions and answers, and compliment jar. Re-running it preserves existing check-offs, scores, hearts, memories, answers, compliments, and earned badges. Existing mini-game scores are assigned to Subaba; new scores are saved under the player selected before each round.
+Run the **entire latest** [`setup.sql`](./setup.sql) file in your Supabase project's **SQL Editor**. It creates or updates both bingo boards, separate Subaba and Tabya mini-game leaderboards, heart counters, memory wall, personal and shared badge records, daily questions and answers, and compliment jar. Re-running it preserves existing check-offs, prompts, scores, hearts, memories, answers, compliments, and earned badges. Existing bingo and mini-game progress is assigned to Subaba; Tabya's new board starts with the same prompts and its free space checked.
 
-Edit bingo prompts in **Edit bingo prompts** below the board. The Memory Wall lets either visitor add, edit, or delete entries and photos. The question page lets visitors edit the question jar and their daily answers. The Compliments page lets visitors edit the shared compliment jar and send saved messages. Mini-game records and earned bingo badges save automatically.
+Use **Subaba's board** and **Tabya's board** to switch between separate progress on the same prompts. Edit bingo prompts in **Edit bingo prompts** below the board; updates are shared by both boards. The Memory Wall lets either visitor add, edit, or delete entries and photos, with the author chosen from Subaba and Tabya. The question page lets visitors edit the question jar and their daily answers. The Compliments page lets visitors edit the shared compliment jar and send saved messages. Mini-game records and personal bingo badges save separately; shared badges unlock when both boards reach the same milestone.
 
 The website's new shared tables allow public read/write access so both friends can edit without signing in. The website and its content are public: do not add private information or photos unless everyone pictured agrees to share them. Photos are resized and stored in the Supabase database; each uploaded image is limited to about 640 KB.
 
@@ -43,6 +43,31 @@ where counter_id in ('to_best_friend', 'from_best_friend');
 ```
 
 This reset is not available on the public website. Page taps can add hearts again after the reset.
+
+### Reset the compliment jar and sent history
+
+To clear test compliments and sent-message history while restoring the original starter messages, run this one time in the Supabase project's **SQL Editor** as the project owner. This is intentionally separate from `setup.sql`, so future setup runs will not erase shared content.
+
+```sql
+begin;
+
+delete from public.compliment_history;
+delete from public.compliment_messages;
+
+insert into public.compliment_messages (message) values
+  ('You make ordinary days feel special.'),
+  ('I am so lucky to have you in my corner.'),
+  ('You make people feel seen and loved.'),
+  ('Your laugh is one of my favorite sounds.'),
+  ('You are stronger than you give yourself credit for.'),
+  ('Being your best friend is one of my favorite things.'),
+  ('You make hard days a little easier.'),
+  ('You deserve every good thing coming your way.');
+
+commit;
+```
+
+The public website cannot clear sent history; its anonymous access intentionally does not allow deleting history rows.
 
 ### 3. Add your own animal pictures (optional)
 
@@ -78,7 +103,7 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 - Clicking a baby animal opens its photo popup. Tap an animal (including its opened photo) to send up a pink ribbon heart (💝); tapping empty page space sends up a different colored heart each time. Buttons and bingo squares keep their normal actions. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
 - **Mini-games** is a full page with two shared leaderboards and four games, all separate from the bingo board. Choose **Subaba** or **Tabya** before picking a game; only that player's scores and completion counts are updated. Each game has a rechargeable power with an on-screen energy bar: Paw Catcher's paw magnet (M) pulls animals toward the basket; Kitty Memory's peek (P) briefly reveals unmatched cards; Puppy Treat Tap's time-freeze (F) pauses treat timers; and Bunny Hop has a carrot dash (→ or Shift) that speeds up hazards but doubles carrots, plus a separate invincibility shield (X) that blocks puddle penalties. Bunny Hop powers each have their own bar. Paw Catcher gets faster as the round goes on, Kitty Memory has 8 pairs, Bunny Hop has a quicker obstacle pace in its 30-second run, and Puppy Treat Tap has a 15-treat goal with a quicker spawn pace and only two treats visible at once. Each player's leaderboard saves their own best for every game: most caught animals or carrots, fewest Kitty Memory moves, and Puppy Treat Tap's completion count.
 - **Memory wall** saves and displays shared photos, notes, titles, and author names. Entries can be added, edited, and deleted from the website.
-- **Badges** unlock and save the first bingo, half-board, and full-board milestones. Earned badges stay saved even if squares are later unchecked.
+- **Badges** unlock and save the first bingo, half-board, and full-board milestones separately for Subaba and Tabya, plus shared badges when both reach a milestone. New badges get a full-page celebration with a shortcut to this page. Earned badges stay saved even if squares are later unchecked.
 - **Question of the day** picks a shared question each day from an editable question jar. Both friends can save and update their own answer for that question and date.
 - **Compliments** lets either person send a random message from the editable shared jar. Sent messages are saved in a shared history.
 - Shared feature content, board prompts, heart totals, mini-game scores, and badge unlocks are stored in Supabase. Row-level security is enabled, but the public site has no sign-in: anyone who can reach the site can edit its shared content and submit gameplay data. Heart totals can only be incremented through the site, but they are for fun—not a tamper-proof record.

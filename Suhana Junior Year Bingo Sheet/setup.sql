@@ -1,9 +1,40 @@
 create table if not exists public.bingo_squares (
-  id integer primary key check (id between 0 and 24),
+  player_name text not null default 'Subaba',
+  id integer not null check (id between 0 and 24),
   text text not null,
   checked boolean not null default false,
-  check (id <> 12 or checked)
+  check (id <> 12 or checked),
+  primary key (player_name, id)
 );
+
+alter table public.bingo_squares
+  add column if not exists player_name text not null default 'Subaba';
+
+alter table public.bingo_squares
+  drop constraint if exists bingo_squares_player_name_check;
+
+alter table public.bingo_squares
+  add constraint bingo_squares_player_name_check
+  check (player_name in ('Subaba', 'Tabya'));
+
+do $$
+declare
+  primary_key_name text;
+begin
+  select conname
+  into primary_key_name
+  from pg_constraint
+  where conrelid = 'public.bingo_squares'::regclass
+    and contype = 'p';
+
+  if primary_key_name is not null then
+    execute format('alter table public.bingo_squares drop constraint %I', primary_key_name);
+  end if;
+
+  alter table public.bingo_squares
+    add constraint bingo_squares_pkey primary key (player_name, id);
+end;
+$$;
 
 alter table public.bingo_squares
   drop constraint if exists bingo_squares_text_check;
@@ -16,33 +47,39 @@ alter table public.bingo_squares
 
 alter table public.bingo_squares enable row level security;
 
-insert into public.bingo_squares (id, text, checked) values
-  (0, 'Get a new FAV♡RITE teacher 🍎', false),
-  (1, 'Have a perfect-fit day 👚', false),
-  (2, 'Make a new friend 𖠋𖠋', false),
-  (3, 'Tardy to class (5+ min) 😟', false),
-  (4, 'Try a new drink 🍹', false),
-  (5, '💯 on a test', false),
-  (6, 'Pick up a new hobby 🛹', false),
-  (7, 'Take a picture you love', false),
-  (8, 'Fail a test 😬', false),
-  (9, 'School supplies break ✏🥀', false),
-  (10, 'Make weekend plans (with me!) 💙💖', false),
-  (11, 'Forget to charge your phone overnight 😕', false),
-  (12, 'FREE SPACE', true),
-  (13, 'Book date! Find a book you end up LOVING 📖', false),
-  (14, 'Try a new recipe (baking, cooking, etc.) 🍲', false),
-  (15, 'Make a core memory 🧠', false),
-  (16, 'Go to a fun event 🪩', false),
-  (17, 'Have a really good lunch 😋', false),
-  (18, 'Finish a big assignment 🥳', false),
-  (19, 'Give someone a compliment 😊', false),
-  (20, 'Laugh till you cry (but not actually) 🤣', false),
-  (21, 'Have a no-stress morning 😌', false),
-  (22, 'Do something outside your comfort zone 🫨', false),
-  (23, 'Make it through finals week 📚😰', false),
-  (24, 'Celebrate a little win 👏', false)
-on conflict (id) do update
+insert into public.bingo_squares (player_name, id, text, checked) values
+  ('Subaba', 0, 'Get a new FAV♡RITE teacher 🍎', false),
+  ('Subaba', 1, 'Have a perfect-fit day 👚', false),
+  ('Subaba', 2, 'Make a new friend 𖠋𖠋', false),
+  ('Subaba', 3, 'Tardy to class (5+ min) 😟', false),
+  ('Subaba', 4, 'Try a new drink 🍹', false),
+  ('Subaba', 5, '💯 on a test', false),
+  ('Subaba', 6, 'Pick up a new hobby 🛹', false),
+  ('Subaba', 7, 'Take a picture you love', false),
+  ('Subaba', 8, 'Fail a test 😬', false),
+  ('Subaba', 9, 'School supplies break ✏🥀', false),
+  ('Subaba', 10, 'Make weekend plans (with me!) 💙💖', false),
+  ('Subaba', 11, 'Forget to charge your phone overnight 😕', false),
+  ('Subaba', 12, 'FREE SPACE', true),
+  ('Subaba', 13, 'Book date! Find a book you end up LOVING 📖', false),
+  ('Subaba', 14, 'Try a new recipe (baking, cooking, etc.) 🍲', false),
+  ('Subaba', 15, 'Make a core memory 🧠', false),
+  ('Subaba', 16, 'Go to a fun event 🪩', false),
+  ('Subaba', 17, 'Have a really good lunch 😋', false),
+  ('Subaba', 18, 'Finish a big assignment 🥳', false),
+  ('Subaba', 19, 'Give someone a compliment 😊', false),
+  ('Subaba', 20, 'Laugh till you cry (but not actually) 🤣', false),
+  ('Subaba', 21, 'Have a no-stress morning 😌', false),
+  ('Subaba', 22, 'Do something outside your comfort zone 🫨', false),
+  ('Subaba', 23, 'Make it through finals week 📚😰', false),
+  ('Subaba', 24, 'Celebrate a little win 👏', false)
+on conflict (player_name, id) do nothing;
+
+insert into public.bingo_squares (player_name, id, text, checked)
+select 'Tabya', id, text, id = 12
+from public.bingo_squares
+where player_name = 'Subaba'
+on conflict (player_name, id) do update
   set text = excluded.text;
 
 drop policy if exists "Anyone can read the board" on public.bingo_squares;
@@ -393,9 +430,40 @@ create policy "Anyone can send shared compliments"
   with check (true);
 
 create table if not exists public.bingo_badges (
-  badge_id text primary key check (badge_id in ('first_bingo', 'half_board', 'full_board')),
+  player_name text not null default 'Subaba' check (player_name in ('Subaba', 'Tabya')),
+  badge_id text not null check (badge_id in ('first_bingo', 'half_board', 'full_board')),
+  primary key (player_name, badge_id),
   earned_at timestamptz not null default now()
 );
+
+alter table public.bingo_badges
+  add column if not exists player_name text not null default 'Subaba';
+
+alter table public.bingo_badges
+  drop constraint if exists bingo_badges_player_name_check;
+
+alter table public.bingo_badges
+  add constraint bingo_badges_player_name_check
+  check (player_name in ('Subaba', 'Tabya'));
+
+do $$
+declare
+  primary_key_name text;
+begin
+  select conname
+  into primary_key_name
+  from pg_constraint
+  where conrelid = 'public.bingo_badges'::regclass
+    and contype = 'p';
+
+  if primary_key_name is not null then
+    execute format('alter table public.bingo_badges drop constraint %I', primary_key_name);
+  end if;
+
+  alter table public.bingo_badges
+    add constraint bingo_badges_pkey primary key (player_name, badge_id);
+end;
+$$;
 
 alter table public.bingo_badges enable row level security;
 revoke all on public.bingo_badges from public, anon, authenticated;
@@ -408,5 +476,26 @@ create policy "Anyone can read shared bingo badges"
 drop policy if exists "Anyone can earn shared bingo badges" on public.bingo_badges;
 create policy "Anyone can earn shared bingo badges"
   on public.bingo_badges for insert
+  to anon, authenticated
+  with check (true);
+
+create table if not exists public.shared_bingo_achievements (
+  achievement_id text primary key check (
+    achievement_id in ('shared_first_bingo', 'shared_half_board', 'shared_full_board')
+  ),
+  earned_at timestamptz not null default now()
+);
+
+alter table public.shared_bingo_achievements enable row level security;
+revoke all on public.shared_bingo_achievements from public, anon, authenticated;
+grant select, insert on public.shared_bingo_achievements to anon, authenticated;
+drop policy if exists "Anyone can read shared bingo achievements" on public.shared_bingo_achievements;
+create policy "Anyone can read shared bingo achievements"
+  on public.shared_bingo_achievements for select
+  to anon, authenticated
+  using (true);
+drop policy if exists "Anyone can earn shared bingo achievements" on public.shared_bingo_achievements;
+create policy "Anyone can earn shared bingo achievements"
+  on public.shared_bingo_achievements for insert
   to anon, authenticated
   with check (true);
