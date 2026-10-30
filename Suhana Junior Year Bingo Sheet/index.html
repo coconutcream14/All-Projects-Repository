@@ -209,9 +209,8 @@
     .feature-page { margin-bottom: 24px; }
     .bingo-prompt-editor { margin: 0 24px 24px; }
     .prompt-editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
-    .board-owner-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, .7fr); align-items: center; gap: 12px; padding: 18px 22px 0; }
-    .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 0; text-align: center; }
-    .board-owner-note { width: min(100%, 390px); justify-self: center; padding: 12px 14px; }
+    .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 18px 22px 0; text-align: center; }
+    .board-owner-note { width: 100%; padding: 12px 14px; }
     .board-owner-switch-label { color: #65566d; font-size: .9rem; font-weight: 900; }
     .board-owner-choice[aria-pressed="true"] { border-color: #a45e7d; background: #f7e1ea; box-shadow: 0 0 0 3px rgba(212, 149, 173, .18); }
     .board-owner-switch .feature-status { margin: 0; }
@@ -1590,10 +1589,6 @@
       .theme-toggle { font-size: .72rem; }
     }
 
-    @media (max-width: 560px) {
-      .board-owner-layout { grid-template-columns: 1fr; gap: 10px; padding-right: 16px; padding-left: 16px; }
-    }
-
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
       h1 span { animation: none; }
@@ -1737,18 +1732,15 @@
       </div>
       <audio id="heart-sound-audio" src="./deep_thought.mp3" preload="auto"></audio>
 
-      <div class="board-owner-layout">
-        <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
-          <span class="board-owner-switch-label">Whose junior year?</span>
-          <div class="player-choice-list">
-            <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
-            <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
-          </div>
-          <p class="feature-status">Your check-offs and progress save separately; the prompts stay the same on both boards.</p>
-          <p class="feature-status" id="board-owner-status" role="status" aria-live="polite"></p>
-        </section>
-        <div class="note-card board-owner-note">“I made you a bingo card. Obviously.”<span>♡</span></div>
-      </div>
+      <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
+        <span class="board-owner-switch-label">Whose junior year?</span>
+        <div class="player-choice-list">
+          <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
+          <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
+        </div>
+        <p class="feature-status">Your check-offs and progress save separately; the prompts stay the same on both boards.</p>
+        <p class="feature-status" id="board-owner-status" role="status" aria-live="polite"></p>
+      </section>
 
       <div class="game-layout">
         <div class="board-wrap">
@@ -1765,6 +1757,7 @@
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
+          <div class="note-card board-owner-note">“I made you a bingo card. Obviously.”<span>♡</span></div>
           <div class="progress-block">
             <p class="side-kicker">So far</p>
             <div class="progress-heading">
