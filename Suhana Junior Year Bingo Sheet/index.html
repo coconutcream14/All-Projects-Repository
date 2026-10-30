@@ -99,7 +99,7 @@
       to { transform: translateY(-9px) rotate(var(--tilt)); }
     }
 
-    .animal-dialog, .game-dialog {
+    .animal-dialog {
       position: fixed;
       width: min(440px, calc(100vw - 32px));
       max-width: none;
@@ -113,8 +113,8 @@
       color: var(--ink);
     }
 
-    .animal-dialog[open], .game-dialog[open] { animation: dialog-pop .2s ease-out; }
-    .animal-dialog::backdrop, .game-dialog::backdrop { background: rgba(68, 53, 78, .38); backdrop-filter: blur(5px); }
+    .animal-dialog[open] { animation: dialog-pop .2s ease-out; }
+    .animal-dialog::backdrop { background: rgba(68, 53, 78, .38); backdrop-filter: blur(5px); }
     .dialog-close {
       display: block;
       margin: 0 0 12px auto;
@@ -132,7 +132,7 @@
     .dialog-close:hover { background: #f7f3ff; }
     .dialog-close:focus-visible { outline: 3px solid #6aaed1; outline-offset: 3px; }
 
-    .animal-dialog h2, .game-dialog h2 {
+    .animal-dialog h2, .game-page h2 {
       margin: 0 0 14px;
       font-family: inherit;
       font-size: 1.6rem;
@@ -170,7 +170,131 @@
     .animal-photo-placeholder code { color: #765a83; font-size: .83em; overflow-wrap: anywhere; }
     .animal-dialog-note { margin: 13px 0 0; color: var(--muted); font-size: .8rem; text-align: center; }
 
-    .game-dialog { width: min(560px, calc(100vw - 32px)); }
+    .feature-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 0 22px;
+    }
+
+    .feature-tab {
+      padding: 10px 15px;
+      border: 1px solid #d5c9d8;
+      border-radius: 999px;
+      background: rgba(250, 247, 247, .88);
+      color: #65566d;
+      cursor: pointer;
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 800;
+    }
+
+    .feature-tab:hover, .feature-tab[aria-current="page"] {
+      border-color: #b77c91;
+      background: #f7e9ef;
+      color: #805267;
+    }
+
+    .feature-tab:focus-visible, .feature-action:focus-visible,
+    .feature-form input:focus-visible, .feature-form textarea:focus-visible,
+    .feature-form select:focus-visible, .editor-panel input:focus-visible,
+    .editor-panel textarea:focus-visible {
+      outline: 3px solid #6aaed1;
+      outline-offset: 3px;
+    }
+
+    .feature-page[hidden] { display: none !important; }
+
+    .feature-page { margin-bottom: 24px; }
+    .bingo-prompt-editor { margin: 0 24px 24px; }
+    .prompt-editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+
+    .feature-heading {
+      padding: 26px 30px 19px;
+      border-bottom: 1px solid #dfd9df;
+      background: linear-gradient(100deg, #eee4e6, #e6ecee 55%, #eae6ed);
+      text-align: center;
+    }
+
+    .feature-heading h2 { margin: 0; font-size: clamp(1.45rem, 3vw, 2rem); }
+    .feature-heading p { max-width: 650px; margin: 8px auto 0; color: var(--muted); line-height: 1.55; }
+    .feature-content { display: grid; gap: 18px; padding: 24px; }
+
+    .feature-form, .editor-panel {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      border: 1px solid #ded5df;
+      border-radius: 20px;
+      background: rgba(255, 252, 250, .78);
+    }
+
+    .feature-form label, .editor-panel label { display: grid; gap: 6px; color: #65566d; font-size: .82rem; font-weight: 800; }
+    .feature-form input, .feature-form textarea, .feature-form select,
+    .editor-panel input, .editor-panel textarea {
+      width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid #d5cbd8;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-size: .9rem;
+    }
+
+    .feature-form textarea, .editor-panel textarea { min-height: 95px; resize: vertical; }
+    .feature-form small, .editor-panel small { color: var(--muted); font-weight: 400; }
+    .feature-action {
+      justify-self: start;
+      padding: 10px 16px;
+      border: 1px solid #c69aaa;
+      border-radius: 999px;
+      background: #f7e9ef;
+      color: #805267;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .feature-action:hover { background: #f1dce5; }
+    .feature-action.secondary { border-color: #c9c2d2; background: #f2eff6; color: #65566d; }
+    .feature-status { min-height: 1.2em; margin: 0; color: var(--muted); font-size: .82rem; }
+    .memory-grid, .feature-list, .badge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+    .memory-card, .feature-item, .badge-card {
+      min-width: 0;
+      padding: 15px;
+      border: 1px solid #ded5df;
+      border-radius: 18px;
+      background: rgba(255, 252, 250, .86);
+      box-shadow: 0 5px 16px rgba(73, 67, 82, .06);
+    }
+
+    .memory-card img { display: block; width: 100%; max-height: 260px; margin-bottom: 10px; border-radius: 13px; object-fit: cover; }
+    .memory-card h3, .feature-item h3, .badge-card h3 { margin: 0 0 7px; color: #65566d; font-size: 1rem; }
+    .memory-card p, .feature-item p, .badge-card p { margin: 0 0 10px; color: var(--muted); font-size: .86rem; line-height: 1.5; overflow-wrap: anywhere; }
+    .memory-meta { display: block; margin-bottom: 10px; color: #8a7b8d; font-size: .72rem; }
+    .item-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+    .item-actions .feature-action { padding: 7px 11px; font-size: .78rem; }
+    .badge-card[data-earned="true"] { border-color: #d3b778; background: linear-gradient(145deg, #fff8df, #fffaf5); }
+    .badge-state { display: inline-block; margin-top: 8px; color: #8a7b8d; font-size: .78rem; font-weight: 800; }
+    .badge-card[data-earned="true"] .badge-state { color: #9c7430; }
+    .daily-question {
+      padding: 20px;
+      border: 1px solid #d8c8d8;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #fff8f6, #f3f0f8);
+      text-align: center;
+    }
+
+    .daily-question h3 { margin: 0; color: #65566d; font-size: clamp(1.2rem, 3vw, 1.7rem); line-height: 1.4; }
+    .daily-question p { margin: 8px 0 0; color: var(--muted); font-size: .8rem; }
+    .answer-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .compliment-display { min-height: 110px; display: grid; place-items: center; padding: 22px; border: 1px dashed #c9badd; border-radius: 20px; background: #fbf7fb; color: #765a83; font-size: 1.15rem; font-weight: 900; line-height: 1.5; text-align: center; }
+    .game-page { width: 100%; max-width: none; padding: 0; overflow: hidden; }
+    .game-page .game-picker, .game-page .game-play { padding: 24px; }
+    .game-page .game-play { position: relative; }
 
     .game-picker h2 { margin-bottom: 8px; }
 
@@ -555,7 +679,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 21px 27px;
+      padding: 14px 27px;
       border-bottom: 1px solid #dfd9df;
       background: linear-gradient(100deg, #eee4e6, #e6ecee 55%, #eae6ed);
     }
@@ -603,7 +727,7 @@
       grid-template-columns: minmax(0, 1fr) 248px;
       gap: 29px;
       align-items: center;
-      padding: 18px 28px 28px;
+      padding: 8px 28px 28px;
       background: linear-gradient(145deg, rgba(238, 230, 231, .7), rgba(228, 235, 237, .65) 55%, rgba(234, 229, 237, .7));
     }
 
@@ -612,7 +736,7 @@
       max-width: 650px;
       margin: 0 auto;
       position: relative;
-      padding: 20px 32px 30px;
+      padding: 8px 32px 30px;
       border: 1px solid rgba(246, 243, 241, .92);
       border-radius: 25px;
       background: linear-gradient(135deg, #ede1e5, #e2eaec 48%, #e4e9e2);
@@ -1042,7 +1166,8 @@
       transition: background .2s ease, border-color .2s ease, transform .2s ease;
     }
 
-    .message-top { min-height: 36px; margin: 0 4px 10px; }
+    .message-top { min-height: 0; margin: 0 4px 4px; padding: 0 8px; }
+    .message-top:empty { display: none; }
 
     .message[data-reaction="row"], .message[data-reaction="column"],
     .message[data-reaction="diagonal"], .message[data-reaction="multiple"] {
@@ -1204,20 +1329,20 @@
 
     @media (max-width: 760px) {
       body { padding: 27px 14px 35px; }
-      .game-layout { grid-template-columns: 1fr; gap: 20px; padding: 18px; }
+      .game-layout { grid-template-columns: 1fr; gap: 20px; padding: 8px 18px 18px; }
       .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 17px; }
       .side-panel > .divider { display: none; }
       .side-panel > .note-card { grid-column: 1 / -1; }
       .side-panel > .actions { grid-column: 1 / -1; }
-      .card-top { padding: 16px 19px; }
+      .card-top { padding: 10px 19px; }
     }
 
     @media (max-width: 430px) {
       body { padding-right: 10px; padding-left: 10px; }
       .board { gap: 6px; }
       .bingo-cell { padding: 4px; border-radius: 11px; font-size: clamp(.58rem, 2.45vw, .7rem); }
-      .board-wrap { padding: 18px 24px 25px; border-radius: 19px; }
-      .game-layout { padding: 13px; }
+      .board-wrap { padding: 8px 24px 25px; border-radius: 19px; }
+      .game-layout { padding: 6px 13px 13px; }
       .side-panel { gap: 11px; padding: 14px; }
       .animal-sticker { width: 41px; height: 41px; font-size: 1.25rem; }
       .animal-sticker:nth-child(1) { top: -15px; left: -15px; }
@@ -1225,7 +1350,10 @@
       .animal-sticker:nth-child(3) { left: -18px; }
       .animal-sticker:nth-child(4) { right: -18px; }
       .animal-sticker:nth-child(5) { bottom: -16px; left: calc(50% - 21px); }
-      .animal-dialog, .game-dialog { padding: 17px; }
+      .animal-dialog { padding: 17px; }
+      .feature-content, .game-page .game-picker, .game-page .game-play { padding: 16px; }
+      .answer-grid { grid-template-columns: 1fr; }
+      .feature-tab { padding: 9px 12px; font-size: .78rem; }
       .save-note { max-width: 100px; text-align: right; line-height: 1.4; }
       .card-top { flex-wrap: wrap; padding: 14px; }
       .card-top-tools { width: 100%; justify-content: space-between; }
@@ -1251,6 +1379,15 @@
       <p class="subtitle">For all the weird, funny, good stuff we're gonna remember.</p>
     </header>
 
+    <nav class="feature-nav" aria-label="Website pages">
+      <button class="feature-tab" type="button" data-page-target="board-page" aria-current="page">Bingo board</button>
+      <button class="feature-tab" type="button" data-page-target="memories-page">Memory wall</button>
+      <button class="feature-tab" type="button" data-page-target="badges-page">Badges</button>
+      <button class="feature-tab" type="button" data-page-target="questions-page">Question of the day</button>
+      <button class="feature-tab" type="button" data-page-target="compliments-page">Compliments</button>
+      <button class="feature-tab" type="button" data-page-target="game-dialog">Mini-games</button>
+    </nav>
+
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
       <button class="dialog-close" id="animal-dialog-close" type="button" aria-label="Close animal picture">Close ×</button>
       <h2 id="animal-dialog-title"></h2>
@@ -1264,8 +1401,7 @@
       <p class="animal-dialog-note">A tiny friend, just for you ♡</p>
     </dialog>
 
-    <dialog class="game-dialog" id="game-dialog" aria-label="Choose a cute mini-game">
-      <button class="dialog-close" id="game-close" type="button" aria-label="Close mini-games">Close ×</button>
+    <section class="feature-page card game-page" id="game-dialog" data-app-page="game-dialog" aria-label="Mini-games" hidden>
       <section class="game-picker" id="game-picker" aria-labelledby="game-picker-title">
         <h2 id="game-picker-title">Pick a tiny game</h2>
         <p class="game-picker-intro">Four little games, four different ways to play. Pick your mood ♡</p>
@@ -1317,9 +1453,9 @@
         <div class="game-powerups" id="game-powerups" aria-label="Rechargeable superpowers" hidden></div>
         <p class="game-note" id="game-note">Just for fun—your bingo stays right where it is.</p>
       </section>
-    </dialog>
+    </section>
 
-    <section class="card" aria-label="Subaba's junior year bingo game">
+    <section class="feature-page card" id="board-page" data-app-page="board-page" aria-label="Subaba's junior year bingo game">
       <div class="card-top">
         <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> Subaba's junior year</div>
         <div class="card-top-tools">
@@ -1403,6 +1539,125 @@
           <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
         </aside>
       </div>
+      <details class="editor-panel bingo-prompt-editor" id="bingo-prompt-editor">
+        <summary>Edit bingo prompts</summary>
+        <p class="feature-status">Change any square's wording and save it to the shared board. The free space stays fixed.</p>
+        <div class="prompt-editor-grid" id="prompt-editor-grid"></div>
+        <button class="feature-action" id="prompt-save" type="button">Save prompt changes</button>
+        <p class="feature-status" id="prompt-status" role="status" aria-live="polite"></p>
+      </details>
+    </section>
+
+    <section class="feature-page card" id="memories-page" data-app-page="memories-page" aria-labelledby="memories-title" hidden>
+      <header class="feature-heading">
+        <h2 id="memories-title">Our memory wall 📸</h2>
+        <p>Save the little moments, favorite photos, and stories you want to keep. New memories are shared with everyone who can open this site.</p>
+      </header>
+      <div class="feature-content">
+        <form class="feature-form" id="memory-form">
+          <h3 id="memory-form-title">Add a memory</h3>
+          <label>Memory title
+            <input name="title" maxlength="100" required>
+          </label>
+          <label>A little note
+            <textarea name="note" maxlength="2000" placeholder="What should future-you remember about this?"></textarea>
+          </label>
+          <label>Who is adding this?
+            <input name="author" maxlength="40" value="Subaba" required>
+          </label>
+          <label>Photo (optional)
+            <input name="photo" type="file" accept="image/jpeg,image/png,image/webp">
+            <small>Photos are resized before saving. Choose only pictures you have permission to share publicly.</small>
+          </label>
+          <div class="item-actions">
+            <button class="feature-action" type="submit" id="memory-save">Save memory</button>
+            <button class="feature-action secondary" type="button" id="memory-cancel" hidden>Cancel edit</button>
+          </div>
+          <p class="feature-status" id="memory-status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="memory-grid" id="memory-list" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="feature-page card" id="badges-page" data-app-page="badges-page" aria-labelledby="badges-title" hidden>
+      <header class="feature-heading">
+        <h2 id="badges-title">Little wins, big deal 🏅</h2>
+        <p>These shared badges unlock as the bingo board grows. Once earned, they stay saved even if a square is later unchecked.</p>
+      </header>
+      <div class="feature-content">
+        <div class="badge-grid" id="badge-list"></div>
+        <p class="feature-status" id="badge-status" role="status" aria-live="polite">Badges load with the shared board.</p>
+      </div>
+    </section>
+
+    <section class="feature-page card" id="questions-page" data-app-page="questions-page" aria-labelledby="questions-title" hidden>
+      <header class="feature-heading">
+        <h2 id="questions-title">Question of the day 💭</h2>
+        <p>A new question rotates in each day. Add, change, or remove questions here; both answers are saved for that date.</p>
+      </header>
+      <div class="feature-content">
+        <div class="daily-question">
+          <h3 id="daily-question-text">Loading today's question…</h3>
+          <p id="daily-question-date"></p>
+        </div>
+        <div class="answer-grid">
+          <form class="feature-form question-answer-form" data-player="Subaba">
+            <label>Subaba's answer
+              <textarea name="answer" maxlength="1000" required></textarea>
+            </label>
+            <button class="feature-action" type="submit">Save Subaba's answer</button>
+            <p class="feature-status" data-answer-status role="status" aria-live="polite"></p>
+          </form>
+          <form class="feature-form question-answer-form" data-player="Tabya">
+            <label>Tabya's answer
+              <textarea name="answer" maxlength="1000" required></textarea>
+            </label>
+            <button class="feature-action" type="submit">Save Tabya's answer</button>
+            <p class="feature-status" data-answer-status role="status" aria-live="polite"></p>
+          </form>
+        </div>
+        <form class="feature-form" id="question-add-form">
+          <h3>Edit the question jar</h3>
+          <label>Add a question
+            <input name="question" maxlength="280" required placeholder="What is one tiny thing that made you smile today?">
+          </label>
+          <button class="feature-action" type="submit">Add question</button>
+          <p class="feature-status" id="question-status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="feature-list" id="question-list"></div>
+      </div>
+    </section>
+
+    <section class="feature-page card" id="compliments-page" data-app-page="compliments-page" aria-labelledby="compliments-title" hidden>
+      <header class="feature-heading">
+        <h2 id="compliments-title">A little love note 💌</h2>
+        <p>Send a saved compliment or add your own. The shared history keeps the kind words around.</p>
+      </header>
+      <div class="feature-content">
+        <form class="feature-form" id="compliment-send-form">
+          <label>From
+            <select name="sender"><option>Subaba</option><option>Tabya</option></select>
+          </label>
+          <label>To
+            <select name="recipient"><option>Tabya</option><option>Subaba</option></select>
+          </label>
+          <button class="feature-action" type="submit">Send a random compliment 💖</button>
+          <div class="compliment-display" id="compliment-display" aria-live="polite">Your next kind word is waiting here ♡</div>
+          <p class="feature-status" id="compliment-status" role="status" aria-live="polite"></p>
+        </form>
+        <form class="feature-form" id="compliment-add-form">
+          <h3>Add a message to the compliment jar</h3>
+          <label>Your compliment
+            <textarea name="message" maxlength="500" required placeholder="You make ordinary days feel special."></textarea>
+          </label>
+          <button class="feature-action" type="submit">Save compliment</button>
+        </form>
+        <div class="feature-list" id="compliment-list"></div>
+        <section class="feature-item" aria-labelledby="compliment-history-title">
+          <h3 id="compliment-history-title">Kind words we've sent</h3>
+          <div class="feature-list" id="compliment-history"></div>
+        </section>
+      </div>
     </section>
 
     <footer class="footer">Made with love, pink glitter, and best-friend energy ♡</footer>
@@ -1443,7 +1698,8 @@
     const animalPlaceholderEmoji = document.getElementById("animal-placeholder-emoji");
     const animalPlaceholderCopy = document.getElementById("animal-placeholder-copy");
     const animalButtons = document.querySelectorAll(".animal-sticker");
-    const gameDialog = document.getElementById("game-dialog");
+    const featureNavButtons = document.querySelectorAll("[data-page-target]");
+    let activePageId = "board-page";
     const gameCanvas = document.getElementById("game-canvas");
     const gameContext = gameCanvas.getContext("2d");
     const soundToggleButton = document.getElementById("sound-toggle");
@@ -1473,12 +1729,38 @@
         { id: "treatsFreeze", label: "Puppy time-freeze", button: "Freeze ⏸", key: "F", cooldownMs: 16000, durationMs: 3000 }
       ]
     };
-    const gameCloseButton = document.getElementById("game-close");
     const gameStartButton = document.getElementById("game-start");
     const gamePauseButton = document.getElementById("game-pause");
     const gameLeftButton = document.getElementById("game-left");
     const gameRightButton = document.getElementById("game-right");
     const gameStatus = document.getElementById("game-status");
+    const promptEditorGrid = document.getElementById("prompt-editor-grid");
+    const promptSaveButton = document.getElementById("prompt-save");
+    const promptStatus = document.getElementById("prompt-status");
+    const memoryForm = document.getElementById("memory-form");
+    const memoryList = document.getElementById("memory-list");
+    const memoryStatus = document.getElementById("memory-status");
+    const memoryCancelButton = document.getElementById("memory-cancel");
+    const questionText = document.getElementById("daily-question-text");
+    const questionDate = document.getElementById("daily-question-date");
+    const questionForms = document.querySelectorAll(".question-answer-form");
+    const questionList = document.getElementById("question-list");
+    const questionStatus = document.getElementById("question-status");
+    const badgeList = document.getElementById("badge-list");
+    const badgeStatus = document.getElementById("badge-status");
+    const complimentSendForm = document.getElementById("compliment-send-form");
+    const complimentAddForm = document.getElementById("compliment-add-form");
+    const complimentDisplay = document.getElementById("compliment-display");
+    const complimentStatus = document.getElementById("compliment-status");
+    const complimentList = document.getElementById("compliment-list");
+    const complimentHistory = document.getElementById("compliment-history");
+    let memoryEntries = [];
+    let editingMemoryId = null;
+    let dailyQuestions = [];
+    let activeQuestion = null;
+    let activeQuestionDate = new Date().toISOString().slice(0, 10);
+    let earnedBadgeIds = new Set();
+    let complimentMessages = [];
 
     let squares = defaults.map((text, index) => ({ text, checked: index === 12 }));
     let connected = false;
@@ -1588,6 +1870,7 @@
     function playHeartSound() {
       if (!soundEnabled) return;
       heartSoundAudio.currentTime = 0;
+      heartSoundAudio.volume = 0.15;
       void heartSoundAudio.play().catch((error) => {
         console.warn("Could not play the built-in heart sound; using the synthesized fallback.", error);
         playSound("heart");
@@ -1872,6 +2155,635 @@
       if (response.status === 204) return null;
       const text = await response.text();
       return text ? JSON.parse(text) : null;
+    }
+
+    function renderPromptEditor() {
+      promptEditorGrid.replaceChildren();
+      squares.forEach((square, index) => {
+        const label = document.createElement("label");
+        label.textContent = index === 12 ? "Free space" : `Square ${index + 1}`;
+        const input = document.createElement("textarea");
+        input.dataset.promptIndex = String(index);
+        input.maxLength = 100;
+        input.value = square.text;
+        input.disabled = !connected || index === 12 || saving;
+        if (index === 12) input.setAttribute("aria-label", "The free space cannot be changed");
+        label.append(input);
+        promptEditorGrid.append(label);
+      });
+      promptSaveButton.disabled = !connected || saving;
+    }
+
+    async function savePromptChanges() {
+      if (!connected || saving) {
+        promptStatus.textContent = "Connect the shared database before editing prompts.";
+        return;
+      }
+      const inputs = Array.from(promptEditorGrid.querySelectorAll("[data-prompt-index]"));
+      const changes = [];
+      for (const input of inputs) {
+        const index = Number(input.dataset.promptIndex);
+        const text = input.value.trim();
+        if (index === 12 || text === squares[index].text) continue;
+        if (!text || text.length > 100) {
+          promptStatus.textContent = `Square ${index + 1} needs 1–100 characters.`;
+          input.focus();
+          return;
+        }
+        changes.push({ index, text });
+      }
+      if (changes.length === 0) {
+        promptStatus.textContent = "Everything is already up to date.";
+        return;
+      }
+
+      saving = true;
+      promptSaveButton.disabled = true;
+      promptStatus.textContent = "Saving prompt changes…";
+      renderBoard(false);
+      try {
+        for (const change of changes) {
+          await updateSquare(change.index, { text: change.text });
+          squares[change.index].text = change.text;
+        }
+        renderBoard(false);
+        renderPromptEditor();
+        promptStatus.textContent = "Your prompt changes are saved for everyone ♡";
+      } catch (error) {
+        console.error("Could not save bingo prompt changes.", error);
+        promptStatus.textContent = `Some prompt changes may not have saved. Reload the board and try again. ${error instanceof Error ? error.message : String(error)}`;
+        try {
+          await loadRemoteBoard();
+          renderPromptEditor();
+        } catch (reloadError) {
+          console.error("Could not reload the bingo board after a prompt save failed.", reloadError);
+        }
+      } finally {
+        saving = false;
+        renderBoard(false);
+        renderPromptEditor();
+      }
+    }
+
+    function featureElement(tagName, className = "", text = "") {
+      const element = document.createElement(tagName);
+      if (className) element.className = className;
+      if (text) element.textContent = text;
+      return element;
+    }
+
+    function reportFeatureError(statusElement, featureName, action, error) {
+      console.error(`Could not ${action} ${featureName}.`, error);
+      statusElement.textContent = `${featureName} unavailable. Check the latest setup.sql and try again. ${error instanceof Error ? error.message : String(error)}`;
+    }
+
+    async function compressMemoryPhoto(file) {
+      if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+        throw new Error("Choose a JPEG, PNG, or WebP photo.");
+      }
+      if (file.size > 12 * 1024 * 1024) throw new Error("Choose a photo smaller than 12 MB.");
+      if (typeof createImageBitmap !== "function") throw new Error("This browser cannot resize photos for saving.");
+
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+      const context = canvas.getContext("2d");
+      if (!context) {
+        bitmap.close();
+        throw new Error("This browser could not prepare the photo.");
+      }
+      context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
+      const data = canvas.toDataURL("image/jpeg", 0.72);
+      if (data.length > 850000) throw new Error("That photo is still too large after resizing. Choose a smaller image.");
+      return data;
+    }
+
+    function renderMemoryWall() {
+      memoryList.replaceChildren();
+      if (memoryEntries.length === 0) {
+        memoryList.append(featureElement("p", "feature-status", "The wall is ready for its first little memory."));
+        return;
+      }
+      for (const entry of memoryEntries) {
+        const card = featureElement("article", "memory-card");
+        if (typeof entry.photo_data === "string" && entry.photo_data.startsWith("data:image/jpeg;base64,")) {
+          const image = featureElement("img");
+          image.src = entry.photo_data;
+          image.alt = entry.title;
+          image.loading = "lazy";
+          card.append(image);
+        }
+        card.append(featureElement("h3", "", entry.title));
+        if (entry.note) card.append(featureElement("p", "", entry.note));
+        const date = entry.created_at ? new Date(entry.created_at) : null;
+        const dateText = date && !Number.isNaN(date.getTime()) ? ` · ${date.toLocaleDateString()}` : "";
+        card.append(featureElement("span", "memory-meta", `Added by ${entry.author}${dateText}`));
+        const actions = featureElement("div", "item-actions");
+        const edit = featureElement("button", "feature-action secondary", "Edit");
+        edit.type = "button";
+        edit.dataset.memoryEdit = entry.id;
+        const remove = featureElement("button", "feature-action secondary", "Delete");
+        remove.type = "button";
+        remove.dataset.memoryDelete = entry.id;
+        actions.append(edit, remove);
+        card.append(actions);
+        memoryList.append(card);
+      }
+    }
+
+    async function loadMemoryWall() {
+      if (!backendConfigured) {
+        memoryStatus.textContent = "Connect Supabase and run the latest setup.sql to save shared memories.";
+        return;
+      }
+      memoryStatus.textContent = "Loading shared memories…";
+      try {
+        const rows = await request("/rest/v1/memory_wall_entries?select=id,author,title,note,photo_data,created_at&order=created_at.desc");
+        if (!Array.isArray(rows) || rows.some((row) =>
+          !row || typeof row.id !== "string" || typeof row.author !== "string" ||
+          typeof row.title !== "string" || typeof row.note !== "string" ||
+          (row.photo_data !== null && typeof row.photo_data !== "string")
+        )) throw new Error("The shared memory entries are invalid.");
+        memoryEntries = rows;
+        renderMemoryWall();
+        memoryStatus.textContent = `${rows.length} shared ${rows.length === 1 ? "memory" : "memories"} saved.`;
+      } catch (error) {
+        reportFeatureError(memoryStatus, "The memory wall", "load", error);
+      }
+    }
+
+    function resetMemoryForm() {
+      memoryForm.reset();
+      editingMemoryId = null;
+      document.getElementById("memory-form-title").textContent = "Add a memory";
+      document.getElementById("memory-save").textContent = "Save memory";
+      memoryCancelButton.hidden = true;
+    }
+
+    async function saveMemory(event) {
+      event.preventDefault();
+      if (!backendConfigured) {
+        memoryStatus.textContent = "Connect Supabase and run the latest setup.sql before saving memories.";
+        return;
+      }
+      const formData = new FormData(memoryForm);
+      const title = String(formData.get("title") || "").trim();
+      const note = String(formData.get("note") || "").trim();
+      const author = String(formData.get("author") || "").trim();
+      const selectedPhoto = formData.get("photo");
+      const existing = memoryEntries.find((entry) => entry.id === editingMemoryId);
+      if (!title || !author) {
+        memoryStatus.textContent = "Add a title and your name before saving.";
+        return;
+      }
+      memoryStatus.textContent = "Saving your memory…";
+      try {
+        const photoData = selectedPhoto instanceof File && selectedPhoto.size > 0
+          ? await compressMemoryPhoto(selectedPhoto)
+          : existing?.photo_data ?? null;
+        const payload = { title, note, author, photo_data: photoData };
+        if (editingMemoryId) {
+          await request(`/rest/v1/memory_wall_entries?id=eq.${encodeURIComponent(editingMemoryId)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify(payload)
+          });
+        } else {
+          await request("/rest/v1/memory_wall_entries", {
+            method: "POST",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify(payload)
+          });
+        }
+        resetMemoryForm();
+        await loadMemoryWall();
+        playSound("save");
+      } catch (error) {
+        reportFeatureError(memoryStatus, "The memory wall", "save to", error);
+      }
+    }
+
+    async function handleMemoryAction(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const entry = memoryEntries.find((item) => item.id === button.dataset.memoryEdit);
+      if (entry) {
+        editingMemoryId = entry.id;
+        memoryForm.elements.namedItem("title").value = entry.title;
+        memoryForm.elements.namedItem("note").value = entry.note;
+        memoryForm.elements.namedItem("author").value = entry.author;
+        document.getElementById("memory-form-title").textContent = "Edit this memory";
+        document.getElementById("memory-save").textContent = "Save changes";
+        memoryCancelButton.hidden = false;
+        memoryForm.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      const deleteId = button.dataset.memoryDelete;
+      if (!deleteId) return;
+      if (!window.confirm("Delete this shared memory?")) return;
+      try {
+        await request(`/rest/v1/memory_wall_entries?id=eq.${encodeURIComponent(deleteId)}`, {
+          method: "DELETE",
+          headers: { Prefer: "return=minimal" }
+        });
+        await loadMemoryWall();
+      } catch (error) {
+        reportFeatureError(memoryStatus, "The memory wall", "delete from", error);
+      }
+    }
+
+    const badgeDefinitions = [
+      { id: "first_bingo", title: "First bingo", description: "Complete your first row, column, or diagonal.", emoji: "🎉" },
+      { id: "half_board", title: "Halfway there", description: "Check off 13 squares, including the free space.", emoji: "🌷" },
+      { id: "full_board", title: "Bingo legend", description: "Complete all 25 squares.", emoji: "🏆" }
+    ];
+
+    function renderBadges() {
+      badgeList.replaceChildren();
+      for (const badge of badgeDefinitions) {
+        const earned = earnedBadgeIds.has(badge.id);
+        const card = featureElement("article", "badge-card");
+        card.dataset.earned = String(earned);
+        card.append(featureElement("h3", "", `${badge.emoji} ${badge.title}`));
+        card.append(featureElement("p", "", badge.description));
+        card.append(featureElement("span", "badge-state", earned ? "Earned ♡" : "Still to come"));
+        badgeList.append(card);
+      }
+    }
+
+    async function loadBadges() {
+      if (!backendConfigured) {
+        badgeStatus.textContent = "Connect Supabase and run the latest setup.sql to save badges.";
+        renderBadges();
+        return;
+      }
+      try {
+        const rows = await request("/rest/v1/bingo_badges?select=badge_id,earned_at");
+        if (!Array.isArray(rows) || rows.some((row) => !badgeDefinitions.some((badge) => badge.id === row?.badge_id))) {
+          throw new Error("The saved bingo badges are invalid.");
+        }
+        earnedBadgeIds = new Set(rows.map((row) => row.badge_id));
+        renderBadges();
+        badgeStatus.textContent = `${earnedBadgeIds.size} of ${badgeDefinitions.length} milestones earned.`;
+      } catch (error) {
+        reportFeatureError(badgeStatus, "Bingo badges", "load", error);
+      }
+    }
+
+    async function awardBadgesForBoard() {
+      if (!connected || !backendConfigured) return;
+      const completed = squares.filter((square) => square.checked).length;
+      const eligible = [];
+      if (getBingoLines().length > 0) eligible.push("first_bingo");
+      if (completed >= 13) eligible.push("half_board");
+      if (completed === 25) eligible.push("full_board");
+      const newBadges = eligible.filter((id) => !earnedBadgeIds.has(id));
+      if (newBadges.length === 0) return;
+      try {
+        await request("/rest/v1/bingo_badges?on_conflict=badge_id", {
+          method: "POST",
+          headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+          body: JSON.stringify(newBadges.map((badge_id) => ({ badge_id })))
+        });
+        newBadges.forEach((id) => earnedBadgeIds.add(id));
+        renderBadges();
+        badgeStatus.textContent = "A new bingo milestone is saved! ♡";
+      } catch (error) {
+        reportFeatureError(badgeStatus, "Bingo badges", "save", error);
+      }
+    }
+
+    function renderQuestionList() {
+      questionList.replaceChildren();
+      for (const item of dailyQuestions) {
+        const card = featureElement("article", "feature-item");
+        const textarea = featureElement("textarea");
+        textarea.value = item.question;
+        textarea.maxLength = 280;
+        textarea.dataset.questionText = item.id;
+        const actions = featureElement("div", "item-actions");
+        const save = featureElement("button", "feature-action secondary", "Save question");
+        save.type = "button";
+        save.dataset.questionSave = item.id;
+        const remove = featureElement("button", "feature-action secondary", "Delete");
+        remove.type = "button";
+        remove.dataset.questionDelete = item.id;
+        actions.append(save, remove);
+        card.append(textarea, actions);
+        questionList.append(card);
+      }
+    }
+
+    async function loadQuestionsPage() {
+      if (!backendConfigured) {
+        questionStatus.textContent = "Connect Supabase and run the latest setup.sql to save questions and answers.";
+        return;
+      }
+      questionStatus.textContent = "Loading the question jar…";
+      try {
+        const rows = await request("/rest/v1/daily_questions?select=id,question,created_at&order=created_at.asc");
+        if (!Array.isArray(rows) || rows.some((row) => typeof row?.id !== "string" || typeof row.question !== "string")) {
+          throw new Error("The saved daily questions are invalid.");
+        }
+        dailyQuestions = rows;
+        renderQuestionList();
+        if (rows.length === 0) {
+          activeQuestion = null;
+          questionText.textContent = "Add a question to start your daily jar.";
+          questionDate.textContent = "";
+          questionForms.forEach((form) => {
+            form.elements.namedItem("answer").value = "";
+            form.elements.namedItem("answer").disabled = true;
+            form.querySelector("button[type=submit]").disabled = true;
+          });
+          questionStatus.textContent = "Your question jar is empty.";
+          return;
+        }
+        const dayIndex = Math.floor(Date.now() / 86400000) % rows.length;
+        activeQuestion = rows[dayIndex];
+        activeQuestionDate = new Date().toISOString().slice(0, 10);
+        questionText.textContent = activeQuestion.question;
+        questionDate.textContent = `Today's shared question · ${activeQuestionDate} (UTC)`;
+        questionForms.forEach((form) => {
+          form.elements.namedItem("answer").disabled = false;
+          form.querySelector("button[type=submit]").disabled = false;
+          form.querySelector("[data-answer-status]").textContent = "";
+        });
+        const answers = await request(
+          `/rest/v1/daily_answers?question_id=eq.${encodeURIComponent(activeQuestion.id)}&question_date=eq.${activeQuestionDate}&select=player_name,answer`
+        );
+        if (!Array.isArray(answers) || answers.some((row) => typeof row?.player_name !== "string" || typeof row.answer !== "string")) {
+          throw new Error("Today's shared answers are invalid.");
+        }
+        for (const form of questionForms) {
+          const answer = answers.find((row) => row.player_name === form.dataset.player);
+          form.elements.namedItem("answer").value = answer?.answer || "";
+        }
+        questionStatus.textContent = "Questions and answers save for both of you.";
+      } catch (error) {
+        reportFeatureError(questionStatus, "Question of the day", "load", error);
+      }
+    }
+
+    async function saveDailyAnswer(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const status = form.querySelector("[data-answer-status]");
+      if (!activeQuestion) {
+        status.textContent = "Add a question before saving an answer.";
+        return;
+      }
+      const answer = String(new FormData(form).get("answer") || "").trim();
+      if (!answer) {
+        status.textContent = "Write an answer before saving.";
+        return;
+      }
+      try {
+        await request("/rest/v1/daily_answers?on_conflict=question_id,question_date,player_name", {
+          method: "POST",
+          headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+          body: JSON.stringify([{
+            question_id: activeQuestion.id,
+            question_date: activeQuestionDate,
+            player_name: form.dataset.player,
+            answer
+          }])
+        });
+        status.textContent = "Saved for today ♡";
+        playSound("save");
+      } catch (error) {
+        reportFeatureError(status, "Today's answer", "save", error);
+      }
+    }
+
+    async function addDailyQuestion(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const question = String(new FormData(form).get("question") || "").trim();
+      if (!question) return;
+      try {
+        await request("/rest/v1/daily_questions", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ question })
+        });
+        form.reset();
+        await loadQuestionsPage();
+      } catch (error) {
+        reportFeatureError(questionStatus, "Question of the day", "save", error);
+      }
+    }
+
+    async function handleQuestionAction(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const saveId = button.dataset.questionSave;
+      const deleteId = button.dataset.questionDelete;
+      if (saveId) {
+        const input = questionList.querySelector(`[data-question-text="${CSS.escape(saveId)}"]`);
+        const question = input?.value.trim();
+        if (!question) {
+          questionStatus.textContent = "Questions cannot be blank.";
+          return;
+        }
+        try {
+          await request(`/rest/v1/daily_questions?id=eq.${encodeURIComponent(saveId)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ question })
+          });
+          await loadQuestionsPage();
+          questionStatus.textContent = "Question updated ♡";
+        } catch (error) {
+          reportFeatureError(questionStatus, "Question of the day", "update", error);
+        }
+      } else if (deleteId) {
+        if (!window.confirm("Delete this question and its saved answers?")) return;
+        try {
+          await request(`/rest/v1/daily_questions?id=eq.${encodeURIComponent(deleteId)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" }
+          });
+          await loadQuestionsPage();
+        } catch (error) {
+          reportFeatureError(questionStatus, "Question of the day", "delete from", error);
+        }
+      }
+    }
+
+    function renderComplimentMessages() {
+      complimentList.replaceChildren();
+      if (complimentMessages.length === 0) {
+        complimentList.append(featureElement("p", "feature-status", "Add a compliment to fill the jar."));
+        return;
+      }
+      for (const item of complimentMessages) {
+        const card = featureElement("article", "feature-item");
+        const textarea = featureElement("textarea");
+        textarea.value = item.message;
+        textarea.maxLength = 500;
+        textarea.dataset.complimentText = item.id;
+        const actions = featureElement("div", "item-actions");
+        const save = featureElement("button", "feature-action secondary", "Save");
+        save.type = "button";
+        save.dataset.complimentSave = item.id;
+        const remove = featureElement("button", "feature-action secondary", "Delete");
+        remove.type = "button";
+        remove.dataset.complimentDelete = item.id;
+        actions.append(save, remove);
+        card.append(textarea, actions);
+        complimentList.append(card);
+      }
+    }
+
+    async function loadComplimentHistory() {
+      const rows = await request("/rest/v1/compliment_history?select=id,message,sender,recipient,created_at&order=created_at.desc&limit=20");
+      if (!Array.isArray(rows) || rows.some((row) => typeof row?.message !== "string")) {
+        throw new Error("The compliment history is invalid.");
+      }
+      complimentHistory.replaceChildren();
+      if (rows.length === 0) {
+        complimentHistory.append(featureElement("p", "feature-status", "No notes sent yet. There's a first for everything ♡"));
+        return;
+      }
+      for (const item of rows) {
+        const card = featureElement("article", "feature-item");
+        card.append(featureElement("p", "", `“${item.message}”`));
+        card.append(featureElement("span", "memory-meta", `${item.sender} → ${item.recipient}`));
+        complimentHistory.append(card);
+      }
+    }
+
+    async function loadComplimentsPage() {
+      if (!backendConfigured) {
+        complimentStatus.textContent = "Connect Supabase and run the latest setup.sql to save compliments.";
+        return;
+      }
+      try {
+        const rows = await request("/rest/v1/compliment_messages?select=id,message&order=created_at.asc");
+        if (!Array.isArray(rows) || rows.some((row) => typeof row?.id !== "string" || typeof row.message !== "string")) {
+          throw new Error("The compliment jar is invalid.");
+        }
+        complimentMessages = rows;
+        renderComplimentMessages();
+        await loadComplimentHistory();
+        complimentStatus.textContent = `${rows.length} compliments in the shared jar.`;
+      } catch (error) {
+        reportFeatureError(complimentStatus, "Compliments", "load", error);
+      }
+    }
+
+    async function addCompliment(event) {
+      event.preventDefault();
+      const message = String(new FormData(complimentAddForm).get("message") || "").trim();
+      if (!message) return;
+      try {
+        await request("/rest/v1/compliment_messages", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ message })
+        });
+        complimentAddForm.reset();
+        await loadComplimentsPage();
+      } catch (error) {
+        reportFeatureError(complimentStatus, "Compliments", "save to", error);
+      }
+    }
+
+    async function sendCompliment(event) {
+      event.preventDefault();
+      if (complimentMessages.length === 0) {
+        complimentStatus.textContent = "Add a compliment to the shared jar first.";
+        return;
+      }
+      const data = new FormData(complimentSendForm);
+      const sender = String(data.get("sender"));
+      const recipient = String(data.get("recipient"));
+      if (sender === recipient) {
+        complimentStatus.textContent = "Choose the other person as the recipient.";
+        return;
+      }
+      const item = complimentMessages[Math.floor(Math.random() * complimentMessages.length)];
+      try {
+        await request("/rest/v1/compliment_history", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ message: item.message, sender, recipient })
+        });
+        complimentDisplay.textContent = `“${item.message}”`;
+        complimentStatus.textContent = `Sent with love from ${sender} to ${recipient} ♡`;
+        await loadComplimentHistory();
+        playSound("heart");
+      } catch (error) {
+        reportFeatureError(complimentStatus, "Compliments", "send", error);
+      }
+    }
+
+    async function handleComplimentAction(event) {
+      const button = event.target.closest("button");
+      if (!button) return;
+      const saveId = button.dataset.complimentSave;
+      const deleteId = button.dataset.complimentDelete;
+      if (saveId) {
+        const input = complimentList.querySelector(`[data-compliment-text="${CSS.escape(saveId)}"]`);
+        const message = input?.value.trim();
+        if (!message) {
+          complimentStatus.textContent = "Compliments cannot be blank.";
+          return;
+        }
+        try {
+          await request(`/rest/v1/compliment_messages?id=eq.${encodeURIComponent(saveId)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ message })
+          });
+          await loadComplimentsPage();
+          complimentStatus.textContent = "Compliment updated ♡";
+        } catch (error) {
+          reportFeatureError(complimentStatus, "Compliments", "update", error);
+        }
+      } else if (deleteId) {
+        if (!window.confirm("Delete this compliment from the shared jar?")) return;
+        try {
+          await request(`/rest/v1/compliment_messages?id=eq.${encodeURIComponent(deleteId)}`, {
+            method: "DELETE",
+            headers: { Prefer: "return=minimal" },
+            body: undefined
+          });
+          await loadComplimentsPage();
+        } catch (error) {
+          reportFeatureError(complimentStatus, "Compliments", "delete from", error);
+        }
+      }
+    }
+
+    function switchPage(pageId) {
+      const nextPage = document.querySelector(`[data-app-page="${CSS.escape(pageId)}"]`);
+      if (!nextPage) throw new Error(`Unknown website page "${pageId}".`);
+      if (activePageId === "game-dialog" && pageId !== "game-dialog") {
+        stopCurrentGame();
+        gamePicker.hidden = false;
+        gamePlay.hidden = true;
+      }
+      activePageId = pageId;
+      document.querySelectorAll("[data-app-page]").forEach((page) => {
+        page.hidden = page.dataset.appPage !== pageId;
+      });
+      featureNavButtons.forEach((button) => {
+        if (button.dataset.pageTarget === pageId) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      if (pageId === "memories-page") void loadMemoryWall();
+      else if (pageId === "badges-page") void loadBadges();
+      else if (pageId === "questions-page") void loadQuestionsPage();
+      else if (pageId === "compliments-page") void loadComplimentsPage();
+      else if (pageId === "game-dialog" && backendConfigured) {
+        void loadGameLeaderboard().catch((error) => reportGameLeaderboardError(error, "load"));
+      }
+      nextPage.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
     function renderGameLeaderboard() {
@@ -3157,31 +4069,27 @@
       }
     });
 
+    featureNavButtons.forEach((button) => {
+      button.addEventListener("click", () => switchPage(button.dataset.pageTarget));
+    });
+
     gameOpenButton.addEventListener("click", () => {
       gamePicker.hidden = false;
       gamePlay.hidden = true;
-      gameDialog.showModal();
+      switchPage("game-dialog");
       gamePickerButtons[0]?.focus();
-      if (backendConfigured) {
-        void loadGameLeaderboard().catch((error) => reportGameLeaderboardError(error, "load"));
-      }
     });
 
-    gameCloseButton.addEventListener("click", () => gameDialog.close());
-    gameDialog.addEventListener("cancel", () => playSound("tap"));
-    gameDialog.addEventListener("close", stopCurrentGame);
-    gameDialog.addEventListener("click", (event) => {
-      if (event.target === gameDialog) {
-        playSound("tap");
-        gameDialog.close();
-      }
-    });
-
-    gameDialog.addEventListener("close", () => {
-      stopCurrentGame();
-      gamePicker.hidden = false;
-      gamePlay.hidden = true;
-    });
+    promptSaveButton.addEventListener("click", () => { void savePromptChanges(); });
+    memoryForm.addEventListener("submit", (event) => { void saveMemory(event); });
+    memoryCancelButton.addEventListener("click", resetMemoryForm);
+    memoryList.addEventListener("click", (event) => { void handleMemoryAction(event); });
+    questionForms.forEach((form) => form.addEventListener("submit", (event) => { void saveDailyAnswer(event); }));
+    document.getElementById("question-add-form").addEventListener("submit", (event) => { void addDailyQuestion(event); });
+    questionList.addEventListener("click", (event) => { void handleQuestionAction(event); });
+    complimentSendForm.addEventListener("submit", (event) => { void sendCompliment(event); });
+    complimentAddForm.addEventListener("submit", (event) => { void addCompliment(event); });
+    complimentList.addEventListener("click", (event) => { void handleComplimentAction(event); });
 
     gamePickerButtons.forEach((button) => {
       button.addEventListener("click", () => showSelectedGame(button.dataset.gameId));
@@ -3228,7 +4136,7 @@
     });
 
     document.addEventListener("keydown", (event) => {
-      if (!gameDialog.open || !gameState.running || gameState.paused) return;
+      if (activePageId !== "game-dialog" || !gameState.running || gameState.paused) return;
       if (event.repeat) return;
       const shortcut = event.key === "ArrowRight" || event.key === "Shift"
         ? "ArrowRight"
