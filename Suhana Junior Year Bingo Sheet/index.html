@@ -935,13 +935,6 @@
       background: linear-gradient(155deg, #eee5e6, #e5ebed 52%, #eae6ed 100%);
     }
 
-    .side-summary {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      align-items: start;
-      gap: 12px;
-    }
-
     .side-kicker {
       margin: 0 0 7px;
       color: #916d7d;
@@ -1023,18 +1016,6 @@
     }
 
     .heart-counter-status { min-height: 1.2em; margin: 0; color: var(--muted); font-size: .68rem; }
-
-    .side-summary .heart-counter {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 4px 6px;
-      padding: 8px;
-    }
-
-    .side-summary .heart-counter-icon { width: 25px; height: 25px; font-size: .9rem; }
-    .side-summary .heart-counter-copy { grid-column: 1 / -1; }
-    .side-summary .heart-counter-title { font-size: .62rem; line-height: 1.35; }
-    .side-summary .heart-counter-number { justify-self: end; font-size: .85rem; }
 
     .heart-counter-icon {
       display: grid;
@@ -1535,6 +1516,12 @@
     body[data-theme="twilight"] .feature-action.secondary { background: #3d3a52; color: #e4dff0; }
     body[data-theme="twilight"] .heart-counter { border-color: #70566f; background: linear-gradient(115deg, #443344, #3e354c 58%, #34374d); }
     body[data-theme="twilight"] .heart-counter[aria-pressed="true"] { border-color: #d38eaa; background: linear-gradient(115deg, #56384c, #4b3b56 58%, #3b3e5a); }
+    body[data-theme="twilight"] .heart-counter-title,
+    body[data-theme="twilight"] .heart-counter-number {
+      border-color: #756985;
+      background: #353149;
+      color: #fff;
+    }
     body[data-theme="twilight"] .note-card { border-color: #5d5870; background: rgba(47, 45, 66, .82); color: #d0c9df; }
     body[data-theme="twilight"] .divider { background: linear-gradient(90deg, #594b60, #455d69, #594b60); }
     body[data-theme="twilight"] .progress-track { background: #41455a; }
@@ -1551,7 +1538,6 @@
       body { padding: 27px 14px 35px; }
       .game-layout { grid-template-columns: 1fr; gap: 20px; padding: 8px 18px 18px; }
       .side-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 17px; }
-      .side-panel > .side-summary { grid-column: 1 / -1; }
       .side-panel > .divider { display: none; }
       .side-panel > .note-card { grid-column: 1 / -1; }
       .side-panel > .side-copy { grid-column: 1 / -1; }
@@ -1610,7 +1596,6 @@
       <button class="feature-tab" type="button" data-page-target="questions-page">Question of the day</button>
       <button class="feature-tab" type="button" data-page-target="compliments-page">Compliments</button>
       <button class="feature-tab" type="button" data-page-target="game-dialog">Mini-games</button>
-      <button class="feature-tab theme-toggle" id="theme-toggle" type="button" aria-label="Turn on twilight theme" aria-pressed="false">Twilight mode ✨</button>
     </nav>
 
     <dialog class="animal-dialog" id="animal-dialog" aria-labelledby="animal-dialog-title">
@@ -1722,6 +1707,7 @@
         <div class="year-label"><span class="year-icon" aria-hidden="true">🎀</span> <span id="board-owner-title">Subaba's junior year</span></div>
         <div class="card-top-tools">
           <div class="save-note">It saves as you go ♡</div>
+          <button class="sound-toggle theme-toggle" id="theme-toggle" type="button" aria-label="Turn on twilight theme" aria-pressed="false">Twilight mode ✨</button>
           <button class="sound-toggle" id="sound-toggle" type="button" aria-label="Mute sound effects" aria-pressed="true">Sound on 🔊</button>
         </div>
       </div>
@@ -1752,44 +1738,42 @@
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
-          <div class="side-summary">
-            <div class="progress-block">
-              <p class="side-kicker">So far</p>
-              <div class="progress-heading">
-                <h2 id="board-progress-title">Subaba's timeline</h2>
-                <span class="progress-count" id="progress-count">1 / 25</span>
-              </div>
-              <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
-                <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
-              </div>
-              <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
+          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
+          <div class="progress-block">
+            <p class="side-kicker">So far</p>
+            <div class="progress-heading">
+              <h2 id="board-progress-title">Subaba's timeline</h2>
+              <span class="progress-count" id="progress-count">1 / 25</span>
             </div>
-
-            <section class="heart-counters" aria-labelledby="heart-counters-heading">
-              <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts</h2>
-              <div class="heart-counter-list">
-                <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Choose Subaba's hearts as the destination for page taps" aria-pressed="false" disabled>
-                  <span class="heart-counter-icon" aria-hidden="true">🩷</span>
-                  <span class="heart-counter-copy">
-                    <span class="heart-counter-title">Subaba's hearts (from Tabya)</span>
-                  </span>
-                  <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
-                </button>
-                <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Subaba) as the destination for page taps" aria-pressed="false" disabled>
-                  <span class="heart-counter-icon" aria-hidden="true">🩵</span>
-                  <span class="heart-counter-copy">
-                    <span class="heart-counter-title">Tabya's hearts (from Subaba)</span>
-                  </span>
-                  <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
-                </button>
-              </div>
-              <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared counts… Choose a counter to direct your page taps.</p>
-            </section>
+            <div class="progress-track" id="progress-track" role="progressbar" aria-label="Bingo squares completed, including the free space" aria-valuemin="0" aria-valuemax="25" aria-valuenow="1">
+              <div class="progress-fill" id="progress-fill" style="width: 4%"></div>
+            </div>
+            <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
           </div>
+
+          <section class="heart-counters" aria-labelledby="heart-counters-heading">
+            <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts</h2>
+            <div class="heart-counter-list">
+              <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Choose Subaba's hearts as the destination for page taps" aria-pressed="false" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">🩷</span>
+                <span class="heart-counter-copy">
+                  <span class="heart-counter-title">Subaba's hearts (from Tabya)</span>
+                </span>
+                <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+              </button>
+              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Subaba) as the destination for page taps" aria-pressed="false" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">🩵</span>
+                <span class="heart-counter-copy">
+                  <span class="heart-counter-title">Tabya's hearts (from Subaba)</span>
+                </span>
+                <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+              </button>
+            </div>
+            <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared counts… Choose a counter to direct your page taps.</p>
+          </section>
 
           <div class="divider" aria-hidden="true"></div>
 
-          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
           <p class="side-copy" id="side-copy">Tap one when it happens. Five in a row = bingo!</p>
 
           <div class="actions">
