@@ -726,7 +726,7 @@
       position: relative;
       grid-template-columns: minmax(0, 1fr) 248px;
       gap: 29px;
-      align-items: center;
+      align-items: start;
       padding: 8px 28px 28px;
       background: linear-gradient(145deg, rgba(238, 230, 231, .7), rgba(228, 235, 237, .65) 55%, rgba(234, 229, 237, .7));
     }
@@ -1052,6 +1052,15 @@
       font-size: .98rem;
       font-weight: 900;
     }
+
+    .leaderboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin-top: 12px; }
+    .leaderboard-player { padding: 12px; border: 1px solid #e4dbe4; border-radius: 15px; background: rgba(255, 255, 255, .62); }
+    .leaderboard-player h3, .player-picker h3 { margin: 0; color: #65566d; font-size: .92rem; }
+    .leaderboard-player .mini-leaderboard-list { margin-top: 8px; }
+    .player-picker { display: grid; gap: 9px; margin: 16px 0; padding: 15px; border: 1px solid #ded5df; border-radius: 18px; background: rgba(255, 252, 250, .78); }
+    .player-choice-list { display: flex; flex-wrap: wrap; gap: 9px; }
+    .player-choice[aria-pressed="true"] { border-color: #a45e7d; background: #f7e1ea; box-shadow: 0 0 0 3px rgba(212, 149, 173, .18); }
+    .player-choice:disabled, .game-option:disabled { cursor: not-allowed; opacity: .58; }
 
     .mini-leaderboard-list {
       display: grid;
@@ -1402,9 +1411,32 @@
     </dialog>
 
     <section class="feature-page card game-page" id="game-dialog" data-app-page="game-dialog" aria-label="Mini-games" hidden>
+      <section class="mini-leaderboard" aria-labelledby="mini-leaderboard-heading">
+        <h2 id="mini-leaderboard-heading">Our mini-game leaderboards 🏆</h2>
+        <div class="leaderboard-grid">
+          <section class="leaderboard-player" aria-labelledby="subaba-leaderboard-title">
+            <h3 id="subaba-leaderboard-title">Subaba</h3>
+            <ol class="mini-leaderboard-list" id="subaba-leaderboard-list"></ol>
+          </section>
+          <section class="leaderboard-player" aria-labelledby="tabya-leaderboard-title">
+            <h3 id="tabya-leaderboard-title">Tabya</h3>
+            <ol class="mini-leaderboard-list" id="tabya-leaderboard-list"></ol>
+          </section>
+        </div>
+        <p class="mini-leaderboard-status" id="mini-leaderboard-status" aria-live="polite">Loading shared scores · fewer Kitty Memory moves is better.</p>
+      </section>
       <section class="game-picker" id="game-picker" aria-labelledby="game-picker-title">
         <h2 id="game-picker-title">Pick a tiny game</h2>
         <p class="game-picker-intro">Four little games, four different ways to play. Pick your mood ♡</p>
+        <section class="player-picker" aria-labelledby="player-picker-heading">
+          <h3 id="player-picker-heading">Who's playing this round?</h3>
+          <p class="feature-status">Choose a player before picking a game. Scores will go on that person's leaderboard.</p>
+          <div class="player-choice-list">
+            <button class="feature-action player-choice" type="button" data-player-name="Subaba" aria-pressed="false">🩷 Subaba</button>
+            <button class="feature-action player-choice" type="button" data-player-name="Tabya" aria-pressed="false">🩵 Tabya</button>
+          </div>
+          <p class="feature-status" id="game-player-status" role="status" aria-live="polite">Choose who's playing to unlock the games.</p>
+        </section>
         <div class="game-options">
           <button class="game-option" type="button" data-game-id="catcher">
             <span class="game-option-emoji" aria-hidden="true">🐾</span>
@@ -1433,6 +1465,7 @@
         <button class="game-button game-back" id="game-back" type="button" aria-label="Stop this game and go back to all mini-games" title="Back to all mini-games">←</button>
         <h2 id="game-title"></h2>
         <p class="game-instructions" id="game-instructions"></p>
+        <p class="feature-status" id="game-player-session"></p>
         <div class="game-scoreboard" aria-label="Game stats">
           <div class="game-stat"><span id="game-score-label">Score</span><span id="game-score">0</span></div>
           <div class="game-stat"><span id="game-secondary-label">Goal</span><span id="game-secondary">0</span></div>
@@ -1523,17 +1556,7 @@
               Pick one for me
               <span aria-hidden="true">✦</span>
             </button>
-            <button class="action game-button" id="game-open" type="button">Take a tiny game break</button>
-            <section class="mini-leaderboard" aria-labelledby="mini-leaderboard-title">
-              <h2 id="mini-leaderboard-title">Subaba's da winner! 🏆</h2>
-              <ol class="mini-leaderboard-list" id="mini-leaderboard-list">
-                <li><span>🐾 Paw Catcher</span><strong>Not yet played</strong></li>
-                <li><span>🐱 Kitty Memory</span><strong>Not yet played</strong></li>
-                <li><span>🐰 Bunny Hop</span><strong>Not yet played</strong></li>
-                <li><span>🐶 Puppy Treat Tap</span><strong>Not yet played</strong></li>
-              </ol>
-              <p class="mini-leaderboard-status" id="mini-leaderboard-status" aria-live="polite">Loading shared scores · saved when a game is completed · fewer Kitty Memory moves is better.</p>
-            </section>
+            <button class="action game-button" id="game-open" type="button">Open the mini-games page</button>
           </div>
 
           <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
@@ -1705,7 +1728,14 @@
     const soundToggleButton = document.getElementById("sound-toggle");
     const heartSoundAudio = document.getElementById("heart-sound-audio");
     const gameOpenButton = document.getElementById("game-open");
-    const gameLeaderboardList = document.getElementById("mini-leaderboard-list");
+    const gamePlayers = ["Subaba", "Tabya"];
+    const playerChoiceButtons = document.querySelectorAll("[data-player-name]");
+    const gamePlayerStatus = document.getElementById("game-player-status");
+    let selectedGamePlayer = null;
+    const gameLeaderboardLists = new Map(gamePlayers.map((player) => [
+      player,
+      document.getElementById(`${player.toLowerCase()}-leaderboard-list`)
+    ]));
     const gameLeaderboardStatus = document.getElementById("mini-leaderboard-status");
     const gameLeaderboardDefinitions = [
       { id: "catcher", label: "🐾 Paw Catcher", unit: "animals" },
@@ -1713,7 +1743,10 @@
       { id: "bunny", label: "🐰 Bunny Hop", unit: "carrots" },
       { id: "treats", label: "🐶 Puppy Treat Tap", unit: "treats" }
     ];
-    const gameLeaderboardScores = new Map(gameLeaderboardDefinitions.map(({ id }) => [id, null]));
+    const gameLeaderboardScores = new Map(gamePlayers.map((player) => [
+      player,
+      new Map(gameLeaderboardDefinitions.map(({ id }) => [id, null]))
+    ]));
     const gamePowerDefinitions = {
       catcher: [
         { id: "catcherMagnet", label: "Paw magnet", button: "Magnet 🧲", key: "M", cooldownMs: 15000, durationMs: 3000 }
@@ -1915,6 +1948,7 @@
     const gameBackButton = document.getElementById("game-back");
     const gameTitle = document.getElementById("game-title");
     const gameInstructions = document.getElementById("game-instructions");
+    const gamePlayerSession = document.getElementById("game-player-session");
     const gameScoreLabelText = document.getElementById("game-score-label");
     const gameScoreValue = document.getElementById("game-score");
     const gameSecondaryLabelText = document.getElementById("game-secondary-label");
@@ -1928,6 +1962,7 @@
     const gameReactionLayer = document.getElementById("game-reaction-layer");
     const gameState = {
       id: null,
+      playerName: null,
       running: false,
       paused: false,
       frameId: null,
@@ -2484,7 +2519,7 @@
       }
       questionStatus.textContent = "Loading the question jar…";
       try {
-        const rows = await request("/rest/v1/daily_questions?select=id,question,created_at&order=created_at.asc");
+        const rows = await request("/rest/v1/daily_questions?select=id,question,created_at&order=created_at.asc,id.asc");
         if (!Array.isArray(rows) || rows.some((row) => typeof row?.id !== "string" || typeof row.question !== "string")) {
           throw new Error("The saved daily questions are invalid.");
         }
@@ -2715,10 +2750,16 @@
         });
         complimentDisplay.textContent = `“${item.message}”`;
         complimentStatus.textContent = `Sent with love from ${sender} to ${recipient} ♡`;
-        await loadComplimentHistory();
         playSound("heart");
       } catch (error) {
         reportFeatureError(complimentStatus, "Compliments", "send", error);
+        return;
+      }
+      try {
+        await loadComplimentHistory();
+      } catch (error) {
+        console.error("The compliment was sent, but its shared history could not be refreshed.", error);
+        complimentStatus.textContent = `The message was sent, but history could not refresh. ${error instanceof Error ? error.message : String(error)}`;
       }
     }
 
@@ -2750,8 +2791,7 @@
         try {
           await request(`/rest/v1/compliment_messages?id=eq.${encodeURIComponent(deleteId)}`, {
             method: "DELETE",
-            headers: { Prefer: "return=minimal" },
-            body: undefined
+            headers: { Prefer: "return=minimal" }
           });
           await loadComplimentsPage();
         } catch (error) {
@@ -2786,35 +2826,71 @@
       nextPage.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
-    function renderGameLeaderboard() {
-      gameLeaderboardList.replaceChildren();
-      for (const game of gameLeaderboardDefinitions) {
-        const row = document.createElement("li");
-        const label = document.createElement("span");
-        const score = document.createElement("strong");
-        const record = gameLeaderboardScores.get(game.id);
-        label.textContent = game.label;
-        score.textContent = record === null
-          ? "Not yet played"
-          : game.id === "treats"
-            ? `${record.bestScore}/15 · ${record.completionCount} ${record.completionCount === 1 ? "finish" : "finishes"}`
-            : `${record.bestScore} ${game.unit}`;
-        row.append(label, score);
-        gameLeaderboardList.append(row);
+    async function refreshActiveFeaturePage() {
+      const activePage = document.querySelector(`[data-app-page="${CSS.escape(activePageId)}"]`);
+      const focused = document.activeElement;
+      if (activePage?.contains(focused) && focused.matches("input, textarea, select")) return;
+      if (activePageId === "memories-page") await loadMemoryWall();
+      else if (activePageId === "badges-page") await loadBadges();
+      else if (activePageId === "questions-page") await loadQuestionsPage();
+      else if (activePageId === "compliments-page") await loadComplimentsPage();
+      else if (activePageId === "game-dialog" && backendConfigured) {
+        try {
+          await loadGameLeaderboard();
+        } catch (error) {
+          reportGameLeaderboardError(error, "refresh");
+        }
       }
     }
 
+    function renderGameLeaderboard() {
+      for (const player of gamePlayers) {
+        const list = gameLeaderboardLists.get(player);
+        const scores = gameLeaderboardScores.get(player);
+        if (!list || !scores) throw new Error(`Missing mini-game leaderboard for ${player}.`);
+        list.replaceChildren();
+        for (const game of gameLeaderboardDefinitions) {
+          const row = document.createElement("li");
+          const label = document.createElement("span");
+          const score = document.createElement("strong");
+          const record = scores.get(game.id);
+          label.textContent = game.label;
+          score.textContent = record === null
+            ? "Not yet played"
+            : game.id === "treats"
+              ? `${record.bestScore}/15 · ${record.completionCount} ${record.completionCount === 1 ? "finish" : "finishes"}`
+              : `${record.bestScore} ${game.unit}`;
+          row.append(label, score);
+          list.append(row);
+        }
+      }
+    }
+
+    function chooseGamePlayer(playerName) {
+      if (!gamePlayers.includes(playerName) || gameState.running) return;
+      selectedGamePlayer = playerName;
+      playerChoiceButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.playerName === playerName));
+      });
+      gamePickerButtons.forEach((button) => { button.disabled = false; });
+      gameStartButton.disabled = false;
+      gamePlayerStatus.textContent = `${playerName} is playing. Their leaderboard will save this round ♡`;
+    }
+
     async function loadGameLeaderboard() {
-      const rows = await request("/rest/v1/minigame_records?select=game_id,best_score,completion_count");
+      const rows = await request("/rest/v1/minigame_records?select=player_name,game_id,best_score,completion_count");
       if (!Array.isArray(rows) || rows.some((row) =>
-        !row || !gameLeaderboardScores.has(row.game_id) ||
+        !row || !gamePlayers.includes(row.player_name) ||
+        !gameLeaderboardScores.get(row.player_name)?.has(row.game_id) ||
         !Number.isInteger(row.best_score) || !Number.isInteger(row.completion_count)
-      )) {
+      ) || new Set(rows.map((row) => `${row.player_name}:${row.game_id}`)).size !== rows.length) {
         throw new Error("The shared mini-game records are missing or invalid. Run the updated setup.sql in Supabase.");
       }
-      for (const game of gameLeaderboardDefinitions) gameLeaderboardScores.set(game.id, null);
+      for (const scores of gameLeaderboardScores.values()) {
+        for (const game of gameLeaderboardDefinitions) scores.set(game.id, null);
+      }
       for (const row of rows) {
-        gameLeaderboardScores.set(row.game_id, {
+        gameLeaderboardScores.get(row.player_name).set(row.game_id, {
           bestScore: row.best_score,
           completionCount: row.completion_count
         });
@@ -2829,11 +2905,11 @@
       gameLeaderboardStatus.textContent = `Leaderboard unavailable. Run the latest setup.sql in Supabase. Details: ${detail}`;
     }
 
-    async function saveGameBestScore(gameId, score) {
+    async function saveGameBestScore(playerName, gameId, score) {
       try {
         const improved = await request("/rest/v1/rpc/record_minigame_best", {
           method: "POST",
-          body: JSON.stringify({ p_game_id: gameId, p_score: score })
+          body: JSON.stringify({ p_player_name: playerName, p_game_id: gameId, p_score: score })
         });
         if (typeof improved !== "boolean") {
           throw new Error("The shared score update returned an unexpected response.");
@@ -2841,9 +2917,9 @@
         await loadGameLeaderboard();
         playSound("save");
         if (improved) {
-          gameLeaderboardStatus.textContent = "New shared best saved! 🏆";
+          gameLeaderboardStatus.textContent = `New ${playerName} best saved! 🏆`;
         } else {
-          gameLeaderboardStatus.textContent = "Your finish is on the shared board! 🎉";
+          gameLeaderboardStatus.textContent = `${playerName}'s finish is on the shared board! 🎉`;
         }
       } catch (error) {
         playSound("error");
@@ -3020,7 +3096,7 @@
 
     function isTapHeartExcluded(target) {
       return target.closest(
-        "button, a, input, select, textarea, summary, [role='button'], [contenteditable='true'], canvas, .game-dialog"
+        "button, a, input, select, textarea, summary, [role='button'], [contenteditable='true'], canvas, .game-page"
       );
     }
 
@@ -3385,9 +3461,14 @@
       if (gameState.id === "memory") renderMemoryCards();
       const completedGameId = gameState.id;
       const completedScore = completedGameId === "memory" ? gameState.moves : gameState.score;
-      if (gameLeaderboardScores.has(completedGameId)) {
-        gameLeaderboardStatus.textContent = "Game goal completed! Saving your score…";
-        void saveGameBestScore(completedGameId, completedScore);
+      if (gameLeaderboardDefinitions.some((game) => game.id === completedGameId)) {
+        const completedPlayerName = gameState.playerName;
+        if (!completedPlayerName) {
+          gameLeaderboardStatus.textContent = "This finish has no selected player, so its score was not saved.";
+          return;
+        }
+        gameLeaderboardStatus.textContent = `Saving ${completedPlayerName}'s score…`;
+        void saveGameBestScore(completedPlayerName, completedGameId, completedScore);
       }
     }
 
@@ -3574,6 +3655,11 @@
     }
 
     function showSelectedGame(gameId) {
+      if (!selectedGamePlayer) {
+        gamePlayerStatus.textContent = "Choose Subaba or Tabya before picking a game.";
+        playerChoiceButtons[0]?.focus();
+        return;
+      }
       stopCurrentGame();
       gameState.id = gameId;
       const games = {
@@ -3611,6 +3697,7 @@
       gamePlay.hidden = false;
       gameTitle.textContent = game.title;
       gameInstructions.textContent = game.instructions;
+      gamePlayerSession.textContent = `Playing as ${selectedGamePlayer} · scores save to ${selectedGamePlayer}'s leaderboard ♡`;
       gameScoreLabelText.textContent = game.scoreLabel;
       gameSecondaryLabelText.textContent = game.secondaryLabel;
       gameNote.textContent = game.note;
@@ -3661,7 +3748,13 @@
 
     function startSelectedGame() {
       if (!gameState.id) return;
+      if (!selectedGamePlayer) {
+        gameStatus.textContent = "Choose who's playing before starting a game.";
+        switchPage("game-dialog");
+        return;
+      }
       stopCurrentGame();
+      gameState.playerName = selectedGamePlayer;
       gameState.running = true;
       gameState.paused = false;
       gameState.lastFrame = 0;
@@ -3760,9 +3853,13 @@
           rows.some((row, index) => row.id !== index || typeof row.text !== "string" || typeof row.checked !== "boolean")) {
         throw new Error("The shared board is missing or incomplete. Run setup.sql in your Supabase project.");
       }
+      const wasConnected = connected;
       squares = rows.map((row) => ({ text: row.text, checked: row.checked }));
       connected = true;
       renderBoard();
+      const hasUnsavedPromptChanges = Array.from(promptEditorGrid.querySelectorAll("[data-prompt-index]"))
+        .some((input) => input.value !== squares[Number(input.dataset.promptIndex)].text);
+      if (!wasConnected || !hasUnsavedPromptChanges) renderPromptEditor();
     }
 
     async function updateSquare(index, changes) {
@@ -3778,6 +3875,7 @@
       connected = false;
       setMessage("Welcome back, Subaba! 💖 The board isn't loading right now. Check your connection and try a refresh.");
       renderBoard();
+      renderPromptEditor();
     }
 
     function getBingoLines() {
@@ -3880,6 +3978,7 @@
           try {
             await updateSquare(index, { checked });
             const newLines = renderBoard(true);
+            await awardBadgesForBoard();
             if (newLines.length === 0 && checked) {
               const reactions = [
                 "🐣 Yep, that happened.",
@@ -4072,6 +4171,9 @@
     featureNavButtons.forEach((button) => {
       button.addEventListener("click", () => switchPage(button.dataset.pageTarget));
     });
+    playerChoiceButtons.forEach((button) => {
+      button.addEventListener("click", () => chooseGamePlayer(button.dataset.playerName));
+    });
 
     gameOpenButton.addEventListener("click", () => {
       gamePicker.hidden = false;
@@ -4193,16 +4295,24 @@
 
     async function start() {
       renderBoard();
+      renderPromptEditor();
+      renderBadges();
+      renderGameLeaderboard();
+      gamePickerButtons.forEach((button) => { button.disabled = true; });
+      gameStartButton.disabled = true;
       setMessage("Welcome back, Subaba! Your little corner of the world missed you 🐾💖");
       if (!backendConfigured) {
         setMessage("Welcome back, Subaba! 💖 The board isn't connected yet. Check the setup steps in the README.");
         gameLeaderboardStatus.textContent = "Connect the shared database to load scores.";
         heartCounterStatus.textContent = "Connect Supabase and run the latest setup.sql to enable shared counts.";
+        badgeStatus.textContent = "Connect Supabase and run the latest setup.sql to save badges.";
         surpriseButton.disabled = true;
         return;
       }
+      await loadBadges();
       try {
         await loadRemoteBoard();
+        await awardBadgesForBoard();
       } catch (error) {
         showConnectionError(error);
       }
@@ -4221,6 +4331,7 @@
         polling = true;
         try {
           await loadRemoteBoard();
+          await awardBadgesForBoard();
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
           setMessage("Welcome back, Subaba! 💖 Board sync paused for a sec. Check your connection; we'll try again.");
@@ -4229,6 +4340,11 @@
           await loadHeartCounters();
         } catch (error) {
           reportHeartCounterError(error, "refresh");
+        }
+        try {
+          await refreshActiveFeaturePage();
+        } catch (error) {
+          console.error("Could not refresh the active shared feature page.", error);
         } finally {
           polling = false;
         }
