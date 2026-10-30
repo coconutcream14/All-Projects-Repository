@@ -70,6 +70,63 @@ grant select on public.bingo_squares to anon, authenticated;
 grant update (checked) on public.bingo_squares to anon;
 grant update (checked, text) on public.bingo_squares to authenticated;
 
+create table if not exists public.heart_counters (
+  counter_id text primary key check (counter_id in ('to_best_friend', 'from_best_friend')),
+  heart_count bigint not null default 0 check (heart_count >= 0)
+);
+
+insert into public.heart_counters (counter_id, heart_count) values
+  ('to_best_friend', 0),
+  ('from_best_friend', 0)
+on conflict (counter_id) do nothing;
+
+alter table public.heart_counters enable row level security;
+revoke all on public.heart_counters from public, anon, authenticated;
+
+create or replace function public.get_heart_counters()
+returns table (counter_id text, heart_count text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select counters.counter_id, counters.heart_count::text
+  from public.heart_counters as counters
+  order by counters.counter_id;
+$$;
+
+revoke all on function public.get_heart_counters() from public, anon, authenticated;
+grant execute on function public.get_heart_counters() to anon, authenticated;
+
+create or replace function public.increment_heart_counter(p_counter_id text)
+returns table (counter_id text, heart_count text)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  new_heart_count text;
+begin
+  if p_counter_id is null or p_counter_id not in ('to_best_friend', 'from_best_friend') then
+    raise exception 'Invalid heart counter.';
+  end if;
+
+  update public.heart_counters as counters
+  set heart_count = counters.heart_count + 1
+  where counters.counter_id = p_counter_id
+  returning counters.heart_count::text into new_heart_count;
+
+  if new_heart_count is null then
+    raise exception 'Heart counter could not be updated.';
+  end if;
+
+  return query select p_counter_id, new_heart_count;
+end;
+$$;
+
+revoke all on function public.increment_heart_counter(text) from public, anon, authenticated;
+grant execute on function public.increment_heart_counter(text) to anon, authenticated;
+
 create table if not exists public.minigame_records (
   game_id text primary key check (game_id in ('catcher', 'memory', 'bunny', 'treats')),
   best_score integer not null,

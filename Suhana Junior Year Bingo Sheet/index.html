@@ -829,8 +829,15 @@
 
     .bingo-count { margin: 9px 0 0; color: var(--muted); font-size: .77rem; }
 
+    .heart-counters { display: grid; gap: 8px; }
+
+    .heart-counters-heading { margin: 0; color: #685360; font-size: .9rem; }
+
+    .heart-counter-list { display: grid; gap: 8px; }
+
     .heart-counter {
       display: flex;
+      width: 100%;
       align-items: center;
       gap: 10px;
       padding: 11px 12px;
@@ -838,7 +845,17 @@
       border-radius: 17px;
       background: linear-gradient(115deg, #fff4f5, #f8edf4 58%, #f0edf5);
       box-shadow: 0 4px 11px rgba(145, 93, 120, .08);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: transform .16s ease, box-shadow .16s ease;
     }
+
+    .heart-counter:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(145, 93, 120, .13); }
+    .heart-counter:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
+    .heart-counter:disabled { cursor: wait; opacity: .7; }
+    .heart-counter-status { min-height: 1.2em; margin: 0; color: var(--muted); font-size: .68rem; }
 
     .heart-counter-icon {
       display: grid;
@@ -1333,13 +1350,27 @@
             <p class="bingo-count" id="bingo-count">No bingo yet. We're just getting started.</p>
           </div>
 
-          <section class="heart-counter" id="heart-counter" aria-label="Heart count">
-            <span class="heart-counter-icon" aria-hidden="true">💝</span>
-            <div class="heart-counter-copy">
-              <p class="heart-counter-kicker">A LITTLE LOVE</p>
-              <p class="heart-counter-title">Hearts sent</p>
+          <section class="heart-counters" aria-labelledby="heart-counters-heading">
+            <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts 💝</h2>
+            <div class="heart-counter-list">
+              <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Add one heart that I sent to my best friend" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">💝</span>
+                <span class="heart-counter-copy">
+                  <span class="heart-counter-kicker">TAP TO ADD ONE · YOUR SIDE</span>
+                  <span class="heart-counter-title">Subaba hearts (from Tabya)</span>
+                </span>
+                <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+              </button>
+              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Add one heart that my best friend sent to me" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">💝</span>
+                <span class="heart-counter-copy">
+                  <span class="heart-counter-kicker">TAP TO ADD ONE · BEST FRIEND'S SIDE</span>
+                  <span class="heart-counter-title">Tabya hearts (from Subaba)</span>
+                </span>
+                <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
+              </button>
             </div>
-            <strong class="heart-counter-number" id="heart-count" aria-live="polite" aria-atomic="true">0</strong>
+            <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared heart counts…</p>
           </section>
 
           <div class="divider" aria-hidden="true"></div>
@@ -1391,8 +1422,14 @@
     const progressTrack = document.getElementById("progress-track");
     const progressFill = document.getElementById("progress-fill");
     const bingoCount = document.getElementById("bingo-count");
-    const heartCounter = document.getElementById("heart-counter");
-    const heartCountDisplay = document.getElementById("heart-count");
+    const heartCounterButtons = document.querySelectorAll("[data-heart-counter]");
+    const heartCounterStatus = document.getElementById("heart-counter-status");
+    const heartCounterIds = ["to_best_friend", "from_best_friend"];
+    const heartCounts = new Map(heartCounterIds.map((counterId) => [counterId, null]));
+    const heartCountDisplays = new Map(
+      Array.from(document.querySelectorAll("[data-heart-count]"))
+        .map((element) => [element.dataset.heartCount, element])
+    );
     const animalDialog = document.getElementById("animal-dialog");
     const animalDialogClose = document.getElementById("animal-dialog-close");
     const animalDialogTitle = document.getElementById("animal-dialog-title");
@@ -1452,8 +1489,8 @@
     let fullBoardCelebrationTimeout = null;
     let animalPhotoRequest = 0;
     let tapHeartIndex = 0;
-    let heartsSent = 0;
-    let heartCounterAnimationTimeout = null;
+    let heartCountersReady = false;
+    const heartCounterAnimationTimeouts = new Map();
     let soundEnabled = true;
     let audioContext = null;
     let soundMasterGain = null;
@@ -1954,18 +1991,78 @@
       }, duration);
     }
 
+    function updateHeartCounter(row) {
+      if (!row || !heartCounts.has(row.counter_id) || !heartCountDisplays.has(row.counter_id) ||
+          typeof row.heart_count !== "string" || !/^(0|[1-9]\d*)$/.test(row.heart_count)) {
+        throw new Error("The shared heart counter returned invalid data.");
+      }
+      const currentCount = heartCounts.get(row.counter_id);
+      if (currentCount !== null && BigInt(row.heart_count) < BigInt(currentCount)) return;
+      heartCounts.set(row.counter_id, row.heart_count);
+      heartCountDisplays.get(row.counter_id).textContent = row.heart_count;
+    }
+
+    async function loadHeartCounters() {
+      const rows = await request("/rest/v1/rpc/get_heart_counters", {
+        method: "POST",
+        body: "{}"
+      });
+      if (!Array.isArray(rows) || rows.length !== heartCounterIds.length ||
+          new Set(rows.map((row) => row?.counter_id)).size !== heartCounterIds.length) {
+        throw new Error("The shared heart counters are missing or incomplete. Run the latest setup.sql in Supabase.");
+      }
+      for (const row of rows) updateHeartCounter(row);
+      heartCountersReady = true;
+      for (const button of heartCounterButtons) {
+        button.disabled = button.dataset.saving === "true";
+      }
+      heartCounterStatus.textContent = "Shared counts are up to date. Tap the right counter to add a heart.";
+    }
+
+    function reportHeartCounterError(error, action) {
+      console.error(`Could not ${action} the shared heart counters.`, error);
+      const detail = error instanceof Error ? error.message : String(error);
+      heartCounterStatus.textContent = `Shared heart counters unavailable. Run the latest setup.sql in Supabase. Details: ${detail}`;
+    }
+
+    async function addHeartToCounter(button) {
+      const counterId = button.dataset.heartCounter;
+      if (!heartCountersReady || !heartCounts.has(counterId) || button.disabled) return;
+      button.disabled = true;
+      button.dataset.saving = "true";
+      heartCounterStatus.textContent = "Adding your heart to the shared count…";
+      try {
+        const rows = await request("/rest/v1/rpc/increment_heart_counter", {
+          method: "POST",
+          body: JSON.stringify({ p_counter_id: counterId })
+        });
+        if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.counter_id !== counterId) {
+          throw new Error("The shared heart counter did not confirm the increment.");
+        }
+        updateHeartCounter(rows[0]);
+        const bounds = button.getBoundingClientRect();
+        shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+        button.classList.remove("bump");
+        void button.offsetWidth;
+        button.classList.add("bump");
+        const previousTimeout = heartCounterAnimationTimeouts.get(counterId);
+        if (previousTimeout !== undefined) window.clearTimeout(previousTimeout);
+        const animationTimeout = window.setTimeout(() => {
+          button.classList.remove("bump");
+          heartCounterAnimationTimeouts.delete(counterId);
+        }, 380);
+        heartCounterAnimationTimeouts.set(counterId, animationTimeout);
+        heartCounterStatus.textContent = "Heart added! The shared count is saved and only goes up.";
+      } catch (error) {
+        reportHeartCounterError(error, "add to");
+      } finally {
+        delete button.dataset.saving;
+        button.disabled = !heartCountersReady;
+      }
+    }
+
     function shootTapHeart(x, y, animalHeart = false) {
       playSound("heart");
-      heartsSent += 1;
-      heartCountDisplay.textContent = String(heartsSent);
-      heartCounter.classList.remove("bump");
-      void heartCounter.offsetWidth;
-      heartCounter.classList.add("bump");
-      if (heartCounterAnimationTimeout !== null) window.clearTimeout(heartCounterAnimationTimeout);
-      heartCounterAnimationTimeout = window.setTimeout(() => {
-        heartCounter.classList.remove("bump");
-        heartCounterAnimationTimeout = null;
-      }, 380);
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
       heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
@@ -2988,9 +3085,13 @@
       if (!(event.target instanceof Element)) return;
       const button = event.target.closest("button");
       if (!button || button.disabled ||
-          button.matches(".bingo-cell, .animal-sticker, #surprise-button, #sound-toggle") ||
+          button.matches(".bingo-cell, .animal-sticker, .heart-counter, #surprise-button, #sound-toggle") ||
           button.closest("#game-play")) return;
       playSound("tap");
+    });
+
+    heartCounterButtons.forEach((button) => {
+      button.addEventListener("click", () => { void addHeartToCounter(button); });
     });
 
     soundToggleButton.addEventListener("click", () => {
@@ -3159,6 +3260,7 @@
       if (!backendConfigured) {
         setMessage("Welcome back, Subaba! 💖 The board isn't connected yet. Check the setup steps in the README.");
         gameLeaderboardStatus.textContent = "Connect the shared database to load scores.";
+        heartCounterStatus.textContent = "Connect Supabase and run the latest setup.sql to enable shared counts.";
         surpriseButton.disabled = true;
         return;
       }
@@ -3172,6 +3274,11 @@
       } catch (error) {
         reportGameLeaderboardError(error, "load");
       }
+      try {
+        await loadHeartCounters();
+      } catch (error) {
+        reportHeartCounterError(error, "load");
+      }
       window.setInterval(async () => {
         if (saving || polling) return;
         polling = true;
@@ -3180,6 +3287,11 @@
         } catch (error) {
           console.error("Could not refresh the shared bingo board.", error);
           setMessage("Welcome back, Subaba! 💖 Board sync paused for a sec. Check your connection; we'll try again.");
+        }
+        try {
+          await loadHeartCounters();
+        } catch (error) {
+          reportHeartCounterError(error, "refresh");
         } finally {
           polling = false;
         }
