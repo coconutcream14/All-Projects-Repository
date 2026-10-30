@@ -855,6 +855,12 @@
     .heart-counter:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(145, 93, 120, .13); }
     .heart-counter:focus-visible { outline: 3px solid #758f9b; outline-offset: 3px; }
     .heart-counter:disabled { cursor: wait; opacity: .7; }
+    .heart-counter[aria-pressed="true"] {
+      border: 2px solid #a45e7d;
+      background: linear-gradient(115deg, #ffe9f0, #f8e6f0 58%, #ebe5f4);
+      box-shadow: 0 0 0 3px rgba(212, 149, 173, .2), 0 6px 14px rgba(145, 93, 120, .13);
+    }
+
     .heart-counter-status { min-height: 1.2em; margin: 0; color: var(--muted); font-size: .68rem; }
 
     .heart-counter-icon {
@@ -1351,26 +1357,24 @@
           </div>
 
           <section class="heart-counters" aria-labelledby="heart-counters-heading">
-            <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts 💝</h2>
+            <h2 class="heart-counters-heading" id="heart-counters-heading">Our hearts</h2>
             <div class="heart-counter-list">
-              <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Add one heart that I sent to my best friend" disabled>
-                <span class="heart-counter-icon" aria-hidden="true">💝</span>
+              <button class="heart-counter" type="button" data-heart-counter="to_best_friend" aria-label="Choose Subaba's hearts (from Tabya) as the destination for page taps" aria-pressed="false" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">🩷</span>
                 <span class="heart-counter-copy">
-                  <span class="heart-counter-kicker">TAP TO ADD ONE · YOUR SIDE</span>
-                  <span class="heart-counter-title">Subaba hearts (from Tabya)</span>
+                  <span class="heart-counter-title">Subaba's hearts</span>
                 </span>
                 <strong class="heart-counter-number" data-heart-count="to_best_friend" aria-live="polite" aria-atomic="true">—</strong>
               </button>
-              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Add one heart that my best friend sent to me" disabled>
-                <span class="heart-counter-icon" aria-hidden="true">💝</span>
+              <button class="heart-counter" type="button" data-heart-counter="from_best_friend" aria-label="Choose Tabya's hearts (from Suababa) as the destination for page taps" aria-pressed="false" disabled>
+                <span class="heart-counter-icon" aria-hidden="true">🩵</span>
                 <span class="heart-counter-copy">
-                  <span class="heart-counter-kicker">TAP TO ADD ONE · BEST FRIEND'S SIDE</span>
-                  <span class="heart-counter-title">Tabya hearts (from Subaba)</span>
+                  <span class="heart-counter-title">Tabya's hearts</span>
                 </span>
                 <strong class="heart-counter-number" data-heart-count="from_best_friend" aria-live="polite" aria-atomic="true">—</strong>
               </button>
             </div>
-            <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared heart counts…</p>
+            <p class="heart-counter-status" id="heart-counter-status" aria-live="polite">Loading shared counts… Choose a counter to direct your page taps.</p>
           </section>
 
           <div class="divider" aria-hidden="true"></div>
@@ -1430,6 +1434,7 @@
       Array.from(document.querySelectorAll("[data-heart-count]"))
         .map((element) => [element.dataset.heartCount, element])
     );
+    let selectedHeartCounterId = null;
     const animalDialog = document.getElementById("animal-dialog");
     const animalDialogClose = document.getElementById("animal-dialog-close");
     const animalDialogTitle = document.getElementById("animal-dialog-title");
@@ -2014,9 +2019,11 @@
       for (const row of rows) updateHeartCounter(row);
       heartCountersReady = true;
       for (const button of heartCounterButtons) {
-        button.disabled = button.dataset.saving === "true";
+        button.disabled = false;
       }
-      heartCounterStatus.textContent = "Shared counts are up to date. Tap the right counter to add a heart.";
+      heartCounterStatus.textContent = selectedHeartCounterId
+        ? "Shared counts are up to date. Page taps will add hearts to the selected counter."
+        : "Shared counts are up to date. Choose a counter; page taps will add hearts to it.";
     }
 
     function reportHeartCounterError(error, action) {
@@ -2025,12 +2032,21 @@
       heartCounterStatus.textContent = `Shared heart counters unavailable. Run the latest setup.sql in Supabase. Details: ${detail}`;
     }
 
-    async function addHeartToCounter(button) {
+    function selectHeartCounter(button) {
       const counterId = button.dataset.heartCounter;
       if (!heartCountersReady || !heartCounts.has(counterId) || button.disabled) return;
-      button.disabled = true;
-      button.dataset.saving = "true";
-      heartCounterStatus.textContent = "Adding your heart to the shared count…";
+      selectedHeartCounterId = counterId;
+      for (const counterButton of heartCounterButtons) {
+        const selected = counterButton.dataset.heartCounter === selectedHeartCounterId;
+        counterButton.setAttribute("aria-pressed", String(selected));
+      }
+      playSound("tap");
+      heartCounterStatus.textContent = `${button.querySelector(".heart-counter-title").textContent} selected. Page taps will add hearts here.`;
+    }
+
+    async function incrementSelectedHeartCounter() {
+      const counterId = selectedHeartCounterId;
+      if (!heartCountersReady || !counterId || !heartCounts.has(counterId)) return;
       try {
         const rows = await request("/rest/v1/rpc/increment_heart_counter", {
           method: "POST",
@@ -2040,29 +2056,29 @@
           throw new Error("The shared heart counter did not confirm the increment.");
         }
         updateHeartCounter(rows[0]);
-        const bounds = button.getBoundingClientRect();
-        shootTapHeart(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
-        button.classList.remove("bump");
-        void button.offsetWidth;
-        button.classList.add("bump");
-        const previousTimeout = heartCounterAnimationTimeouts.get(counterId);
-        if (previousTimeout !== undefined) window.clearTimeout(previousTimeout);
-        const animationTimeout = window.setTimeout(() => {
-          button.classList.remove("bump");
-          heartCounterAnimationTimeouts.delete(counterId);
-        }, 380);
-        heartCounterAnimationTimeouts.set(counterId, animationTimeout);
-        heartCounterStatus.textContent = "Heart added! The shared count is saved and only goes up.";
+        const selectedButton = Array.from(heartCounterButtons)
+          .find((button) => button.dataset.heartCounter === counterId);
+        if (selectedButton) {
+          selectedButton.classList.remove("bump");
+          void selectedButton.offsetWidth;
+          selectedButton.classList.add("bump");
+          const previousTimeout = heartCounterAnimationTimeouts.get(counterId);
+          if (previousTimeout !== undefined) window.clearTimeout(previousTimeout);
+          const animationTimeout = window.setTimeout(() => {
+            selectedButton.classList.remove("bump");
+            heartCounterAnimationTimeouts.delete(counterId);
+          }, 380);
+          heartCounterAnimationTimeouts.set(counterId, animationTimeout);
+        }
+        heartCounterStatus.textContent = `${selectedButton?.querySelector(".heart-counter-title").textContent || "Heart"} added to the shared count.`;
       } catch (error) {
-        reportHeartCounterError(error, "add to");
-      } finally {
-        delete button.dataset.saving;
-        button.disabled = !heartCountersReady;
+        reportHeartCounterError(error, "increment");
       }
     }
 
     function shootTapHeart(x, y, animalHeart = false) {
       playSound("heart");
+      void incrementSelectedHeartCounter();
       const heart = document.createElement("span");
       heart.className = `tap-heart${animalHeart ? " animal-heart" : ""}`;
       heart.textContent = animalHeart ? "💝" : tapHeartEmojis[tapHeartIndex % tapHeartEmojis.length];
@@ -3091,7 +3107,7 @@
     });
 
     heartCounterButtons.forEach((button) => {
-      button.addEventListener("click", () => { void addHeartToCounter(button); });
+      button.addEventListener("click", () => selectHeartCounter(button));
     });
 
     soundToggleButton.addEventListener("click", () => {

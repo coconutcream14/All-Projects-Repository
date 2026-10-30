@@ -30,6 +30,18 @@ delete from public.minigame_records;
 This clears all four games' best scores and Puppy Treat Tap completion counts. Afterward, new Puppy Treat Tap finishes will be counted normally.
 If scores already existed before the completion counter was added, their count starts at zero because earlier finishes were not tracked.
 
+### Reset the heart counters
+
+The heart counts normally only increase, and rerunning `setup.sql` preserves them. To correct a mistaken test tap or start both at zero, open Supabase **SQL Editor** and run this as the project owner:
+
+```sql
+update public.heart_counters
+set heart_count = 0
+where counter_id in ('to_best_friend', 'from_best_friend');
+```
+
+This reset is not available on the public website. Page taps can add hearts again after the reset.
+
 ### 3. Add your own animal pictures (optional)
 
 Click any baby animal around the board to open its picture popup. To add a photo:
@@ -58,9 +70,9 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 
 - Anyone with the link can check or uncheck squares; changes are saved in Supabase and sync to other visitors.
 - **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
-- The two **Our hearts** buttons keep shared totals: tap **Hearts I sent to my best friend** when you send a heart, or **Hearts my best friend sent me** when she sends one. Each tap is saved to Supabase, stays counted after refresh, and only increases; ordinary taps that make floating hearts do not change either total.
+- The two **Our hearts** buttons keep shared totals. At the start of each visit, select either **Subaba's hearts** (🩷) or **Tabya's hearts** (🩵); that choice is highlighted. Page taps that make floating hearts—including taps on an opened animal picture—then increment the selected shared counter. Select the other counter to switch where future taps are counted. The choice lasts for the current page visit; the totals are saved to Supabase and remain between visits.
 - Gentle synthesized sound effects accompany board taps, hearts, bingo wins, mini-game actions, powers, and completions. Use the **Sound on/off** button in the board header to mute or restore them; no audio files are downloaded.
 - Clicking a baby animal opens its photo popup. Tap an animal (including its opened photo) to send up a pink ribbon heart (💝); tapping empty page space sends up a different colored heart each time. Buttons and bingo squares keep their normal actions. Completing a row, column, or diagonal gets its own animal reaction and colorful celebration.
 - **Take a tiny game break** opens four cute mini-games, all separate from the shared bingo board. Each has a rechargeable power with an on-screen energy bar: Paw Catcher's paw magnet (M) pulls animals toward the basket; Kitty Memory's peek (P) briefly reveals unmatched cards; Puppy Treat Tap's time-freeze (F) pauses treat timers; and Bunny Hop has a carrot dash (→ or Shift) that speeds up hazards but doubles carrots, plus a separate invincibility shield (X) that blocks puddle penalties. Bunny Hop powers each have their own bar. Paw Catcher gets faster as the round goes on, Kitty Memory has 8 pairs, Bunny Hop has a quicker obstacle pace in its 30-second run, and Puppy Treat Tap has a 15-treat goal with a quicker spawn pace and only two treats visible at once. **Subaba's da winner!** below the game button saves the best for each completed game: most caught animals or carrots, fewest Kitty Memory moves, and Puppy Treat Tap's completion count.
 - The board has no website controls for editing prompts or clearing everyone's check-offs. Change prompts through the Supabase dashboard if needed.
-- The database uses row-level security and column-level grants: the public role can update only bingo `checked` status, submit mini-game scores through a score-checking function, and increment either heart counter through an increment-only function, while prompt edits require the configured owner account. Since the site has no player sign-in, anyone with the link can choose either heart counter or submit leaderboard scores; the counters are designed to only increase through the site, but they are intended for fun, not as a tamper-proof record.
+- The database uses row-level security and column-level grants: the public role can update only bingo `checked` status, submit mini-game scores through a score-checking function, and increment either heart counter through an increment-only function, while prompt edits and heart-counter resets require the configured owner account. Since the site has no player sign-in, anyone with the link can choose either heart counter or submit leaderboard scores; the counters are designed to only increase through the site, but they are intended for fun, not as a tamper-proof record.
