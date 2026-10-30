@@ -151,7 +151,7 @@ GitHub Pages is available for public repositories on GitHub Free. If this reposi
 
 - The navigation tabs open full pages for the bingo board, mini-games, memory wall, badges, question of the day, and compliments.
 - Use **Twilight mode** beside **Sound on/off** in the board header to switch between the original palette and a starry dark theme. The choice is saved in this browser.
-- The board sidebar stacks the quote, active player's timeline, and both heart counters; the mini-games are opened from the **Mini-games** navigation tab.
+- The “I made you a bingo card” note sits in line with **Whose junior year?**, above the board and timeline; the mini-games are opened from the **Mini-games** navigation tab.
 - Anyone with the link can check or uncheck squares and edit the prompts; changes are saved in Supabase and sync to other visitors.
 - **Pick a square** chooses an unchecked prompt, scrolls it into view, and highlights it with a paw marker for a few seconds.
 - The two **Our hearts** buttons keep shared totals. At the start of each visit, select either **Subaba's hearts** (🩷) or **Tabya's hearts** (🩵); that choice is highlighted. Page taps that make floating hearts—including taps on an opened animal picture—then increment the selected shared counter. Select the other counter to switch where future taps are counted, or tap the selected counter again to deselect it. With no counter selected, floating hearts still appear but do not change either total. The choice lasts for the current page visit; the totals are saved to Supabase and remain between visits.

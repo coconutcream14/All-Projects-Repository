@@ -210,6 +210,8 @@
     .bingo-prompt-editor { margin: 0 24px 24px; }
     .prompt-editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
     .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 18px 22px 0; text-align: center; }
+    .board-owner-switch-topline { display: flex; width: min(100%, 900px); align-items: center; justify-content: space-between; gap: 16px; }
+    .board-owner-switch-topline .note-card { flex: 0 1 390px; padding: 8px 13px; }
     .board-owner-switch-label { color: #65566d; font-size: .9rem; font-weight: 900; }
     .board-owner-choice[aria-pressed="true"] { border-color: #a45e7d; background: #f7e1ea; box-shadow: 0 0 0 3px rgba(212, 149, 173, .18); }
     .board-owner-switch .feature-status { margin: 0; }
@@ -1570,6 +1572,11 @@
       .theme-toggle { font-size: .72rem; }
     }
 
+    @media (max-width: 560px) {
+      .board-owner-switch-topline { flex-direction: column; gap: 8px; }
+      .board-owner-switch-topline .note-card { width: 100%; flex-basis: auto; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
       h1 span { animation: none; }
@@ -1714,7 +1721,10 @@
       <audio id="heart-sound-audio" src="./deep_thought.mp3" preload="auto"></audio>
 
       <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
-        <span class="board-owner-switch-label">Whose junior year?</span>
+        <div class="board-owner-switch-topline">
+          <span class="board-owner-switch-label">Whose junior year?</span>
+          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
+        </div>
         <div class="player-choice-list">
           <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
           <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
@@ -1738,7 +1748,6 @@
         </div>
 
         <aside class="side-panel" aria-label="Bingo controls and progress">
-          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
           <div class="progress-block">
             <p class="side-kicker">So far</p>
             <div class="progress-heading">
