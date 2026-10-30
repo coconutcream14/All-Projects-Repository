@@ -23,14 +23,13 @@ The setup file also updates mini-game score rules and the score-saving function.
 
 ### Reset the mini-game leaderboard
 
-The public website does not have a clear button, so visitors cannot erase the shared scores. To remove your test scores before sharing the link, open the Supabase project's **SQL Editor** and run this as the project owner:
+To reset both players' saved mini-game leaderboard records, open the Supabase project's **SQL Editor** and run this as the project owner:
 
 ```sql
 delete from public.minigame_records;
 ```
 
-This clears all four games' best scores and Puppy Treat Tap completion counts. Afterward, new Puppy Treat Tap finishes will be counted normally.
-If scores already existed before the completion counter was added, their count starts at zero because earlier finishes were not tracked.
+This permanently clears both Subaba's and Tabya's best scores across all four games, along with Puppy Treat Tap completion counts. The website has no public clear-all button. New play will create fresh records and counts.
 
 ### Reset the heart counters
 
