@@ -209,9 +209,9 @@
     .feature-page { margin-bottom: 24px; }
     .bingo-prompt-editor { margin: 0 24px 24px; }
     .prompt-editor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
-    .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 18px 22px 0; text-align: center; }
-    .board-owner-switch-topline { display: flex; width: min(100%, 900px); align-items: center; justify-content: space-between; gap: 16px; }
-    .board-owner-switch-topline .note-card { flex: 0 1 390px; padding: 8px 13px; }
+    .board-owner-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, .7fr); align-items: center; gap: 12px; padding: 18px 22px 0; }
+    .board-owner-switch { display: grid; justify-items: center; gap: 8px; padding: 0; text-align: center; }
+    .board-owner-note { width: min(100%, 390px); justify-self: center; padding: 12px 14px; }
     .board-owner-switch-label { color: #65566d; font-size: .9rem; font-weight: 900; }
     .board-owner-choice[aria-pressed="true"] { border-color: #a45e7d; background: #f7e1ea; box-shadow: 0 0 0 3px rgba(212, 149, 173, .18); }
     .board-owner-switch .feature-status { margin: 0; }
@@ -1374,6 +1374,7 @@
       --ink: #e8e4f2;
       --muted: #b6b1c8;
       --shadow: 0 22px 58px rgba(4, 6, 18, .38);
+      --twilight-board-button-text: #f4e8f4;
       background:
         radial-gradient(1.5px 1.5px at 12% 18%, rgba(255, 255, 255, .8) 50%, transparent 100%),
         radial-gradient(1px 1px at 79% 12%, rgba(213, 221, 255, .82) 50%, transparent 100%),
@@ -1512,7 +1513,24 @@
     body[data-theme="twilight"] .board-owner-choice[aria-pressed="true"] {
       border-color: #a77a9d;
       background: #51405b;
-      color: #f4e8f4;
+      color: var(--twilight-board-button-text);
+    }
+
+    body[data-theme="twilight"] .animal-sticker {
+      border-color: #a77a9d;
+      background: var(--twilight-board-button-text);
+    }
+
+    body[data-theme="twilight"] .tap-heart.animal-heart {
+      padding: 8px;
+      border-radius: 50%;
+      background: var(--twilight-board-button-text);
+    }
+
+    body[data-theme="twilight"] .compliment-display {
+      border-color: #a77a9d;
+      background: var(--twilight-board-button-text);
+      color: #51405b;
     }
 
     body[data-theme="twilight"] .feature-action.secondary { background: #3d3a52; color: #e4dff0; }
@@ -1573,8 +1591,7 @@
     }
 
     @media (max-width: 560px) {
-      .board-owner-switch-topline { flex-direction: column; gap: 8px; }
-      .board-owner-switch-topline .note-card { width: 100%; flex-basis: auto; }
+      .board-owner-layout { grid-template-columns: 1fr; gap: 10px; padding-right: 16px; padding-left: 16px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1720,18 +1737,18 @@
       </div>
       <audio id="heart-sound-audio" src="./deep_thought.mp3" preload="auto"></audio>
 
-      <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
-        <div class="board-owner-switch-topline">
+      <div class="board-owner-layout">
+        <section class="board-owner-switch" aria-label="Choose whose bingo board to view">
           <span class="board-owner-switch-label">Whose junior year?</span>
-          <div class="note-card">“I made you a bingo card. Obviously.”<span>♡</span></div>
-        </div>
-        <div class="player-choice-list">
-          <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
-          <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
-        </div>
-        <p class="feature-status">Your check-offs and progress save separately; the prompts stay the same on both boards.</p>
-        <p class="feature-status" id="board-owner-status" role="status" aria-live="polite"></p>
-      </section>
+          <div class="player-choice-list">
+            <button class="feature-action board-owner-choice" type="button" data-board-owner="Subaba" aria-pressed="true">🩷 Subaba's board</button>
+            <button class="feature-action board-owner-choice" type="button" data-board-owner="Tabya" aria-pressed="false">🩵 Tabya's board</button>
+          </div>
+          <p class="feature-status">Your check-offs and progress save separately; the prompts stay the same on both boards.</p>
+          <p class="feature-status" id="board-owner-status" role="status" aria-live="polite"></p>
+        </section>
+        <div class="note-card board-owner-note">“I made you a bingo card. Obviously.”<span>♡</span></div>
+      </div>
 
       <div class="game-layout">
         <div class="board-wrap">
